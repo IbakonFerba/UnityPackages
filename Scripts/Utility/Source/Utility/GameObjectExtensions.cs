@@ -4,6 +4,11 @@ using System.Collections;
 namespace FK.Utility
 {
     /// <summary>
+    /// Callback for a finished Coroutine
+    /// </summary>
+    public delegate void CoroutineCallback();
+
+    /// <summary>
     /// Extension Methods for GameObject
     /// </summary>
     public static class GameObjectExtensions
@@ -31,8 +36,6 @@ namespace FK.Utility
         #region INTERPOLATION
         public delegate float DelProgressMappingFunction(float progress);
 
-        public delegate void DelInterpolationFinished();
-
 
         /// <summary>
         /// Interpolates Position, Rotation and Scale of the given transform
@@ -46,7 +49,7 @@ namespace FK.Utility
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <param name="finished">Delegate function that is called when the interpolation is finished</param>
         /// <returns></returns>
-        private static IEnumerator InterpolateTransform(Transform trans, Vector3 targetPos, Quaternion targetRot, Vector3 targetScale, float duration, Space space, DelProgressMappingFunction progressMapping, DelInterpolationFinished finished)
+        private static IEnumerator InterpolateTransform(Transform trans, Vector3 targetPos, Quaternion targetRot, Vector3 targetScale, float duration, Space space, DelProgressMappingFunction progressMapping, CoroutineCallback finished)
         {
             // set start values
             Vector3 startPos;
@@ -157,7 +160,7 @@ namespace FK.Utility
         /// <param name="finished">Delegate function that is called when the interpolation is finished</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Transform target, float duration, Space space, DelInterpolationFinished finished, DelProgressMappingFunction progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Transform target, float duration, Space space, CoroutineCallback finished, DelProgressMappingFunction progressMapping = null)
         {
             return host.StartCoroutine(InterpolateTransform(transform, space == Space.Self ? target.localPosition : target.position, space == Space.Self ? target.localRotation : target.rotation, target.localScale, duration, space, progressMapping, finished));
         }
@@ -192,7 +195,7 @@ namespace FK.Utility
         /// <param name="finished">Delegate function that is called when the interpolation is finished</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, Quaternion rotation, Vector3 scale, float duration, Space space, DelInterpolationFinished finished, DelProgressMappingFunction progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, Quaternion rotation, Vector3 scale, float duration, Space space, CoroutineCallback finished, DelProgressMappingFunction progressMapping = null)
         {
             return host.StartCoroutine(InterpolateTransform(transform, position, rotation, scale, duration, space, progressMapping, finished));
         }
@@ -225,7 +228,7 @@ namespace FK.Utility
         /// <param name="finished">Delegate function that is called when the interpolation is finished</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, Quaternion rotation, float duration, Space space, DelInterpolationFinished finished, DelProgressMappingFunction progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, Quaternion rotation, float duration, Space space, CoroutineCallback finished, DelProgressMappingFunction progressMapping = null)
         {
             return host.StartCoroutine(InterpolateTransform(transform, position, rotation, transform.localScale, duration, space, progressMapping, finished));
         }
@@ -258,7 +261,7 @@ namespace FK.Utility
         /// <param name="finished">Delegate function that is called when the interpolation is finished</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, Vector3 scale, float duration, Space space, DelInterpolationFinished finished, DelProgressMappingFunction progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, Vector3 scale, float duration, Space space, CoroutineCallback finished, DelProgressMappingFunction progressMapping = null)
         {
             return host.StartCoroutine(InterpolateTransform(transform, position, transform.rotation, scale, duration, space, progressMapping, finished));
         }
@@ -291,7 +294,7 @@ namespace FK.Utility
         /// <param name="finished">Delegate function that is called when the interpolation is finished</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Quaternion rotation, Vector3 scale, float duration, Space space, DelInterpolationFinished finished, DelProgressMappingFunction progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Quaternion rotation, Vector3 scale, float duration, Space space, CoroutineCallback finished, DelProgressMappingFunction progressMapping = null)
         {
             return host.StartCoroutine(InterpolateTransform(transform, transform.position, rotation, scale, duration, space, progressMapping, finished));
         }
@@ -322,7 +325,7 @@ namespace FK.Utility
         /// <param name="finished">Delegate function that is called when the interpolation is finished</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, float duration, Space space, DelInterpolationFinished finished, DelProgressMappingFunction progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, float duration, Space space, CoroutineCallback finished, DelProgressMappingFunction progressMapping = null)
         {
             return host.StartCoroutine(InterpolateTransform(transform, position, transform.rotation, transform.localScale, duration, space, progressMapping, finished));
         }
@@ -354,7 +357,7 @@ namespace FK.Utility
         /// <param name="finished">Delegate function that is called when the interpolation is finished</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Quaternion rotation, float duration, Space space, DelInterpolationFinished finished, DelProgressMappingFunction progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Quaternion rotation, float duration, Space space, CoroutineCallback finished, DelProgressMappingFunction progressMapping = null)
         {
             return host.StartCoroutine(InterpolateTransform(transform, transform.position, rotation, transform.localScale, duration, space, progressMapping, finished));
         }
@@ -383,7 +386,7 @@ namespace FK.Utility
         /// <param name="finished">Delegate function that is called when the interpolation is finished</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 scale, float duration, DelInterpolationFinished finished, DelProgressMappingFunction progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 scale, float duration, CoroutineCallback finished, DelProgressMappingFunction progressMapping = null)
         {
             return host.StartCoroutine(InterpolateTransform(transform, transform.position, transform.rotation, scale, duration, Space.Self, progressMapping, finished));
         }
