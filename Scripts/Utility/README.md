@@ -15,5 +15,5 @@ Everything in this class is in the namespace `FK.Utility`
 - `TransformExtensions`: Extension Methods for Transform and RectTransform. (Interpolation, SetAnchoredSize, FindDeepChildren)
 Everything in this class is in the namespace `FK.Utility`
 
-- `MathExtensionMethods`: Extensions for math operations on math types. (Remapping of numbers)
+- `MathExtensionMethods`: Extensions for math operations on math types. (Remapping of numbers, formatting of numbers)
 Everything in this class is in the namespace `FK.Utility.MathExtensions`
