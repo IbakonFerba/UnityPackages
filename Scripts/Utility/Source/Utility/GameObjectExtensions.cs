@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using FK.Utility.Binary;
 
 namespace FK.Utility
 {
@@ -21,7 +22,7 @@ namespace FK.Utility
         public static void SetLayerRecursively(this GameObject gameObject, int layer)
         {
             gameObject.layer = layer;
-            foreach(Transform child in gameObject.transform)
+            foreach (Transform child in gameObject.transform)
             {
                 child.gameObject.SetLayerRecursively(layer);
             }
@@ -36,46 +37,54 @@ namespace FK.Utility
         #region INTERPOLATION
         public delegate float DelProgressMappingFunction(float progress);
 
+        /// <summary>
+        /// A container for Position, rotation and scale with a bitmask that indicates which of these values to use
+        /// </summary>
+        private struct InterpolationTransform
+        {
+            public Vector3 position;
+            public Quaternion rotation;
+            public Vector3 scale;
+            /// <summary>
+            /// A Bitmask for which of the transform values to use. Counted from the lest significant bit, bit 0 is position, bit 1 is rotation and bit 2 is scale
+            /// </summary>
+            public byte valuesToUse;
+        }
+
 
         /// <summary>
         /// Interpolates Position, Rotation and Scale of the given transform
         /// </summary>
         /// <param name="trans">The transform to manipulate</param>
-        /// <param name="targetPos">The Position to interpolate to</param>
-        /// <param name="targetRot">The Rotation to interpolate to</param>
-        /// <param name="targetScale">The Scale to interpolate to</param>
+        /// <param name="targetTrans">Container for target position, rotation and scale, containing info which of these values to use</param>
         /// <param name="duration">The amount of time in seconds the interpolation should take</param>
         /// <param name="space">Operate in world or local space</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <param name="finished">Delegate function that is called when the interpolation is finished</param>
         /// <returns></returns>
-        private static IEnumerator InterpolateTransform(Transform trans, Vector3 targetPos, Quaternion targetRot, Vector3 targetScale, float duration, Space space, DelProgressMappingFunction progressMapping, CoroutineCallback finished)
+        private static IEnumerator InterpolateTransform(Transform trans, InterpolationTransform targetTrans, float duration, Space space, DelProgressMappingFunction progressMapping, CoroutineCallback finished)
         {
-            // set start values
-            Vector3 startPos;
-            Quaternion startRot;
-            Vector3 startScale = trans.localScale;
+            //Create neede variables
+            Vector3 startPos = space == Space.Self ? trans.localPosition : trans.position;
+            Quaternion startRot = space == Space.Self ? trans.localRotation : trans.rotation; ;
+            Vector3 startScale = trans.localScale; ;
 
-            if (space == Space.Self)
-            {
-                startPos = trans.localPosition;
-                startRot = trans.localRotation;
-            } else
-            {
-                startPos = trans.position;
-                startRot = trans.rotation;
-            }
+            // fins out which values we should interpolate
+            bool usePos = targetTrans.valuesToUse.GetBitValue(0);
+            bool useRot = targetTrans.valuesToUse.GetBitValue(1);
+            bool useScale = targetTrans.valuesToUse.GetBitValue(2);
 
 
             float progress = 0;
             while (progress < 1)
             {
+                // map progress
                 float mappedProgress = progressMapping != null ? Mathf.Clamp01(progressMapping(progress)) : progress;
 
-                // lerp position if start and target are different
-                if(targetPos != startPos)
+                // interpolate position if needed
+                if (usePos)
                 {
-                    Vector3 lerpedPos = Vector3.Lerp(startPos, targetPos, mappedProgress);
+                    Vector3 lerpedPos = Vector3.Lerp(startPos, targetTrans.position, mappedProgress);
 
                     if (space == Space.Self)
                     {
@@ -87,10 +96,11 @@ namespace FK.Utility
                     }
                 }
 
-                // lerp rotation if start and target are different
-                if (targetRot != startRot)
+
+                // interpolate rotation if needed
+                if (useRot)
                 {
-                    Quaternion lerpedRot = Quaternion.Lerp(startRot, targetRot, mappedProgress);
+                    Quaternion lerpedRot = Quaternion.Lerp(startRot, targetTrans.rotation, mappedProgress);
 
                     if (space == Space.Self)
                     {
@@ -102,10 +112,11 @@ namespace FK.Utility
                     }
                 }
 
-                // lerp scale if start and target are different
-                if (targetScale != startScale)
+
+                // interpolate scale if needed
+                if (useScale)
                 {
-                    Vector3 lerpedScale = Vector3.Lerp(startScale, targetScale, mappedProgress);
+                    Vector3 lerpedScale = Vector3.Lerp(startScale, targetTrans.scale, mappedProgress);
 
                     trans.localScale = lerpedScale;
                 }
@@ -115,19 +126,36 @@ namespace FK.Utility
             }
 
             // set final values
-            trans.localScale = targetScale;
-
-            if (space == Space.Self)
+            if (usePos)
             {
-                trans.localPosition = targetPos;
-                trans.localRotation = targetRot;
-            }
-            else
-            {
-                trans.position = targetPos;
-                trans.rotation = targetRot;
+                if (space == Space.Self)
+                {
+                    trans.localPosition = targetTrans.position;
+                }
+                else
+                {
+                    trans.position = targetTrans.position;
+                }
             }
 
+            if (useRot)
+            {
+                if (space == Space.Self)
+                {
+                    trans.localRotation = targetTrans.rotation;
+                }
+                else
+                {
+                    trans.rotation = targetTrans.rotation;
+                }
+            }
+
+            if (useScale)
+            {
+                trans.localScale = targetTrans.scale;
+            }
+
+            // call delegate
             if (finished != null)
                 finished();
         }
@@ -139,14 +167,29 @@ namespace FK.Utility
         /// </summary>
         /// <param name="transform">The Transform to manipulate</param>
         /// <param name="host">MonoBehaviour to run the Coroutine on</param>
-        /// <param name="target">The Transform to interpolate to</param>
+        /// <param name="targetTransform">The Transform to interpolate to</param>
         /// <param name="duration">The amount of time in seconds the interpolation should take</param>
         /// <param name="space">Operate in world or local space</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Transform target, float duration, Space space, DelProgressMappingFunction progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Transform targetTransform, float duration, Space space, DelProgressMappingFunction progressMapping = null)
         {
-            return host.StartCoroutine(InterpolateTransform(transform, space == Space.Self ? target.localPosition : target.position, space == Space.Self ? target.localRotation : target.rotation, target.localScale, duration, space, progressMapping, null));
+            InterpolationTransform target = new InterpolationTransform();
+            if (space == Space.Self)
+            {
+                target.position = targetTransform.localPosition;
+                target.rotation = targetTransform.localRotation;
+            }
+            else
+            {
+                target.position = targetTransform.position;
+                target.rotation = targetTransform.rotation;
+            }
+            target.scale = targetTransform.localScale;
+
+            target.valuesToUse = 7; // 00000111
+
+            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
         }
 
         /// <summary>
@@ -154,15 +197,30 @@ namespace FK.Utility
         /// </summary>
         /// <param name="transform">The Transform to manipulate</param>
         /// <param name="host">MonoBehaviour to run the Coroutine on</param>
-        /// <param name="target">The Transform to interpolate to</param>
+        /// <param name="targetTransform">The Transform to interpolate to</param>
         /// <param name="duration">The amount of time in seconds the interpolation should take</param>
         /// <param name="space">Operate in world or local space</param>
         /// <param name="finished">Delegate function that is called when the interpolation is finished</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Transform target, float duration, Space space, CoroutineCallback finished, DelProgressMappingFunction progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Transform targetTransform, float duration, Space space, CoroutineCallback finished, DelProgressMappingFunction progressMapping = null)
         {
-            return host.StartCoroutine(InterpolateTransform(transform, space == Space.Self ? target.localPosition : target.position, space == Space.Self ? target.localRotation : target.rotation, target.localScale, duration, space, progressMapping, finished));
+            InterpolationTransform target = new InterpolationTransform();
+            if (space == Space.Self)
+            {
+                target.position = targetTransform.localPosition;
+                target.rotation = targetTransform.localRotation;
+            }
+            else
+            {
+                target.position = targetTransform.position;
+                target.rotation = targetTransform.rotation;
+            }
+            target.scale = targetTransform.localScale;
+
+            target.valuesToUse = 7; // 00000111
+
+            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
         }
 
         /// <summary>
@@ -179,7 +237,15 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, Quaternion rotation, Vector3 scale, float duration, Space space, DelProgressMappingFunction progressMapping = null)
         {
-            return host.StartCoroutine(InterpolateTransform(transform, position, rotation, scale, duration, space, progressMapping, null));
+            InterpolationTransform target = new InterpolationTransform();
+
+            target.position = position;
+            target.rotation = rotation;
+            target.scale = scale;
+
+            target.valuesToUse = 7; // 00000111
+
+            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
         }
 
         /// <summary>
@@ -197,7 +263,15 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, Quaternion rotation, Vector3 scale, float duration, Space space, CoroutineCallback finished, DelProgressMappingFunction progressMapping = null)
         {
-            return host.StartCoroutine(InterpolateTransform(transform, position, rotation, scale, duration, space, progressMapping, finished));
+            InterpolationTransform target = new InterpolationTransform();
+
+            target.position = position;
+            target.rotation = rotation;
+            target.scale = scale;
+
+            target.valuesToUse = 7; // 00000111
+
+            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
         }
 
         /// <summary>
@@ -213,7 +287,14 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, Quaternion rotation, float duration, Space space, DelProgressMappingFunction progressMapping = null)
         {
-            return host.StartCoroutine(InterpolateTransform(transform, position, rotation, transform.localScale, duration, space, progressMapping, null));
+            InterpolationTransform target = new InterpolationTransform();
+
+            target.position = position;
+            target.rotation = rotation;
+
+            target.valuesToUse = 3; // 00000011
+
+            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
         }
 
         /// <summary>
@@ -230,7 +311,14 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, Quaternion rotation, float duration, Space space, CoroutineCallback finished, DelProgressMappingFunction progressMapping = null)
         {
-            return host.StartCoroutine(InterpolateTransform(transform, position, rotation, transform.localScale, duration, space, progressMapping, finished));
+            InterpolationTransform target = new InterpolationTransform();
+
+            target.position = position;
+            target.rotation = rotation;
+
+            target.valuesToUse = 3; // 00000011
+
+            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
         }
 
         /// <summary>
@@ -246,7 +334,14 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, Vector3 scale, float duration, Space space, DelProgressMappingFunction progressMapping = null)
         {
-            return host.StartCoroutine(InterpolateTransform(transform, position, transform.rotation, scale, duration, space, progressMapping, null));
+            InterpolationTransform target = new InterpolationTransform();
+
+            target.position = position;
+            target.scale = scale;
+
+            target.valuesToUse = 5; // 00000101
+
+            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
         }
 
         /// <summary>
@@ -263,7 +358,14 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, Vector3 scale, float duration, Space space, CoroutineCallback finished, DelProgressMappingFunction progressMapping = null)
         {
-            return host.StartCoroutine(InterpolateTransform(transform, position, transform.rotation, scale, duration, space, progressMapping, finished));
+            InterpolationTransform target = new InterpolationTransform();
+
+            target.position = position;
+            target.scale = scale;
+
+            target.valuesToUse = 5; // 00000101
+
+            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
         }
 
         /// <summary>
@@ -279,7 +381,14 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Quaternion rotation, Vector3 scale, float duration, Space space, DelProgressMappingFunction progressMapping = null)
         {
-            return host.StartCoroutine(InterpolateTransform(transform, transform.position, rotation, scale, duration, space, progressMapping, null));
+            InterpolationTransform target = new InterpolationTransform();
+
+            target.rotation = rotation;
+            target.scale = scale;
+
+            target.valuesToUse = 6; // 00000110
+
+            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
         }
 
         /// <summary>
@@ -296,7 +405,14 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Quaternion rotation, Vector3 scale, float duration, Space space, CoroutineCallback finished, DelProgressMappingFunction progressMapping = null)
         {
-            return host.StartCoroutine(InterpolateTransform(transform, transform.position, rotation, scale, duration, space, progressMapping, finished));
+            InterpolationTransform target = new InterpolationTransform();
+
+            target.rotation = rotation;
+            target.scale = scale;
+
+            target.valuesToUse = 6; // 00000110
+
+            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
         }
 
         /// <summary>
@@ -311,7 +427,13 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, float duration, Space space, DelProgressMappingFunction progressMapping = null)
         {
-            return host.StartCoroutine(InterpolateTransform(transform, position, transform.rotation, transform.localScale, duration, space, progressMapping, null));
+            InterpolationTransform target = new InterpolationTransform();
+
+            target.position = position;
+
+            target.valuesToUse = 1; // 00000001
+
+            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
         }
 
         /// <summary>
@@ -327,7 +449,13 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, float duration, Space space, CoroutineCallback finished, DelProgressMappingFunction progressMapping = null)
         {
-            return host.StartCoroutine(InterpolateTransform(transform, position, transform.rotation, transform.localScale, duration, space, progressMapping, finished));
+            InterpolationTransform target = new InterpolationTransform();
+
+            target.position = position;
+
+            target.valuesToUse = 1; // 00000001
+
+            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
         }
 
 
@@ -343,7 +471,13 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Quaternion rotation, float duration, Space space, DelProgressMappingFunction progressMapping = null)
         {
-            return host.StartCoroutine(InterpolateTransform(transform, transform.position, rotation, transform.localScale, duration, space, progressMapping, null));
+            InterpolationTransform target = new InterpolationTransform();
+
+            target.rotation = rotation;
+
+            target.valuesToUse = 2; // 00000010
+
+            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
         }
 
         /// <summary>
@@ -359,7 +493,13 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Quaternion rotation, float duration, Space space, CoroutineCallback finished, DelProgressMappingFunction progressMapping = null)
         {
-            return host.StartCoroutine(InterpolateTransform(transform, transform.position, rotation, transform.localScale, duration, space, progressMapping, finished));
+            InterpolationTransform target = new InterpolationTransform();
+
+            target.rotation = rotation;
+
+            target.valuesToUse = 2; // 00000010
+
+            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
         }
 
         /// <summary>
@@ -373,7 +513,13 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 scale, float duration, DelProgressMappingFunction progressMapping = null)
         {
-            return host.StartCoroutine(InterpolateTransform(transform, transform.position, transform.rotation, scale, duration, Space.Self, progressMapping, null));
+            InterpolationTransform target = new InterpolationTransform();
+
+            target.scale = scale;
+
+            target.valuesToUse = 4; // 00000100
+
+            return host.StartCoroutine(InterpolateTransform(transform, target, duration, Space.Self, progressMapping, null));
         }
 
         /// <summary>
@@ -388,7 +534,13 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 scale, float duration, CoroutineCallback finished, DelProgressMappingFunction progressMapping = null)
         {
-            return host.StartCoroutine(InterpolateTransform(transform, transform.position, transform.rotation, scale, duration, Space.Self, progressMapping, finished));
+            InterpolationTransform target = new InterpolationTransform();
+
+            target.scale = scale;
+
+            target.valuesToUse = 4; // 00000100
+
+            return host.StartCoroutine(InterpolateTransform(transform, target, duration, Space.Self, progressMapping, finished));
         }
 
 
@@ -425,7 +577,7 @@ namespace FK.Utility
             if (result != null)
                 return result;
 
-            foreach(Transform child in transform)
+            foreach (Transform child in transform)
             {
                 result = child.FindDeepChild(name);
 
