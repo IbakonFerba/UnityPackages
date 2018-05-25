@@ -305,6 +305,7 @@ namespace FK.IO
                 return null;
 
             // go up
+            _history.Add(_current.PathURL);
             _current = _current.Parent;
             return GetCurrentContent();
         }
