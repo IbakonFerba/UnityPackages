@@ -126,6 +126,16 @@ namespace FK.IO
                 // save that we attemted to load children
                 LoadedChildren = true;
 
+                bool hasAccesRights = false;
+                try
+                {
+                    hasAccesRights = HasAccessRights(PathURL);
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    throw new DirectoryNotFoundException();
+                }
+
                 // if this not is a Directory the User has no Right to access or it is a File, we cannot load any children
                 if ((Type == NodeType.DIRECTORY && !HasAccessRights(PathURL)) || Type == NodeType.FILE)
                     throw new System.UnauthorizedAccessException("Cannot Acces Node that is no Directory with Access permission");
@@ -160,6 +170,15 @@ namespace FK.IO
                     }
                 }
             }
+        }
+
+        // ######################## PUBLIC VARS ######################## //
+        /// <summary>
+        /// The Current Node
+        /// </summary>
+        public FileSystemEntry Current
+        {
+            get { return new FileSystemEntry(_current.DisplayName, _current.PathURL, _current.Extension, _current.Type); }
         }
 
         // ######################## PRIVATE VARS ######################## //
@@ -210,6 +229,16 @@ namespace FK.IO
 
         // ######################## FUNCTIONALITY ######################## //
         /// <summary>
+        /// Does the FileSystem contain the given Path? The FileSystem goes down the path and loads everything along it until it either finds a dead end or the given entry
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public bool Contains(string path)
+        {
+            return FindNode(_root, path) != null;
+        }
+
+        /// <summary>
         /// Enters the Directory at the given path if it exists and is a child of the provided base path and returns the contents of that Directory
         /// </summary>
         /// <param name="path"></param>
@@ -227,16 +256,16 @@ namespace FK.IO
             // save the path of the current node
             string path = _current.PathURL;
 
-            // reload everything down from the root
-            ReloadRecursive(_root);
-
             // set current to root because the old Current is not valid anymore
             _current = _root;
+
+            // reload everything down from the root
+            ReloadRecursive(_root);
 
             // change back to the path we were in before
             ChangeDirectory(path, false);
 
-            Debug.Log("Reloaded File System");
+            Debug.Log($"Reloaded File System from Root {_root.PathURL}");
         }
 
         /// <summary>
@@ -245,7 +274,7 @@ namespace FK.IO
         public void ReloadCurrent()
         {
             ReloadRecursive(_current);
-            Debug.Log("Reloaded current folder with Chidren");
+            Debug.Log($"Reloaded current folder {_current.PathURL} with Children");
         }
 
         /// <summary>
@@ -299,7 +328,7 @@ namespace FK.IO
                     _current.LoadChildren();
 
                 // if there are still no children, return an emtpy list
-                if(_current.Children == null)
+                if (_current.Children == null)
                 {
                     Debug.LogWarning($"{_current.PathURL} has no Content");
                     return new FileSystemEntry[0];
@@ -327,7 +356,13 @@ namespace FK.IO
         /// <returns></returns>
         private FileSystemEntry[] ChangeDirectory(string path, bool updateHistory)
         {
-            // if the Path is not below the root, return
+            // if we allready are in the requested directory, just return the contents
+            if (path == _current.PathURL)
+            {
+                return GetCurrentContent();
+            }
+
+            // if the Path is not below the root, return nothing
             if (!path.StartsWith(_root.PathURL))
             {
                 Debug.LogError($"Provided path is no child of provided scope {_root.PathURL}");
@@ -335,22 +370,22 @@ namespace FK.IO
             }
 
             // set the start node for the search. If the requested path is below the current node, search from the current node, else search from the root node
-            Node start = path.StartsWith(_current.PathURL) ? _current : _root;
-
-            // split the path into node names and remove emtpy strings
-            string[] pathNodeNames = path.Split(_separationSymbol);
-            List<string> cleanNodeNames = new List<string>();
-            foreach (string s in path.Split(_separationSymbol))
+            Node start = _root;
+            if (path.StartsWith(_current.PathURL)) // check whether the requested path starts with the path of the current node
             {
-                if (!string.IsNullOrEmpty(s))
+                // make sure that the path really is below the current node and not just a node on the same hierarchy level with a similar name 
+                // by checking if the path is longer thn the current one and if after  the current path there comes a separation symbol
+                if(path.Length > _current.PathURL.Length)
                 {
-                    cleanNodeNames.Add(s);
+                    if (path[_current.PathURL.Length] == _separationSymbol)
+                    {
+                        start = _current;
+                    }
                 }
             }
-            pathNodeNames = cleanNodeNames.ToArray();
 
-            // search the correct node
-            Node found = FindNode(start, pathNodeNames, pathNodeNames.Search(start.DisplayName));
+            // search the node
+            Node found = FindNode(start, path);
 
             // if a node was found, change to that node and return the contents
             if (found != null)
@@ -379,7 +414,7 @@ namespace FK.IO
         }
 
         /// <summary>
-        /// A Recursive Reloading Function. It goes to the lowest Loaded nodes and reloads from the lowest to the root
+        /// A Recursive Reloading Function. It goes to the lowest loaded nodes and reloads from the lowest to the root
         /// </summary>
         /// <param name="current"></param>
         private void ReloadRecursive(Node current)
@@ -389,64 +424,71 @@ namespace FK.IO
                 return;
 
             // go down the branches
-            foreach(Node child in current.Children)
+            for (int i = current.Children.Count - 1; i >= 0; --i)
             {
-                ReloadRecursive(child);
+                ReloadRecursive(current.Children[i]);
             }
 
-            // reload node
-            current.LoadChildren();
+            try
+            {
+                // reload node
+                current.LoadChildren();
+            }
+            catch (DirectoryNotFoundException)
+            {
+                current.Parent.Children.Remove(current);
+            }
         }
 
         /// <summary>
-        /// Traverses the Tree to Find the node at the end of the provided path
+        /// Traverses the tree recursively, loads nodes along the path and returns the node at the requested path if it exists
         /// </summary>
-        /// <param name="current">The Node to look at</param>
-        /// <param name="pathNodeNames">The Node names that are along the path, sorted from root to leaf</param>
-        /// <param name="nodeNameIndex">Current Node Name index</param>
+        /// <param name="current"></param>
+        /// <param name="path"></param>
         /// <returns></returns>
-        private Node FindNode(Node current, string[] pathNodeNames, int nodeNameIndex)
+        private Node FindNode(Node current, string path)
         {
-            // if the current node is a directory but has no loaded childlren, try to load the chidren
-            if (current.Type == NodeType.DIRECTORY &&  current.Children == null)
+            // if the current node is a directory but has no loaded children, try to load the children
+            if (current.Type == NodeType.DIRECTORY && current.Children == null)
             {
                 current.LoadChildren();
             }
 
-            // if the display name of the current node is the current path node name, check wehther we reached the end
-            if(current.DisplayName == pathNodeNames[nodeNameIndex])
+            // if the path of thec current node is the requested path, return the node
+            if (current.PathURL == path)
             {
-                // if we reached the end of the path, return the current node
-                if (nodeNameIndex == pathNodeNames.Length - 1)
-                {
-                    return current;
-                } else // if we did not reach the end of the path, stay at the same node to check children, but go to next path node name
-                {
-                    return FindNode(current, pathNodeNames, nodeNameIndex + 1);
-                }
+                return current;
             }
 
-            // look at the children
-            foreach (Node child in current.Children)
+            // Only go on if the node has children
+            if (current.Children != null)
             {
-                // if the display name of the child node is the current path node name, check wehther we reached the end
-                if (child.DisplayName == pathNodeNames[nodeNameIndex])
+                // check each child
+                foreach (Node child in current.Children)
                 {
-                    // if we reached the end of the path, return the child node
-                    if (nodeNameIndex == pathNodeNames.Length - 1)
+                    // if the path starts with the path of the child node, this might be a candidat further down the path.
+                    if (path.StartsWith(child.PathURL))
                     {
-                        return child;
+                        // if the path is longer than the child path, we have not reached the end yet
+                        if (path.Length > child.PathURL.Length)
+                        {
+                            // if the char adter the child path is a separation symbol, the path continues below the child, so continue searching from the child
+                            if (path[child.PathURL.Length] == _separationSymbol)
+                            {
+                                return FindNode(child, path);
+                            }
+                        }
+                        else // if the path is not longer than the child path, the child is the node we are looking for, return it
+                        {
+                            return child;
+                        }
                     }
-                    // if we did not reach the end of the path, check the child node wih the next path name
-                    return FindNode(child, pathNodeNames, nodeNameIndex + 1);
                 }
             }
 
-            // if we never found anything, return null
+            // if we reached this, we did not find anything
             return null;
         }
-
-        // ######################## COROUTINES ######################## //
 
 
         // ######################## UTILITIES ######################## //
