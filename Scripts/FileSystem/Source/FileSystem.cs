@@ -278,16 +278,22 @@ namespace FK.IO
         /// <summary>
         /// Goes back one step in the history and returns all entries in that directory
         /// </summary>
+        /// <param name="newPath">Takes the new Path we are at after going back</param>
         /// <returns></returns>
-        public FileSystemEntry[] GoBackInHistory()
+        public FileSystemEntry[] GoBackInHistory(out string newPath)
         {
             // if there is no history, return null
             if (_history.Count <= 0)
+            {
+                newPath = _current.PathURL;
                 return null;
+            }
 
             // change to the last entry in the history and remove the history entry
             ChangeDirectory(_history[_history.Count - 1], false);
             _history.RemoveAt(_history.Count - 1);
+
+            newPath = _current.PathURL;
 
             return GetCurrentContent();
         }
@@ -295,16 +301,23 @@ namespace FK.IO
         /// <summary>
         /// Goes up one step in the File System Hierarchy
         /// </summary>
+        /// <param name="newPath">Takes the new Path we are at after going up</param>
         /// <returns></returns>
-        public FileSystemEntry[] GoUpInHierarchy()
+        public FileSystemEntry[] GoUpInHierarchy(out string newPath)
         {
             // if there is no parent, do nothing
             if (_current.Parent == null)
+            {
+                newPath = _current.PathURL;
                 return null;
+            }
 
             // go up
             _history.Add(_current.PathURL);
             _current = _current.Parent;
+
+            newPath = _current.PathURL;
+
             return GetCurrentContent();
         }
 
