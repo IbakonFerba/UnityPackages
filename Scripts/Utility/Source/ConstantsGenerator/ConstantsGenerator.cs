@@ -262,6 +262,12 @@ namespace FK.ConstantsGenerator
             // add the last part
             converted += matches[matches.Count - 1];
 
+            // if the string starts with a number, add an underscore in front
+            if(Regex.IsMatch(converted, "^[0-9].*$"))
+            {
+                converted = '_' + converted;
+            }
+
             // convert to all uppercase and return
             return converted.ToUpper();
         }
