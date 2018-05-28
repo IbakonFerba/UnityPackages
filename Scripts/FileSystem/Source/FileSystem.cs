@@ -126,32 +126,30 @@ namespace FK.IO
                 // save that we attemted to load children
                 LoadedChildren = true;
 
-                bool hasAccesRights = false;
+                // get all entries. If the function returns an exeption or null, we cannot access the entries because either the directory does not exist or we don't have access rights
+                string[] entries;
                 try
                 {
-                    hasAccesRights = HasAccessRights(PathURL);
+                    entries = TryGetEntries(PathURL);
                 }
                 catch (DirectoryNotFoundException)
                 {
                     throw new DirectoryNotFoundException();
                 }
 
-                // if this not is a Directory the User has no Right to access or it is a File, we cannot load any children
-                if ((Type == NodeType.DIRECTORY && !HasAccessRights(PathURL)) || Type == NodeType.FILE)
+                // if this not is a Directory the User has no Right to access (indicated by entries being null) or it is a File, we cannot load any children
+                if ((Type == NodeType.DIRECTORY && entries == null) || Type == NodeType.FILE)
                     throw new System.UnauthorizedAccessException("Cannot Acces Node that is no Directory with Access permission");
 
                 // create a new List of children
                 Children = new List<Node>();
-
-                // get all entries in the File System
-                string[] entries = Directory.GetFileSystemEntries(PathURL);
 
                 // create nodes for all entries that can get one
                 foreach (string entry in entries)
                 {
                     // First check whether the entry is a Directory the User has Access to, if yes, make it a node
                     FileAttributes att = File.GetAttributes(entry);
-                    if (att.HasFlag(FileAttributes.Directory) && HasAccessRights(entry))
+                    if (att.HasFlag(FileAttributes.Directory) && TryGetEntries(entry) != null)
                     {
                         Children.Add(new Node(entry, this, _separationSymbol, _supportedExtensions));
                     }
@@ -494,20 +492,19 @@ namespace FK.IO
 
         // ######################## UTILITIES ######################## //
         /// <summary>
-        /// Tries to load the contents of the path to find out wheter user has access rights
+        /// Tries to load the contents of the path. If the path does not exist, this throws a DirectoryNotFoundException, if the user has no rights to access the path, entries will be null
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static bool HasAccessRights(string path)
+        public static string[] TryGetEntries(string path)
         {
             try
             {
-                Directory.GetFileSystemEntries(path);
-                return true;
+                return Directory.GetFileSystemEntries(path);
             }
             catch (System.UnauthorizedAccessException)
             {
-                return false;
+                return null;
             }
         }
 
