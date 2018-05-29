@@ -43,9 +43,9 @@ namespace FK.Utility.UI
         /// <param name="FadeIn">Fade In?</param>
         /// <param name="duration">Amount of seconds the fading should take</param>
         /// <param name="finished">Callback for when the Fading is finished</param>
-        public static void Fade(this CanvasGroup group, MonoBehaviour host, bool FadeIn, float duration, CoroutineCallback finished = null)
+        public static Coroutine Fade(this CanvasGroup group, MonoBehaviour host, bool FadeIn, float duration, CoroutineCallback finished = null)
         {
-            host.StartCoroutine(FadeCanvasGroup(group, FadeIn, duration, finished));
+            return host.StartCoroutine(FadeCanvasGroup(group, FadeIn, duration, finished));
         }
         #endregion
     }
