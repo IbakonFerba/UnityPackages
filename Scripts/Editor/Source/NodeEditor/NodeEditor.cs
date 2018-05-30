@@ -17,15 +17,23 @@ namespace FK.Editor.NodeEditor
     /// </summary>
     public class NodeEditor : EditorWindow
     {
+        // ######################## DELEGATES ######################## //
+        public delegate void DelOnConnectionMade(Connection connection);
+
         // ######################## PUBLIC VARS ######################## //
         /// <summary>
         /// All connections between nodes
         /// </summary>
         public List<Connection> Connections;
 
+        /// <summary>
+        /// This callback is called whenever a connection is made
+        /// </summary>
+        public DelOnConnectionMade OnConnectionMade;
+
         // ######################## PROTECTED VARS ######################## //
         protected const int DEFAULT_NODE_WIDTH = 200;
-        protected const int DEFAULT_NODE_HEIGHt = 50;
+        protected const int DEFAULT_NODE_HEIGHT = 50;
 
         // ######################## PRIVATE VARS ######################## //
         /// <summary>
@@ -73,6 +81,11 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         private GUIStyle _selectedNodeStyle;
 
+        /// <summary>
+        /// Background Color as 1x1 Texture2D
+        /// </summary>
+        public static Texture2D Background;
+
 
 
         // ######################## UNITY START & UPDATE ######################## //
@@ -96,12 +109,17 @@ namespace FK.Editor.NodeEditor
             _outPointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right.png") as Texture2D;
             _outPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right on.png") as Texture2D;
             _outPointStyle.border = new RectOffset(4, 4, 12, 12);
+
+            Background = new Texture2D(1, 1);
+            Background.SetPixel(1, 1, new Color(51f/255, 51f / 255, 51f / 255, 1));
+            Background.Apply();
         }
 
 
         protected virtual void OnGUI()
         {
             // draw the grid in the background
+            GUI.DrawTexture(new Rect(0, 0, maxSize.x, maxSize.y), Background, ScaleMode.StretchToFill);
             DrawGrid(20, 0.2f, Color.gray);
             DrawGrid(100, 0.4f, Color.gray);
 
@@ -370,7 +388,11 @@ namespace FK.Editor.NodeEditor
             if (Connections == null)
                 Connections = new List<Connection>();
 
-            Connections.Add(new Connection(_selectedInPoint, _selectedOutPoint, RemoveConnection));
+            Connection con = new Connection(_selectedInPoint, _selectedOutPoint, RemoveConnection);
+            Connections.Add(con);
+
+            if (OnConnectionMade != null)
+                OnConnectionMade(con);
         }
 
         private void RemoveConnection(Connection connection)

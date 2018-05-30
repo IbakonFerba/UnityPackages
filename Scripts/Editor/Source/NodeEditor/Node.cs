@@ -72,6 +72,10 @@ namespace FK.Editor.NodeEditor
         private Dictionary<string, GenericMenu.MenuFunction> _contextMenuEntries;
 
         /// <summary>
+        /// The min height of the node
+        /// </summary>
+        private float _preferredHeight;
+        /// <summary>
         /// Current style of the node
         /// </summary>
         private GUIStyle _style;
@@ -84,6 +88,11 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         private GUIStyle _selectedNodeStyle;
 
+        /// <summary>
+        /// Gui style for labels with white text
+        /// </summary>
+        private GUIStyle _whiteText;
+
         private bool _isDragged;
         private bool _isSelected;
 
@@ -95,6 +104,11 @@ namespace FK.Editor.NodeEditor
 
             InPoints = new ConnectionPoint[numOfInPoints];
             OutPoints = new ConnectionPoint[numOfOutPoints];
+
+            _whiteText = new GUIStyle();
+            _whiteText.normal.textColor = Color.white;
+
+            _preferredHeight = height;
 
             GUI.changed = true;
         }
@@ -191,7 +205,7 @@ namespace FK.Editor.NodeEditor
 
             // Begin Content Area
             GUILayout.BeginArea(contentRect);
-            
+
             // Add Title
             Label(new GUIContent(Title));
             Space(12);
@@ -205,6 +219,9 @@ namespace FK.Editor.NodeEditor
             // if we are repainting, finish the Node height
             if (Event.current.type == EventType.Repaint)
                 NodeRect.height += Border.height;
+
+            if (NodeRect.height < _preferredHeight)
+                NodeRect.height = _preferredHeight;
         }
 
         /// <summary>
@@ -245,7 +262,7 @@ namespace FK.Editor.NodeEditor
                     if (e.button == 1)
                     {
                         // check whether the node should be selected and context menu should be shown
-                        if(NodeRect.Contains(e.mousePosition))
+                        if (NodeRect.Contains(e.mousePosition))
                         {
                             // select
                             _isSelected = true;
@@ -353,6 +370,17 @@ namespace FK.Editor.NodeEditor
         }
 
         /// <summary>
+        /// Make a single press button.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        protected bool Button(string text, params GUILayoutOption[] options)
+        {
+            return Button(new GUIContent(text), options);
+        }
+
+        /// <summary>
         /// A horizontal slider the user can drag to change a value between a min and a max
         /// </summary>
         /// <param name="value"></param>
@@ -360,7 +388,7 @@ namespace FK.Editor.NodeEditor
         /// <param name="rightValue"></param>
         /// <param name="options"></param>
         /// <returns></returns>
-        protected float HotizontalSlider(float value, float leftValue, float rightValue, params GUILayoutOption[] options)
+        protected float HorizontalSlider(float value, float leftValue, float rightValue, params GUILayoutOption[] options)
         {
             float val = GUILayout.HorizontalSlider(value, leftValue, rightValue, options);
 
@@ -378,11 +406,21 @@ namespace FK.Editor.NodeEditor
         /// <param name="options"></param>
         protected void Label(GUIContent content, params GUILayoutOption[] options)
         {
-            GUILayout.Label(content, options);
+            GUILayout.Label(content, _whiteText, options);
 
             // modify node rect if we are repainting
             if (Event.current.type == EventType.Repaint)
                 NodeRect.height += GUILayoutUtility.GetLastRect().height + GUI.skin.label.margin.bottom;
+        }
+
+        /// <summary>
+        /// Make an auto-layout label.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="options"></param>
+        protected void Label(string text, params GUILayoutOption[] options)
+        {
+            Label(new GUIContent(text), options);
         }
 
         /// <summary>
@@ -400,6 +438,17 @@ namespace FK.Editor.NodeEditor
                 NodeRect.height += GUILayoutUtility.GetLastRect().height + GUI.skin.button.margin.bottom;
 
             return pressed;
+        }
+
+        /// <summary>
+        /// Make a repeating button. The Button returns true as long as the user holds down the mouse
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        protected bool RepeatButton(string text, params GUILayoutOption[] options)
+        {
+            return RepeatButton(new GUIContent(text), options);
         }
 
         /// <summary>
@@ -458,13 +507,27 @@ namespace FK.Editor.NodeEditor
         /// <returns></returns>
         protected bool Toggle(bool value, GUIContent content, params GUILayoutOption[] options)
         {
-            bool on = GUILayout.Toggle(value, content, options);
+            GUIStyle s = new GUIStyle(GUI.skin.toggle);
+            s.normal.textColor = Color.white;
+            bool on = GUILayout.Toggle(value, content, s, options);
 
             // modify node rect if we are repainting
             if (Event.current.type == EventType.Repaint)
                 NodeRect.height += GUILayoutUtility.GetLastRect().height + GUI.skin.toggle.margin.bottom;
 
             return on;
+        }
+
+        /// <summary>
+        /// Make an on/off toggle button
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="text"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        protected bool Toggle(bool value, string text, params GUILayoutOption[] options)
+        {
+            return Toggle(value, new GUIContent(text), options);
         }
 
         /// <summary>
