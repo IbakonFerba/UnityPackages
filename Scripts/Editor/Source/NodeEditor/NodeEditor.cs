@@ -111,7 +111,7 @@ namespace FK.Editor.NodeEditor
             _outPointStyle.border = new RectOffset(4, 4, 12, 12);
 
             Background = new Texture2D(1, 1);
-            Background.SetPixel(1, 1, new Color(51f/255, 51f / 255, 51f / 255, 1));
+            Background.SetPixel(1, 1, new Color(51f / 255, 51f / 255, 51f / 255, 1));
             Background.Apply();
         }
 
@@ -136,6 +136,17 @@ namespace FK.Editor.NodeEditor
             // repaint if anything changed
             if (GUI.changed)
                 Repaint();
+        }
+
+        /// <summary>
+        /// Clears the viewport of the editor by removing all nodes, connections and resetting the offset
+        /// </summary>
+        protected void Clear()
+        {
+            _nodes = new List<Node>();
+            ClearConnectionSelection();
+            Connections = new List<Connection>();
+            _offset = Vector2.zero;
         }
 
         // ######################## FUNCTIONALITY ######################## //
@@ -265,7 +276,7 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         /// <param name="mousePosition">Position to create the new node at</param>
         /// <param name="template">Node Template to use</param>
-        private void AddNode(Vector2 mousePosition, Node template)
+        protected Node AddNode(Vector2 mousePosition, Node template)
         {
             // create nodes list if necessary
             if (_nodes == null)
@@ -277,14 +288,14 @@ namespace FK.Editor.NodeEditor
             // initialize the node and add it to the list
             node.Init(mousePosition, _nodeStyle, _selectedNodeStyle, _inPointStyle, _outPointStyle, OnClickInPoint, OnClickOutPoint, RemoveNode);
             _nodes.Add(node);
-
+            return node;
         }
 
         /// <summary>
         /// Removes the provided node
         /// </summary>
         /// <param name="node"></param>
-        private void RemoveNode(Node node)
+        protected void RemoveNode(Node node)
         {
             // if there are connections, we need to test if the node we want to delete has any and if it has, delete them
             if (Connections != null)
@@ -383,7 +394,7 @@ namespace FK.Editor.NodeEditor
         /// <summary>
         /// Creates a connection between _selectedInPoint and _selectedOutPoint;
         /// </summary>
-        private void CreateConnection()
+        protected void CreateConnection()
         {
             if (Connections == null)
                 Connections = new List<Connection>();
@@ -393,6 +404,29 @@ namespace FK.Editor.NodeEditor
 
             if (OnConnectionMade != null)
                 OnConnectionMade(con);
+        }
+
+        /// <summary>
+        /// Creates a connection between the given points
+        /// </summary>
+        /// <param name="inPoint"></param>
+        /// <param name="outPoint"></param>
+        protected void CreateConnection(ConnectionPoint inPoint, ConnectionPoint outPoint)
+        {
+            if (inPoint.Type != ConnectionPointType.IN || outPoint.Type != ConnectionPointType.OUT)
+            {
+                Debug.LogError("Can only create connection from out point to in point");
+            }
+
+            if (inPoint.PointNode == outPoint.PointNode)
+            {
+                Debug.LogError("Cannot create connection from node to itself");
+                return;
+            }
+
+            _selectedInPoint = inPoint;
+            _selectedOutPoint = outPoint;
+            CreateConnection();
         }
 
         private void RemoveConnection(Connection connection)
