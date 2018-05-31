@@ -33,6 +33,8 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         public Node PointNode;
 
+        public string Label;
+
         /// <summary>
         /// The Index of the point on the Node
         /// </summary>
@@ -44,7 +46,10 @@ namespace FK.Editor.NodeEditor
         public DelOnClickConnectionPoint OnClickConnectionPoint;
 
         // ######################## PRIVATE VARS ######################## //
+        private Rect _labelRect;
+
         private GUIStyle _style;
+        private GUIStyle _labelStyle;
 
         /// <summary>
         /// The total number of Connection Points of the same type on the parent node
@@ -61,6 +66,12 @@ namespace FK.Editor.NodeEditor
             _style = style;
             OnClickConnectionPoint += OnClick;
             PointRect = new Rect(0, 0, 10f, 20f);
+
+            _labelStyle = new GUIStyle();
+            _labelStyle.normal.textColor = Color.white;
+            _labelStyle.stretchWidth = true;
+
+            _labelRect = new Rect(PointRect.position.x, PointRect.position.x, 0, PointRect.height);
         }
 
         // ######################## FUNCTIONALITY ######################## //
@@ -68,17 +79,22 @@ namespace FK.Editor.NodeEditor
         {
             // set y position according to the total number of same points and the index of this point on the node
             PointRect.y = PointNode.NodeRect.y + (PointNode.NodeRect.height * Index / _numOfPointsOnNode) + (PointNode.NodeRect.height / _numOfPointsOnNode) / 2 - PointRect.height * 0.5f;
+            _labelRect.y = PointRect.y-PointRect.height/2 - 4f;
 
             switch (Type)
             {
                 case ConnectionPointType.IN:
                     // on the left
                     PointRect.x = PointNode.NodeRect.x - PointRect.width + 8f;
+                    _labelStyle.alignment = TextAnchor.UpperRight;
+                    _labelRect.x = PointRect.x + PointRect.width - 4f;
                     break;
 
                 case ConnectionPointType.OUT:
                     // on the right
                     PointRect.x = PointNode.NodeRect.x + PointNode.NodeRect.width - 8f;
+                    _labelStyle.alignment = TextAnchor.UpperLeft;
+                    _labelRect.x = PointRect.x + 4f;
                     break;
             }
 
@@ -88,6 +104,8 @@ namespace FK.Editor.NodeEditor
                 if (OnClickConnectionPoint != null)
                     OnClickConnectionPoint(this);
             }
+
+            GUI.Label(_labelRect, Label, _labelStyle);
         }
     }
 }
