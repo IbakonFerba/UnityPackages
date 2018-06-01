@@ -11,14 +11,15 @@ namespace FK.Editor.NodeEditor
     /// 
     /// This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/
     /// 
-    /// 05/2018
+    /// v1.1 05/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
-    public class NodeEditor : EditorWindow
+    public class NodeEditorBase : EditorWindow
     {
         // ######################## DELEGATES ######################## //
         public delegate void DelOnConnectionMade(Connection connection);
+        public delegate void DelOnConnectionRemoved(Connection connection);
 
         // ######################## PUBLIC VARS ######################## //
         /// <summary>
@@ -27,24 +28,33 @@ namespace FK.Editor.NodeEditor
         public List<Connection> Connections;
 
         /// <summary>
-        /// This callback is called whenever a connection is made
+        /// This Delegate is invoked whenever a connection is made
         /// </summary>
         public DelOnConnectionMade OnConnectionMade;
+        /// <summary>
+        /// This Delegate is invoked whenever a connection is removed 
+        /// </summary>
+        public DelOnConnectionRemoved OnConnectionRemoved;
 
         // ######################## PROTECTED VARS ######################## //
         protected const int DEFAULT_NODE_WIDTH = 200;
         protected const int DEFAULT_NODE_HEIGHT = 50;
+
+        /// <summary>
+        /// All nodes
+        /// </summary>
+        protected List<Node> Nodes;
+
+        /// <summary>
+        /// Offset for drawing the background grid
+        /// </summary>
+        protected Vector2 Offset;
 
         // ######################## PRIVATE VARS ######################## //
         /// <summary>
         /// Context Menu entries with display name and function to execute
         /// </summary>
         private Dictionary<string, GenericMenu.MenuFunction2> _contextMenuEntries = new Dictionary<string, GenericMenu.MenuFunction2>();
-
-        /// <summary>
-        /// All nodes
-        /// </summary>
-        private List<Node> _nodes;
 
         /// <summary>
         /// Currently selected In Point
@@ -55,10 +65,6 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         private ConnectionPoint _selectedOutPoint;
 
-        /// <summary>
-        /// Offset for drawing the background grid
-        /// </summary>
-        private Vector2 _offset;
         /// <summary>
         /// Drag delta for drawing the background grid
         /// </summary>
@@ -119,7 +125,7 @@ namespace FK.Editor.NodeEditor
         protected virtual void OnGUI()
         {
             // draw the grid in the background
-            GUI.DrawTexture(new Rect(0, 0, maxSize.x, maxSize.y), Background, ScaleMode.StretchToFill);
+            GUI.DrawTexture(new Rect(0, 0, position.width, position.height), Background, ScaleMode.StretchToFill);
             DrawGrid(20, 0.2f, Color.gray);
             DrawGrid(100, 0.4f, Color.gray);
 
@@ -143,10 +149,10 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         protected void Clear()
         {
-            _nodes = new List<Node>();
+            Nodes = new List<Node>();
             ClearConnectionSelection();
             Connections = new List<Connection>();
-            _offset = Vector2.zero;
+            Offset = Vector2.zero;
         }
 
         // ######################## FUNCTIONALITY ######################## //
@@ -156,10 +162,10 @@ namespace FK.Editor.NodeEditor
         private void DrawNodes()
         {
             // Do nothing if there are no nodes
-            if (_nodes == null)
+            if (Nodes == null)
                 return;
 
-            foreach (Node node in _nodes)
+            foreach (Node node in Nodes)
             {
                 node.Draw();
             }
@@ -242,13 +248,13 @@ namespace FK.Editor.NodeEditor
         private void ProcessNodeEvents(Event e)
         {
             // if there are no nodes, do nothing
-            if (_nodes == null)
+            if (Nodes == null)
                 return;
 
             // pass the event to all nodes
-            for (int i = _nodes.Count - 1; i >= 0; --i)
+            for (int i = Nodes.Count - 1; i >= 0; --i)
             {
-                GUI.changed = _nodes[i].ProcessEvents(e) ? true : GUI.changed;
+                GUI.changed = Nodes[i].ProcessEvents(e) ? true : GUI.changed;
             }
         }
 
@@ -279,15 +285,15 @@ namespace FK.Editor.NodeEditor
         protected Node AddNode(Vector2 mousePosition, Node template)
         {
             // create nodes list if necessary
-            if (_nodes == null)
-                _nodes = new List<Node>();
+            if (Nodes == null)
+                Nodes = new List<Node>();
 
             // create a new node from the template
             Node node = template.Clone() as Node;
 
             // initialize the node and add it to the list
             node.Init(mousePosition, _nodeStyle, _selectedNodeStyle, _inPointStyle, _outPointStyle, OnClickInPoint, OnClickOutPoint, RemoveNode);
-            _nodes.Add(node);
+            Nodes.Add(node);
             return node;
         }
 
@@ -320,7 +326,7 @@ namespace FK.Editor.NodeEditor
                 _selectedOutPoint = null;
 
             // delete the node
-            _nodes.Remove(node);
+            Nodes.Remove(node);
         }
 
         /// <summary>
@@ -332,9 +338,9 @@ namespace FK.Editor.NodeEditor
             _drag = delta;
 
             // if there are nodes, we need to move them as well
-            if (_nodes != null)
+            if (Nodes != null)
             {
-                foreach (Node node in _nodes)
+                foreach (Node node in Nodes)
                 {
                     node.Drag(delta);
                 }
@@ -399,6 +405,13 @@ namespace FK.Editor.NodeEditor
             if (Connections == null)
                 Connections = new List<Connection>();
 
+
+            foreach(Connection conection in Connections)
+            {
+                if (conection.InPoint == _selectedInPoint && conection.OutPoint == _selectedOutPoint)
+                    return;
+            }
+
             Connection con = new Connection(_selectedInPoint, _selectedOutPoint, RemoveConnection);
             Connections.Add(con);
 
@@ -431,6 +444,9 @@ namespace FK.Editor.NodeEditor
 
         private void RemoveConnection(Connection connection)
         {
+            if (OnConnectionRemoved != null)
+                OnConnectionRemoved(connection);
+
             Connections.Remove(connection);
         }
 
@@ -476,8 +492,8 @@ namespace FK.Editor.NodeEditor
             Handles.BeginGUI();
             Handles.color = new Color(gridColor.r, gridColor.g, gridColor.b, gridOpacity);
 
-            _offset += _drag * 0.5f;
-            Vector3 newOffset = new Vector3(_offset.x % gridSpacing, _offset.y % gridSpacing, 0);
+            Offset += _drag * 0.5f;
+            Vector3 newOffset = new Vector3(Offset.x % gridSpacing, Offset.y % gridSpacing, 0);
 
             for (int i = 0; i <= widthDivs; i++)
             {

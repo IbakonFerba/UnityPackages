@@ -62,7 +62,7 @@ namespace FK.Utility.ArraysAndLists
             for(int i = 0; i < array.Length; ++i)
             {
                 T elm = array[i];
-                if(elm.Equals(element))
+                if(elm != null && element != null && elm.Equals(element))
                 {
                     return i;
                 }
