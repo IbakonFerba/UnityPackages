@@ -9,7 +9,7 @@ namespace FK.Editor.NodeEditor
     /// Base for a Node of the Node Editor
     /// 
     /// The abstract function Init() is called on a new node when it is created in the editor.
-    /// In the abstract function DrawContent() you can draw all the content of the Node, but only useing the Functions provided by this class
+    /// In the abstract function DrawContent() you can draw all the content of the Node using EditorGUILayout
     /// 
     /// This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/
     /// 
@@ -25,6 +25,11 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         /// <param name="node">Node to be removes</param>
         public delegate void DelOnRemoveNode(Node node);
+        /// <summary>
+        /// Delegate for when the node is dragged
+        /// </summary>
+        /// <param name="newPos"></param>
+        public delegate void DelOnDrag(Vector2 newPos);
 
         // ######################## PUBLIC VARS ######################## //
         /// <summary>
@@ -58,12 +63,16 @@ namespace FK.Editor.NodeEditor
         /// Delegate that is invoked when the Node should be removed
         /// </summary>
         public DelOnRemoveNode OnRemoveNode;
+        /// <summary>
+        /// Delegate that is invoked when the Node is dragged
+        /// </summary>
+        public DelOnDrag OnDrag;
 
         // ######################## PROTECTED VARS ######################## //
         /// <summary>
         /// Reference to the Editor this Node belongs to so you can access the connections for example
         /// </summary>
-        protected NodeEditor Editor;
+        protected NodeEditorBase Editor;
 
         // ######################## PRIVATE VARS ######################## //
         /// <summary>
@@ -97,7 +106,7 @@ namespace FK.Editor.NodeEditor
         private bool _isSelected;
 
         // ######################## INITS ######################## //
-        public Node(NodeEditor editor, Vector2 position, float width, float height, int numOfInPoints, int numOfOutPoints)
+        public Node(NodeEditorBase editor, Vector2 position, float width, float height, int numOfInPoints, int numOfOutPoints)
         {
             Editor = editor;
             NodeRect = new Rect(position.x, position.y, width, height);
@@ -178,6 +187,9 @@ namespace FK.Editor.NodeEditor
         public void Drag(Vector2 delta)
         {
             NodeRect.position += delta;
+
+            if (OnDrag != null)
+                OnDrag(NodeRect.position);
         }
 
         public void Draw()
@@ -196,30 +208,28 @@ namespace FK.Editor.NodeEditor
             // draw the Node Backgroud
             GUI.Box(NodeRect, "", _style);
 
-            // if we are repainting, start changing the Node height by setting it to the upper Border value
-            if (Event.current.type == EventType.Repaint)
-                NodeRect.height = Border.y;
-
             // calculate Content Rect
             Rect contentRect = new Rect(NodeRect.position.x + Border.x, NodeRect.position.y + Border.y, NodeRect.width - (Border.x + Border.width), NodeRect.height - (Border.y + Border.height));
 
             // Begin Content Area
             GUILayout.BeginArea(contentRect);
+            Rect newContentRect = EditorGUILayout.BeginVertical();
 
             // Add Title
-            Label(new GUIContent(Title));
-            Space(12);
+            EditorGUILayout.LabelField(Title, EditorStyles.boldLabel);
 
             // draw custom content
             DrawContent();
 
             // End Content Area
+            EditorGUILayout.EndVertical();
             GUILayout.EndArea();
 
-            // if we are repainting, finish the Node height
+            // if we are repainting, calculate the Node height
             if (Event.current.type == EventType.Repaint)
-                NodeRect.height += Border.height;
+                NodeRect.height = Border.y + newContentRect.height + Border.height;
 
+            // if the height of the node is less then the preferred height, set it to the preferred height
             if (NodeRect.height < _preferredHeight)
                 NodeRect.height = _preferredHeight;
         }
@@ -348,223 +358,6 @@ namespace FK.Editor.NodeEditor
                 return;
 
             _contextMenuEntries.Add(displayName, function);
-        }
-
-
-        // ######################## CONTENT ELEMENTS ######################## //
-        /// <summary>
-        /// Make a single press button.
-        /// </summary>
-        /// <param name="content"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        protected bool Button(GUIContent content, params GUILayoutOption[] options)
-        {
-            bool pressed = GUILayout.Button(content, options);
-
-            // modify node rect if we are repainting
-            if (Event.current.type == EventType.Repaint)
-                NodeRect.height += GUILayoutUtility.GetLastRect().height + GUI.skin.button.margin.bottom;
-
-            return pressed;
-        }
-
-        /// <summary>
-        /// Make a single press button.
-        /// </summary>
-        /// <param name="text"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        protected bool Button(string text, params GUILayoutOption[] options)
-        {
-            return Button(new GUIContent(text), options);
-        }
-
-        /// <summary>
-        /// A horizontal slider the user can drag to change a value between a min and a max
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="leftValue"></param>
-        /// <param name="rightValue"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        protected float HorizontalSlider(float value, float leftValue, float rightValue, params GUILayoutOption[] options)
-        {
-            float val = GUILayout.HorizontalSlider(value, leftValue, rightValue, options);
-
-            // modify node rect if we are repainting
-            if (Event.current.type == EventType.Repaint)
-                NodeRect.height += GUILayoutUtility.GetLastRect().height + GUI.skin.horizontalSlider.margin.bottom;
-
-            return val;
-        }
-
-        /// <summary>
-        /// Make an auto-layout label.
-        /// </summary>
-        /// <param name="content"></param>
-        /// <param name="options"></param>
-        protected void Label(GUIContent content, params GUILayoutOption[] options)
-        {
-            GUILayout.Label(content, _whiteText, options);
-
-            // modify node rect if we are repainting
-            if (Event.current.type == EventType.Repaint)
-                NodeRect.height += GUILayoutUtility.GetLastRect().height + GUI.skin.label.margin.bottom;
-        }
-
-        /// <summary>
-        /// Make an auto-layout label.
-        /// </summary>
-        /// <param name="text"></param>
-        /// <param name="options"></param>
-        protected void Label(string text, params GUILayoutOption[] options)
-        {
-            Label(new GUIContent(text), options);
-        }
-
-        /// <summary>
-        /// Make a repeating button. The Button returns true as long as the user holds down the mouse
-        /// </summary>
-        /// <param name="content"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        protected bool RepeatButton(GUIContent content, params GUILayoutOption[] options)
-        {
-            bool pressed = GUILayout.RepeatButton(content, options);
-
-            // modify node rect if we are repainting
-            if (Event.current.type == EventType.Repaint)
-                NodeRect.height += GUILayoutUtility.GetLastRect().height + GUI.skin.button.margin.bottom;
-
-            return pressed;
-        }
-
-        /// <summary>
-        /// Make a repeating button. The Button returns true as long as the user holds down the mouse
-        /// </summary>
-        /// <param name="text"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        protected bool RepeatButton(string text, params GUILayoutOption[] options)
-        {
-            return RepeatButton(new GUIContent(text), options);
-        }
-
-        /// <summary>
-        /// Insert a space
-        /// </summary>
-        /// <param name="pixels"></param>
-        protected void Space(float pixels)
-        {
-            GUILayout.Space(pixels);
-
-            // modify node rect if we are repainting
-            if (Event.current.type == EventType.Repaint)
-                NodeRect.height += pixels;
-        }
-
-        /// <summary>
-        /// Make a multi-line textfield where the user can edit a string
-        /// </summary>
-        /// <param name="text"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        protected string TextArea(string text, params GUILayoutOption[] options)
-        {
-            string t = GUILayout.TextArea(text, options);
-
-            // modify node rect if we are repainting
-            if (Event.current.type == EventType.Repaint)
-                NodeRect.height += GUILayoutUtility.GetLastRect().height + GUI.skin.textArea.margin.bottom;
-
-            return t;
-        }
-
-        /// <summary>
-        /// Make a single-line textfield where the user can edit a string
-        /// </summary>
-        /// <param name="text"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        protected string TextField(string text, params GUILayoutOption[] options)
-        {
-            string t = GUILayout.TextField(text, options);
-
-            // modify node rect if we are repainting
-            if (Event.current.type == EventType.Repaint)
-                NodeRect.height += GUILayoutUtility.GetLastRect().height + GUI.skin.textField.margin.bottom;
-
-            return t;
-        }
-
-        /// <summary>
-        /// Make an on/off toggle button
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="content"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        protected bool Toggle(bool value, GUIContent content, params GUILayoutOption[] options)
-        {
-            GUIStyle s = new GUIStyle(GUI.skin.toggle);
-            s.normal.textColor = Color.white;
-            bool on = GUILayout.Toggle(value, content, s, options);
-
-            // modify node rect if we are repainting
-            if (Event.current.type == EventType.Repaint)
-                NodeRect.height += GUILayoutUtility.GetLastRect().height + GUI.skin.toggle.margin.bottom;
-
-            return on;
-        }
-
-        /// <summary>
-        /// Make an on/off toggle button
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="text"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        protected bool Toggle(bool value, string text, params GUILayoutOption[] options)
-        {
-            return Toggle(value, new GUIContent(text), options);
-        }
-
-        /// <summary>
-        /// Make a toolbar
-        /// </summary>
-        /// <param name="selected"></param>
-        /// <param name="contents"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        protected int Toolbar(int selected, GUIContent[] contents, params GUILayoutOption[] options)
-        {
-            int s = GUILayout.Toolbar(selected, contents, options);
-
-            // modify node rect if we are repainting
-            if (Event.current.type == EventType.Repaint)
-                NodeRect.height += GUILayoutUtility.GetLastRect().height + GUI.skin.button.margin.bottom;
-
-            return s;
-        }
-
-        /// <summary>
-        /// A vertical slider the user can drag to change a value between a min and a max
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="topValue"></param>
-        /// <param name="bottomValue"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        protected float VerticalSlider(float value, float topValue, float bottomValue, params GUILayoutOption[] options)
-        {
-            float val = GUILayout.VerticalSlider(value, topValue, bottomValue, options);
-
-            // modify node rect if we are repainting
-            if (Event.current.type == EventType.Repaint)
-                NodeRect.height += GUILayoutUtility.GetLastRect().height + GUI.skin.verticalSlider.margin.bottom;
-
-            return val;
         }
     }
 }
