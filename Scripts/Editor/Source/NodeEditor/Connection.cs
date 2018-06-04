@@ -8,25 +8,27 @@ namespace FK.Editor.NodeEditor
     /// 
     /// This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/
     /// 
-    /// 05/2018
+    /// v2.0 06/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
-    public class Connection
+    /// <typeparam name="TNode"></typeparam>
+    /// <typeparam name="TNodeData"></typeparam>
+    public class Connection<TNode, TNodeData> where TNode : Node<TNode, TNodeData>, new() where TNodeData : NodeDataBase, new()
     {
         // ######################## ENUMS & DELEGATES ######################## //
-        public delegate void DelOnClickRemoveConnection(Connection connection);
+        public delegate void DelOnClickRemoveConnection(Connection<TNode, TNodeData> connection);
 
 
         // ######################## PUBLIC VARS ######################## //
         /// <summary>
         /// The In Point of this Connection
         /// </summary>
-        public ConnectionPoint InPoint;
+        public ConnectionPoint<TNode, TNodeData> InPoint;
         /// <summary>
         /// The Out Point of this connection
         /// </summary>
-        public ConnectionPoint OutPoint;
+        public ConnectionPoint<TNode, TNodeData> OutPoint;
 
         /// <summary>
         /// Delegate that is invoked when the Connection should be removed
@@ -35,7 +37,7 @@ namespace FK.Editor.NodeEditor
 
 
         // ######################## INITS ######################## //
-        public Connection(ConnectionPoint inPoint, ConnectionPoint outPoint, DelOnClickRemoveConnection removeConnection)
+        public Connection(ConnectionPoint<TNode, TNodeData> inPoint, ConnectionPoint<TNode, TNodeData> outPoint, DelOnClickRemoveConnection removeConnection)
         {
             InPoint = inPoint;
             OutPoint = outPoint;

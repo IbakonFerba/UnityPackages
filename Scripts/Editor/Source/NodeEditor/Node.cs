@@ -13,18 +13,20 @@ namespace FK.Editor.NodeEditor
     /// 
     /// This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/
     /// 
-    /// 05/2018
+    /// v2.0 06/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
-    public abstract class Node : ICloneable
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TData"></typeparam>
+    public class Node<T, TData> : ICloneable where T : Node<T, TData>, new() where TData : NodeDataBase, new()
     {
         // ######################## ENUMS & DELEGATES ######################## //
         /// <summary>
         /// Delegate that is called when a node should be removed
         /// </summary>
         /// <param name="node">Node to be removes</param>
-        public delegate void DelOnRemoveNode(Node node);
+        public delegate void DelOnRemoveNode(T node);
         /// <summary>
         /// Delegate for when the node is dragged
         /// </summary>
@@ -33,13 +35,18 @@ namespace FK.Editor.NodeEditor
 
         // ######################## PUBLIC VARS ######################## //
         /// <summary>
-        /// The ID of the Node. You can use this any way you want, this value is not used internaly
+        /// The ID of the Node.
         /// </summary>
         public string ID = "ID";
         /// <summary>
         /// Title of the Node that is displayed at the top of the node
         /// </summary>
         public string Title = "Title";
+
+        /// <summary>
+        /// The Data of this Node in the asset we are editing
+        /// </summary>
+        public TData Data;
 
         /// <summary>
         /// The Rect of the node
@@ -53,11 +60,11 @@ namespace FK.Editor.NodeEditor
         /// <summary>
         /// All In Points
         /// </summary>
-        public ConnectionPoint[] InPoints;
+        public ConnectionPoint<T, TData>[] InPoints;
         /// <summary>
         /// All Out Points
         /// </summary>
-        public ConnectionPoint[] OutPoints;
+        public ConnectionPoint<T, TData>[] OutPoints;
 
         /// <summary>
         /// Delegate that is invoked when the Node should be removed
@@ -72,7 +79,7 @@ namespace FK.Editor.NodeEditor
         /// <summary>
         /// Reference to the Editor this Node belongs to so you can access the connections for example
         /// </summary>
-        protected NodeEditorBase Editor;
+        protected NodeEditorBase<T, TData> Editor;
 
         // ######################## PRIVATE VARS ######################## //
         /// <summary>
@@ -106,13 +113,26 @@ namespace FK.Editor.NodeEditor
         private bool _isSelected;
 
         // ######################## INITS ######################## //
-        public Node(NodeEditorBase editor, Vector2 position, float width, float height, int numOfInPoints, int numOfOutPoints)
+        public Node() { }
+
+        /// <summary>
+        /// Initializes values of the Node
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="position"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="numOfInPoints"></param>
+        /// <param name="numOfOutPoints"></param>
+        public void SetUp(NodeEditorBase<T, TData> editor, Vector2 position, float width, float height, int numOfInPoints, int numOfOutPoints)
         {
+            ID = null;
+
             Editor = editor;
             NodeRect = new Rect(position.x, position.y, width, height);
 
-            InPoints = new ConnectionPoint[numOfInPoints];
-            OutPoints = new ConnectionPoint[numOfOutPoints];
+            InPoints = new ConnectionPoint<T, TData>[numOfInPoints];
+            OutPoints = new ConnectionPoint<T, TData>[numOfOutPoints];
 
             _whiteText = new GUIStyle();
             _whiteText.normal.textColor = Color.white;
@@ -120,6 +140,32 @@ namespace FK.Editor.NodeEditor
             _preferredHeight = height;
 
             GUI.changed = true;
+        }
+
+        /// <summary>
+        /// Initializes values of the Node
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="id"></param>
+        /// <param name="position"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="numOfInPoints"></param>
+        /// <param name="numOfOutPoints"></param>
+        public void SetUp(NodeEditorBase<T, TData> editor, string id, Vector2 position, float width, float height, int numOfInPoints, int numOfOutPoints)
+        {
+            SetUp(editor, position, width, height, numOfInPoints, numOfOutPoints);
+            ID = id;
+        }
+
+        public Node(NodeEditorBase<T, TData> editor, Vector2 position, float width, float height, int numOfInPoints, int numOfOutPoints)
+        {
+            SetUp(editor, position, width, height, numOfInPoints, numOfOutPoints);
+        }
+
+        public Node(NodeEditorBase<T, TData> editor, string id, Vector2 position, float width, float height, int numOfInPoints, int numOfOutPoints)
+        {
+            SetUp(editor, id, position, width, height, numOfInPoints, numOfOutPoints);
         }
 
         /// <summary>
@@ -133,7 +179,7 @@ namespace FK.Editor.NodeEditor
         /// <param name="OnClickInPoint"></param>
         /// <param name="OnClickOutPoint"></param>
         /// <param name="OnRemove"></param>
-        public void Init(Vector2 position, GUIStyle style, GUIStyle selectedStyle, GUIStyle inPointStyle, GUIStyle outPointStyle, ConnectionPoint.DelOnClickConnectionPoint OnClickInPoint, ConnectionPoint.DelOnClickConnectionPoint OnClickOutPoint, DelOnRemoveNode OnRemove)
+        public void Init(Vector2 position, GUIStyle style, GUIStyle selectedStyle, GUIStyle inPointStyle, GUIStyle outPointStyle, ConnectionPoint<T, TData>.DelOnClickConnectionPoint OnClickInPoint, ConnectionPoint<T, TData>.DelOnClickConnectionPoint OnClickOutPoint, DelOnRemoveNode OnRemove)
         {
             // set position
             NodeRect.position = position;
@@ -150,17 +196,51 @@ namespace FK.Editor.NodeEditor
             AddContextMenuEntrie("Remove Node", () => OnClickRemoveNode());
 
             // setup connection points
-            InPoints = new ConnectionPoint[InPoints.Length];
-            OutPoints = new ConnectionPoint[OutPoints.Length];
+            InPoints = new ConnectionPoint<T, TData>[InPoints.Length];
+            OutPoints = new ConnectionPoint<T, TData>[OutPoints.Length];
             for (int i = 0; i < InPoints.Length; ++i)
             {
-                InPoints[i] = new ConnectionPoint(this, ConnectionPointType.IN, i, InPoints.Length, inPointStyle, OnClickInPoint);
+                InPoints[i] = new ConnectionPoint<T, TData>(this as T, ConnectionPointType.IN, i, InPoints.Length, inPointStyle, OnClickInPoint);
             }
 
             for (int i = 0; i < OutPoints.Length; ++i)
             {
-                OutPoints[i] = new ConnectionPoint(this, ConnectionPointType.OUT, i, OutPoints.Length, outPointStyle, OnClickOutPoint);
+                OutPoints[i] = new ConnectionPoint<T, TData>(this as T, ConnectionPointType.OUT, i, OutPoints.Length, outPointStyle, OnClickOutPoint);
             }
+
+            // if the node has no ID yet, get one from the editor
+            if (string.IsNullOrEmpty(ID))
+            {
+                ID = Editor.NextNodeID;
+            }
+
+            // Initialize the Data
+            TData dat = new TData();
+            dat.ID = ID;
+            dat.Width = NodeRect.width;
+            dat.PreferredHeight = _preferredHeight;
+            Data = Editor.AddNodeToData(dat);
+            Data.PositionInEditor = NodeRect.position;
+
+            // if the data has no inputs yet, create them
+            if (Data.Inputs == null)
+            {
+                Data.Inputs = new ConnectionPointData[InPoints.Length];
+            }
+
+            // if the data has no outputs yet, create them
+            if (Data.Outputs == null)
+            {
+                Data.Outputs = new ConnectionPointData[OutPoints.Length];
+            }
+
+            // add some callbacks
+            OnDrag += newPos => Data.PositionInEditor = newPos;
+            OnRemoveNode += n => Editor.DeleteNodeFromData(Data);
+
+            Editor.OnConnectionMade += SaveConnection;
+            Editor.OnConnectionRemoved += DeleteConnection;
+
 
             Init();
         }
@@ -168,7 +248,7 @@ namespace FK.Editor.NodeEditor
         /// <summary>
         /// Contains any initialization that the Node might need appart from the general things
         /// </summary>
-        protected abstract void Init();
+        protected virtual void Init() { }
 
         /// <summary>
         /// Clones the Node and returns the clone
@@ -195,12 +275,12 @@ namespace FK.Editor.NodeEditor
         public void Draw()
         {
             // draw connection points
-            foreach (ConnectionPoint point in InPoints)
+            foreach (ConnectionPoint<T, TData> point in InPoints)
             {
                 point.Draw();
             }
 
-            foreach (ConnectionPoint point in OutPoints)
+            foreach (ConnectionPoint<T, TData> point in OutPoints)
             {
                 point.Draw();
             }
@@ -318,7 +398,7 @@ namespace FK.Editor.NodeEditor
         /// <summary>
         /// Draws all custom content of the node
         /// </summary>
-        protected abstract void DrawContent();
+        protected virtual void DrawContent() { }
 
         /// <summary>
         /// Processes and displays the Node Context Menu
@@ -344,7 +424,7 @@ namespace FK.Editor.NodeEditor
         private void OnClickRemoveNode()
         {
             if (OnRemoveNode != null)
-                OnRemoveNode(this);
+                OnRemoveNode(this as T);
         }
 
         /// <summary>
@@ -358,6 +438,61 @@ namespace FK.Editor.NodeEditor
                 return;
 
             _contextMenuEntries.Add(displayName, function);
+        }
+
+
+
+        // ######################## DATA ######################## //
+        /// <summary>
+        /// Saves a created Connection
+        /// </summary>
+        /// <param name="connection"></param>
+        private void SaveConnection(Connection<T, TData> connection)
+        {
+            // if the inPoint of the Connection belongs to this node, save the Node of the Outpoint at the appropriate place
+            if (connection.InPoint.PointNode == this)
+            {
+                ConnectionPointData Inputs = Data.Inputs[connection.InPoint.Index];
+                if (Inputs.Connections == null)
+                    Inputs.Connections = new List<NodeConnectionData>();
+
+                if (!Inputs.Contains(connection.OutPoint.PointNode.ID, connection.OutPoint.Index))
+                {
+                    Inputs.Add(connection.OutPoint.PointNode.ID, connection.OutPoint.Index);
+                }
+            }
+
+            // if the outPoint of the Connection belongs to this node, save the Node of the inPoint at the appropriate place
+            if (connection.OutPoint.PointNode == this)
+            {
+                ConnectionPointData Outputs = Data.Outputs[connection.OutPoint.Index];
+                if (Outputs.Connections == null)
+                    Outputs.Connections = new List<NodeConnectionData>();
+
+                if (!Outputs.Contains(connection.InPoint.PointNode.ID, connection.InPoint.Index))
+                {
+                    Outputs.Add(connection.InPoint.PointNode.ID, connection.InPoint.Index);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Deletes a Connection from the Data
+        /// </summary>
+        /// <param name="connection"></param>
+        private void DeleteConnection(Connection<T, TData> connection)
+        {
+            // if the inPoint of the Connection belongs to this node, delete the reference to the Node of the outpoint 
+            if (connection.InPoint.PointNode == this)
+            {
+                Data.Inputs[connection.InPoint.Index].Remove(connection.OutPoint.PointNode.ID, connection.OutPoint.Index);
+            }
+
+            // if the outPoint of the Connection belongs to this node, delete the reference to the Node of the inPoint 
+            if (connection.OutPoint.PointNode == this)
+            {
+                Data.Outputs[connection.OutPoint.Index].Remove(connection.InPoint.PointNode.ID, connection.InPoint.Index);
+            }
         }
     }
 }
