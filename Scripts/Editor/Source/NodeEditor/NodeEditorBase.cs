@@ -11,21 +11,23 @@ namespace FK.Editor.NodeEditor
     /// 
     /// This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/
     /// 
-    /// v1.1 05/2018
+    /// v2.0 06/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
-    public class NodeEditorBase : EditorWindow
+    /// <typeparam name="TNode"></typeparam>
+    /// <typeparam name="TNodeData"></typeparam>
+    public class NodeEditorBase<TNode, TNodeData> : EditorWindow where TNode : Node<TNode, TNodeData>, new() where TNodeData : NodeDataBase, new()
     {
         // ######################## DELEGATES ######################## //
-        public delegate void DelOnConnectionMade(Connection connection);
-        public delegate void DelOnConnectionRemoved(Connection connection);
+        public delegate void DelOnConnectionMade(Connection<TNode, TNodeData> connection);
+        public delegate void DelOnConnectionRemoved(Connection<TNode, TNodeData> connection);
 
         // ######################## PUBLIC VARS ######################## //
         /// <summary>
         /// All connections between nodes
         /// </summary>
-        public List<Connection> Connections;
+        public List<Connection<TNode, TNodeData>> Connections;
 
         /// <summary>
         /// This Delegate is invoked whenever a connection is made
@@ -36,6 +38,18 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         public DelOnConnectionRemoved OnConnectionRemoved;
 
+        /// <summary>
+        /// Returns the next ID that can be used
+        /// </summary>
+        public string NextNodeID
+        {
+            get
+            {
+                int nextID = ++_data.LastNodeId;
+                return nextID.ToString();
+            }
+        }
+
         // ######################## PROTECTED VARS ######################## //
         protected const int DEFAULT_NODE_WIDTH = 200;
         protected const int DEFAULT_NODE_HEIGHT = 50;
@@ -43,12 +57,17 @@ namespace FK.Editor.NodeEditor
         /// <summary>
         /// All nodes
         /// </summary>
-        protected List<Node> Nodes;
+        protected List<TNode> Nodes;
 
         /// <summary>
         /// Offset for drawing the background grid
         /// </summary>
         protected Vector2 Offset;
+
+        /// <summary>
+        /// The Data we are currently editing
+        /// </summary>
+        protected NodeEditableObject<TNodeData> _data;
 
         // ######################## PRIVATE VARS ######################## //
         /// <summary>
@@ -59,11 +78,11 @@ namespace FK.Editor.NodeEditor
         /// <summary>
         /// Currently selected In Point
         /// </summary>
-        private ConnectionPoint _selectedInPoint;
+        private ConnectionPoint<TNode, TNodeData> _selectedInPoint;
         /// <summary>
         /// Currently Selected Out Point
         /// </summary>
-        private ConnectionPoint _selectedOutPoint;
+        private ConnectionPoint<TNode, TNodeData> _selectedOutPoint;
 
         /// <summary>
         /// Drag delta for drawing the background grid
@@ -129,6 +148,10 @@ namespace FK.Editor.NodeEditor
             DrawGrid(20, 0.2f, Color.gray);
             DrawGrid(100, 0.4f, Color.gray);
 
+            // Do nothing of the following if we have no data
+            if (_data == null)
+                return;
+
             // draw connections
             DrawConnections();
             DrawConnectionLine(Event.current);
@@ -139,23 +162,115 @@ namespace FK.Editor.NodeEditor
             // provess all events
             ProcessEvents(Event.current);
 
+            // save the offset
+            _data.EditorOffset = Offset;
+
             // repaint if anything changed
             if (GUI.changed)
                 Repaint();
         }
+
+        // ######################## INITS ######################## //
+        /// <summary>
+        /// Initializes the Editor with the provided Data
+        /// </summary>
+        /// <param name="data"></param>
+        protected void Init(NodeEditableObject<TNodeData> data)
+        {
+            // clear anything that might have been in the window
+            Clear();
+
+            // save a reference to the data
+            _data = data;
+
+            // set offset from Data
+            Offset = data.EditorOffset;
+
+            // if there are no nodes in the data, let the programmer decide what to do, else load the data
+            if (_data.Nodes == null || _data.Nodes.Count == 0)
+            {
+                InitEmpty();
+            }
+            else
+            {
+                LoadData();
+            }
+
+            // clear any selection left over from automatic connection creation
+            ClearConnectionSelection();
+        }
+
+        /// <summary>
+        /// Is called when empty data is loaded
+        /// </summary>
+        protected virtual void InitEmpty() { }
 
         /// <summary>
         /// Clears the viewport of the editor by removing all nodes, connections and resetting the offset
         /// </summary>
         protected void Clear()
         {
-            Nodes = new List<Node>();
+            Nodes = new List<TNode>();
             ClearConnectionSelection();
-            Connections = new List<Connection>();
+            Connections = new List<Connection<TNode, TNodeData>>();
             Offset = Vector2.zero;
         }
 
         // ######################## FUNCTIONALITY ######################## //
+        /// <summary>
+        /// Loads all Nodes an Connections from the data
+        /// </summary>
+        private void LoadData()
+        {
+            // Load Nodes first
+            foreach (NodeDataBase node in _data.Nodes)
+            {
+                // add the node
+                TNode n = new TNode();
+                n.SetUp(this, node.ID, Vector2.zero, node.Width, node.PreferredHeight, node.Inputs.Length, node.Outputs.Length);
+                AddNode(node.PositionInEditor, n);
+            }
+
+            // now load the connections. To do this, we go through all nodes and look at the Inputs of them. 
+            // Each Node that is referenced in an Input must have the node we are looking at as an output, we check that and create the connection between the correct points
+            foreach (TNode node in Nodes)
+            {
+                // look at all Inputs of this node
+                for (int i = 0; i < node.Data.Inputs.Length; ++i)
+                {
+                    // if there are no nodes connected to this input, look ath th next one
+                    if (node.Data.Inputs[i].Connections == null || node.Data.Inputs[i].Connections.Count == 0)
+                        continue;
+
+                    // go through each ID at this Input
+                    foreach (NodeConnectionData connection in node.Data.Inputs[i].Connections)
+                    {
+                        // now look ar all other nodes. If any node matches the ID that is saved at the Current input, these two should have a connection
+                        foreach (TNode otherNode in Nodes)
+                        {
+                            if (otherNode.ID == connection.NodeID)
+                            {
+                                // go through all outputs of the other node
+                                for (int j = 0; j < otherNode.Data.Outputs.Length; ++j)
+                                {
+                                    // if there are no nodes connected to this output, look at th next one
+                                    if (otherNode.Data.Outputs[j].Connections == null || otherNode.Data.Outputs[j].Connections.Count == 0)
+                                        continue;
+
+                                    // of this output contains the node we are currently checking, make the connection
+                                    if (otherNode.Data.Outputs[j].Contains(node.ID, i))
+                                    {
+                                        CreateConnection(node.InPoints[i], otherNode.OutPoints[j]);
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Draws all nodes from oldest to newest
         /// </summary>
@@ -165,7 +280,7 @@ namespace FK.Editor.NodeEditor
             if (Nodes == null)
                 return;
 
-            foreach (Node node in Nodes)
+            foreach (TNode node in Nodes)
             {
                 node.Draw();
             }
@@ -193,12 +308,12 @@ namespace FK.Editor.NodeEditor
         {
             if (_selectedInPoint != null && _selectedOutPoint == null)
             {
-                DrawBezier(_selectedInPoint.PointRect.center, e.mousePosition);
+                DrawBezier(_selectedInPoint.PointRect.center, e.mousePosition, true);
             }
 
             if (_selectedOutPoint != null && _selectedInPoint == null)
             {
-                DrawBezier(_selectedOutPoint.PointRect.center, e.mousePosition);
+                DrawBezier(_selectedOutPoint.PointRect.center, e.mousePosition, false);
             }
         }
 
@@ -282,14 +397,14 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         /// <param name="mousePosition">Position to create the new node at</param>
         /// <param name="template">Node Template to use</param>
-        protected Node AddNode(Vector2 mousePosition, Node template)
+        protected TNode AddNode(Vector2 mousePosition, TNode template)
         {
             // create nodes list if necessary
             if (Nodes == null)
-                Nodes = new List<Node>();
+                Nodes = new List<TNode>();
 
             // create a new node from the template
-            Node node = template.Clone() as Node;
+            TNode node = template.Clone() as TNode;
 
             // initialize the node and add it to the list
             node.Init(mousePosition, _nodeStyle, _selectedNodeStyle, _inPointStyle, _outPointStyle, OnClickInPoint, OnClickOutPoint, RemoveNode);
@@ -301,7 +416,7 @@ namespace FK.Editor.NodeEditor
         /// Removes the provided node
         /// </summary>
         /// <param name="node"></param>
-        protected void RemoveNode(Node node)
+        protected void RemoveNode(TNode node)
         {
             // if there are connections, we need to test if the node we want to delete has any and if it has, delete them
             if (Connections != null)
@@ -340,7 +455,7 @@ namespace FK.Editor.NodeEditor
             // if there are nodes, we need to move them as well
             if (Nodes != null)
             {
-                foreach (Node node in Nodes)
+                foreach (Node<TNode, TNodeData> node in Nodes)
                 {
                     node.Drag(delta);
                 }
@@ -353,7 +468,7 @@ namespace FK.Editor.NodeEditor
         /// Function for when user clicks In Point. It selets it and creates a connection if an Out Point is selected
         /// </summary>
         /// <param name="inPoint"></param>
-        private void OnClickInPoint(ConnectionPoint inPoint)
+        private void OnClickInPoint(ConnectionPoint<TNode, TNodeData> inPoint)
         {
             // select point
             _selectedInPoint = inPoint;
@@ -377,7 +492,7 @@ namespace FK.Editor.NodeEditor
         ///  Function for when user clicks Out Point. It selets it and creates a connection if an In Point is selected
         /// </summary>
         /// <param name="outPoint"></param>
-        private void OnClickOutPoint(ConnectionPoint outPoint)
+        private void OnClickOutPoint(ConnectionPoint<TNode, TNodeData> outPoint)
         {
             // select point
             _selectedOutPoint = outPoint;
@@ -403,16 +518,16 @@ namespace FK.Editor.NodeEditor
         protected void CreateConnection()
         {
             if (Connections == null)
-                Connections = new List<Connection>();
+                Connections = new List<Connection<TNode, TNodeData>>();
 
 
-            foreach(Connection conection in Connections)
+            foreach(Connection<TNode, TNodeData> conection in Connections)
             {
                 if (conection.InPoint == _selectedInPoint && conection.OutPoint == _selectedOutPoint)
                     return;
             }
 
-            Connection con = new Connection(_selectedInPoint, _selectedOutPoint, RemoveConnection);
+            Connection<TNode, TNodeData> con = new Connection<TNode, TNodeData>(_selectedInPoint, _selectedOutPoint, RemoveConnection);
             Connections.Add(con);
 
             if (OnConnectionMade != null)
@@ -424,7 +539,7 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         /// <param name="inPoint"></param>
         /// <param name="outPoint"></param>
-        protected void CreateConnection(ConnectionPoint inPoint, ConnectionPoint outPoint)
+        protected void CreateConnection(ConnectionPoint<TNode, TNodeData> inPoint, ConnectionPoint<TNode, TNodeData> outPoint)
         {
             if (inPoint.Type != ConnectionPointType.IN || outPoint.Type != ConnectionPointType.OUT)
             {
@@ -442,7 +557,7 @@ namespace FK.Editor.NodeEditor
             CreateConnection();
         }
 
-        private void RemoveConnection(Connection connection)
+        private void RemoveConnection(Connection<TNode, TNodeData> connection)
         {
             if (OnConnectionRemoved != null)
                 OnConnectionRemoved(connection);
@@ -456,6 +571,36 @@ namespace FK.Editor.NodeEditor
             _selectedOutPoint = null;
         }
 
+        // ######################## DATA ######################## //
+        /// <summary>
+        /// Attempts to add the provided node to the Data. If a node with the same ID already exists, it returns that node.
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        public TNodeData AddNodeToData(TNodeData node)
+        {
+            return _data.AddNode(node) as TNodeData;
+        }
+
+        /// <summary>
+        /// Returns a node by ID
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
+        public TNodeData GetNodeFromData(string ID)
+        {
+            return _data.GetNode(ID) as TNodeData;
+        }
+
+        /// <summary>
+        /// Deletes the provided node, also deleting any references in other nodes to it
+        /// </summary>
+        /// <param name="node"></param>
+        public void DeleteNodeFromData(TNodeData node)
+        {
+            _data.DeleteNode(node);
+        }
+
 
         // ######################## UTILITIES ######################## //
         /// <summary>
@@ -463,7 +608,7 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         /// <param name="displayName">Display Name of the Node Type</param>
         /// <param name="template">Template Node</param>
-        protected void AddNodeType(string displayName, Node template)
+        protected void AddNodeType(string displayName, TNode template)
         {
             _contextMenuEntries.Add("New " + displayName, position => AddNode((Vector2)position, template));
         }
@@ -514,13 +659,26 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         /// <param name="start"></param>
         /// <param name="end"></param>
-        private void DrawBezier(Vector2 start, Vector2 end)
+        /// <param name="fromInPoint"></param>
+        private void DrawBezier(Vector2 start, Vector2 end, bool fromInPoint)
         {
+            Vector2 startTangent = Vector2.zero;
+            Vector2 endTangent = Vector2.zero;
+            if(fromInPoint)
+            {
+                startTangent = start + Vector2.left * 100f;
+                endTangent = end - Vector2.left * 100f;
+            } else
+            {
+                startTangent = start - Vector2.left * 100f;
+                endTangent = end + Vector2.left * 100f;
+            }
+
             Handles.DrawBezier(
                     start,
                     end,
-                    start - Vector2.left * 100f,
-                    end + Vector2.left * 100f,
+                    startTangent,
+                    endTangent,
                     Color.white,
                     null,
                     2f

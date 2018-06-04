@@ -14,14 +14,16 @@ namespace FK.Editor.NodeEditor
     /// 
     /// This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/
     /// 
-    /// 05/2018
+    /// v2.0 06/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
-    public class ConnectionPoint
+    /// <typeparam name="TNode"></typeparam>
+    /// <typeparam name="TNodeData"></typeparam>
+    public class ConnectionPoint<TNode, TNodeData> where TNode : Node<TNode, TNodeData>, new() where TNodeData : NodeDataBase, new()
     {
         // ######################## ENUMS & DELEGATES ######################## //
-        public delegate void DelOnClickConnectionPoint(ConnectionPoint point);
+        public delegate void DelOnClickConnectionPoint(ConnectionPoint<TNode, TNodeData> point);
 
 
         // ######################## PUBLIC VARS ######################## //
@@ -31,8 +33,11 @@ namespace FK.Editor.NodeEditor
         /// <summary>
         /// The Node this point belongs to
         /// </summary>
-        public Node PointNode;
+        public TNode PointNode;
 
+        /// <summary>
+        /// Label that is shown in the Editor
+        /// </summary>
         public string Label;
 
         /// <summary>
@@ -57,7 +62,7 @@ namespace FK.Editor.NodeEditor
         private int _numOfPointsOnNode;
 
         // ######################## INITS ######################## //
-        public ConnectionPoint(Node node, ConnectionPointType type, int index, int numOfSamePoints, GUIStyle style, DelOnClickConnectionPoint OnClick)
+        public ConnectionPoint(TNode node, ConnectionPointType type, int index, int numOfSamePoints, GUIStyle style, DelOnClickConnectionPoint OnClick)
         {
             PointNode = node;
             Type = type;
