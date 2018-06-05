@@ -6,6 +6,10 @@ namespace FK.Utility.ArraysAndLists
 {
     /// <summary>
     /// Extension Methods for manipulating and using Arrays and Lists
+    /// 
+    /// v1.0 06/2018
+    /// Written by Fabian Kober
+    /// fabian-kober@gmx.net
     /// </summary>
     public static class ArrayAndListExtensions
     {
@@ -62,7 +66,7 @@ namespace FK.Utility.ArraysAndLists
             for(int i = 0; i < array.Length; ++i)
             {
                 T elm = array[i];
-                if(elm != null && element != null && elm.Equals(element))
+                if(elm.Equals(element))
                 {
                     return i;
                 }

@@ -11,6 +11,10 @@ namespace FK.Utility
 
     /// <summary>
     /// Extension Methods for GameObject
+    /// 
+    /// v1.0 06/2018
+    /// Written by Fabian Kober
+    /// fabian-kober@gmx.net
     /// </summary>
     public static class GameObjectExtensions
     {
@@ -31,6 +35,10 @@ namespace FK.Utility
 
     /// <summary>
     /// Extension Methods for Transform and RectTransform
+    /// 
+    /// v1.1 06/2018
+    /// Written by Fabian Kober
+    /// fabian-kober@gmx.net
     /// </summary>
     public static class TransformExtensions
     {
@@ -159,7 +167,6 @@ namespace FK.Utility
             if (finished != null)
                 finished();
         }
-
 
 
         /// <summary>
@@ -542,14 +549,12 @@ namespace FK.Utility
 
             return host.StartCoroutine(InterpolateTransform(transform, target, duration, Space.Self, progressMapping, finished));
         }
-
-
         #endregion
 
 
         #region RECT_TRANSFORM
         /// <summary>
-        /// Sets width and Height of a Rect Transform
+        /// Sets width and height of a Rect Transform
         /// </summary>
         /// <param name="rectTransform"></param>
         /// <param name="width"></param>
@@ -560,6 +565,16 @@ namespace FK.Utility
             rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
         }
 
+        /// <summary>
+        /// Sets width and height of a Rect Transform
+        /// </summary>
+        /// <param name="rectTransform"></param>
+        /// <param name="newSizeDelta"></param>
+        public static void SetAnchoredSize(this RectTransform rectTransform, Vector2 newSizeDelta)
+        {
+            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, newSizeDelta.x);
+            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, newSizeDelta.y);
+        }
         #endregion
 
 

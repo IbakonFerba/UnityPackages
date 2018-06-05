@@ -4,6 +4,10 @@ namespace FK.Utility.Binary
 {
     /// <summary>
     /// Methods for bit manipulation and binary operations
+    /// 
+    /// v1.0 06/2018
+    /// Written by Fabian Kober
+    /// fabian-kober@gmx.net
     /// </summary>
     public static class BinaryUtility
     {
