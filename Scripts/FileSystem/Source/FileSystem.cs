@@ -8,7 +8,7 @@ namespace FK.IO
     /// <summary>
     /// Information of a File System entry
     /// </summary>
-    public struct FileSystemEntry
+    public class FileSystemEntry
     {
         /// <summary>
         /// The NAme without the Path
@@ -47,6 +47,10 @@ namespace FK.IO
     /// It provides easy traversal of the File Tree while only Displaying Files you want to see if you give it a list of extensions.
     /// You can define a path you want to go to and it loads that path and gives you all entries and it provides a history of entered directories.
     /// If needed, it can recursively reload all the Nodes that are loaded
+    /// 
+    /// v1.1 06/2018
+    /// Written by Fabian Kober
+    /// fabian-kober@gmx.net
     /// </summary>
     public class FileSystem
     {
@@ -358,6 +362,51 @@ namespace FK.IO
             }
 
             return entries;
+        }
+
+        /// <summary>
+        /// Returns a specific entry of the Filesystem
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public FileSystemEntry GetEntry(string path)
+        {
+            // if the requested entry is the current node, return it
+            if (path == _current.PathURL)
+            {
+                return Current;
+            }
+
+            // if the Path is not below the root, return nothing
+            if (!path.StartsWith(_root.PathURL))
+            {
+                Debug.LogError($"Provided path is no child of provided scope {_root.PathURL}");
+                return null;
+            }
+
+            // set the start node for the search. If the requested path is below the current node, search from the current node, else search from the root node
+            Node start = _root;
+            if (path.StartsWith(_current.PathURL)) // check whether the requested path starts with the path of the current node
+            {
+                // make sure that the path really is below the current node and not just a node on the same hierarchy level with a similar name 
+                // by checking if the path is longer thn the current one and if after  the current path there comes a separation symbol
+                if (path.Length > _current.PathURL.Length)
+                {
+                    if (path[_current.PathURL.Length] == _separationSymbol)
+                    {
+                        start = _current;
+                    }
+                }
+            }
+
+            // search the node
+            Node found = FindNode(start, path);
+
+            // if we found a node, return it, else return null
+            if (found != null)
+                return new FileSystemEntry(found.DisplayName, found.PathURL, found.Extension, found.Type);
+
+            return null;
         }
 
         /// <summary>
