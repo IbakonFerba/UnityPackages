@@ -4,6 +4,10 @@ namespace FK.Utility.MathExtensions
 {
     /// <summary>
     /// Extensions for math operations on math types
+    /// 
+    /// v1.1 06/2018
+    /// Written by Fabian Kober
+    /// fabian-kober@gmx.net
     /// </summary>
     public static class MathExtensionMethods
     {
