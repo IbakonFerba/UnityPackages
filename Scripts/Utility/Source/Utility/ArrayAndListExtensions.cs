@@ -7,7 +7,7 @@ namespace FK.Utility.ArraysAndLists
     /// <summary>
     /// Extension Methods for manipulating and using Arrays and Lists
     /// 
-    /// v1.0 06/2018
+    /// v1.1 06/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -209,6 +209,171 @@ namespace FK.Utility.ArraysAndLists
 
             return newArray;
         }
+        #endregion
+
+        #region LOGIC
+        /// <summary>
+        /// ANDs all the values of the array together
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static bool AND(this bool[] values)
+        {
+            bool returnValue = true;
+
+            foreach(bool value in values)
+            {
+                returnValue &= value;
+            }
+
+            return returnValue;
+        }
+
+        /// <summary>
+        /// ANDs all the values of the list together
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static bool AND(this List<bool> values)
+        {
+            bool returnValue = true;
+
+            foreach (bool value in values)
+            {
+                returnValue &= value;
+            }
+
+            return returnValue;
+        }
+
+        /// <summary>
+        /// ORs all the values of the array together
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static bool OR(this bool[] values)
+        {
+            bool returnValue = false;
+
+            foreach (bool value in values)
+            {
+                returnValue |= value;
+            }
+
+            return returnValue;
+        }
+
+        /// <summary>
+        /// ORs all the values of the list together
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static bool OR(this List<bool> values)
+        {
+            bool returnValue = false;
+
+            foreach (bool value in values)
+            {
+                returnValue |= value;
+            }
+
+            return returnValue;
+        }
+
+        /// <summary>
+        /// XORs all the values of the array together
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static bool XOR(this bool[] values)
+        {
+            bool returnValue = false;
+
+            foreach (bool value in values)
+            {
+                returnValue ^= value;
+            }
+
+            return returnValue;
+        }
+
+        /// <summary>
+        /// XORs all the values of the list together
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static bool XOR(this List<bool> values)
+        {
+            bool returnValue = false;
+
+            foreach (bool value in values)
+            {
+                returnValue ^= value;
+            }
+
+            return returnValue;
+        }
+
+        /// <summary>
+        /// NANDs all the values of the array together
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static bool NAND(this bool[] values)
+        {
+            return !values.AND();
+        }
+
+        /// <summary>
+        /// NANDs all the values of the list together
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static bool NAND(this List<bool> values)
+        {
+            return !values.AND();
+        }
+
+        /// <summary>
+        /// NORs all the values of the array together
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static bool NOR(this bool[] values)
+        {
+            return !values.OR();
+        }
+
+        /// <summary>
+        /// NORs all the values of the lsit together
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static bool NOR(this List<bool> values)
+        {
+            return !values.OR();
+        }
+
+        /// <summary>
+        /// NXORs all the values of the array together
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static bool XNOR(this bool[] values)
+        {
+            return !values.XOR();
+        }
+
+        /// <summary>
+        /// NXORs all the values of the list together
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static bool XNOR(this List<bool> values)
+        {
+            return !values.XOR();
+        }
+
         #endregion
     }
 }
