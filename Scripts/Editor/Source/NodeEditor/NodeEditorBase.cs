@@ -109,7 +109,7 @@ namespace FK.Editor.NodeEditor
         /// <summary>
         /// Background Color as 1x1 Texture2D
         /// </summary>
-        public static Texture2D Background;
+        private Texture2D Background;
 
 
 
@@ -135,15 +135,16 @@ namespace FK.Editor.NodeEditor
             _outPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right on.png") as Texture2D;
             _outPointStyle.border = new RectOffset(4, 4, 12, 12);
 
-            Background = new Texture2D(1, 1);
-            Background.SetPixel(1, 1, new Color(51f / 255, 51f / 255, 51f / 255, 1));
-            Background.Apply();
+            CreateBackground();
         }
 
 
         protected virtual void OnGUI()
         {
             // draw the grid in the background
+            if (Background == null)
+                CreateBackground();
+
             GUI.DrawTexture(new Rect(0, 0, position.width, position.height), Background, ScaleMode.StretchToFill);
             DrawGrid(20, 0.2f, Color.gray);
             DrawGrid(100, 0.4f, Color.gray);
@@ -685,6 +686,16 @@ namespace FK.Editor.NodeEditor
                 );
 
             GUI.changed = true;
+        }
+
+        /// <summary>
+        /// Creates the Background Texture
+        /// </summary>
+        private void CreateBackground()
+        {
+            Background = new Texture2D(1, 1);
+            Background.SetPixel(1, 1, new Color(51f / 255, 51f / 255, 51f / 255, 1));
+            Background.Apply();
         }
     }
 }
