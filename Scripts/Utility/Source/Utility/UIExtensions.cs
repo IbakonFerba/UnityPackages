@@ -2,13 +2,12 @@
 using UnityEngine.UI;
 using System.Collections;
 
-
 namespace FK.Utility.UI
 {
     /// <summary>
     /// Extension Methods for UI Elements
     /// 
-    /// v1.1 06/2018
+    /// v1.2 06/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -50,6 +49,50 @@ namespace FK.Utility.UI
         public static Coroutine Fade(this CanvasGroup group, MonoBehaviour host, bool FadeIn, float duration, CoroutineCallback finished = null)
         {
             return host.StartCoroutine(FadeCanvasGroup(group, FadeIn, duration, finished));
+        }
+
+        /// <summary>
+        /// Fades an Image in or out
+        /// </summary>
+        /// <param name="image">The image to Fade</param>
+        /// <param name="host">The MonoBehavoiur to run the Coroutine on</param>
+        /// <param name="FadeIn">Fade In?</param>
+        /// <param name="duration">Amount of seconds the fading should take</param>
+        /// <param name="finished">Callback for when the Fading is finished</param>
+        /// <returns></returns>
+        public static Coroutine Fade(this Image image, MonoBehaviour host, bool FadeIn, float duration, CoroutineCallback finished = null)
+        {
+            // get start and target color by taking the image color and setting its alpha value to 0 or 1
+            Color start = image.color;
+            start.a = FadeIn ? 0 : 1;
+            Color target = image.color;
+            target.a = FadeIn ? 1 : 0;
+
+            // set start color and start fading by using a Color Lerp
+            image.color = start;
+            return host.StartCoroutine(LerpColor(image, target, duration, finished));
+        }
+
+        /// <summary>
+        /// Fades a Text in or out
+        /// </summary>
+        /// <param name="text">The text to fade</param>
+        /// <param name="host">The MonoBehavoiur to run the Coroutine on</param>
+        /// <param name="FadeIn">Fade In?</param>
+        /// <param name="duration">Amount of seconds the fading should take</param>
+        /// <param name="finished">Callback for when the Fading is finished</param>
+        /// <returns></returns>
+        public static Coroutine Fade(this Text text, MonoBehaviour host, bool FadeIn, float duration, CoroutineCallback finished = null)
+        {
+            // get start and target color by taking the text color and setting its alpha value to 0 or 1
+            Color start = text.color;
+            start.a = FadeIn ? 0 : 1;
+            Color target = text.color;
+            target.a = FadeIn ? 1 : 0;
+
+            // set start color and start fading by using a Color Lerp
+            text.color = start;
+            return host.StartCoroutine(LerpColor(text, target, duration, finished));
         }
         #endregion
 
