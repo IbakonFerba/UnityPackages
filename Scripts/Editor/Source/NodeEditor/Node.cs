@@ -13,7 +13,7 @@ namespace FK.Editor.NodeEditor
     /// 
     /// This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/
     /// 
-    /// v2.0 06/2018
+    /// v2.1 06/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -474,6 +474,8 @@ namespace FK.Editor.NodeEditor
                     Outputs.Add(connection.InPoint.PointNode.ID, connection.InPoint.Index);
                 }
             }
+
+            Editor.SetDataDirty();
         }
 
         /// <summary>
@@ -493,6 +495,8 @@ namespace FK.Editor.NodeEditor
             {
                 Data.Outputs[connection.OutPoint.Index].Remove(connection.InPoint.PointNode.ID, connection.InPoint.Index);
             }
+
+            Editor.SetDataDirty();
         }
     }
 }

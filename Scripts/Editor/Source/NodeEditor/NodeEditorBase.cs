@@ -11,7 +11,7 @@ namespace FK.Editor.NodeEditor
     /// 
     /// This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/
     /// 
-    /// v2.0 06/2018
+    /// v2.1 06/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -46,6 +46,7 @@ namespace FK.Editor.NodeEditor
             get
             {
                 int nextID = ++_data.LastNodeId;
+                SetDataDirty();
                 return nextID.ToString();
             }
         }
@@ -138,6 +139,10 @@ namespace FK.Editor.NodeEditor
             CreateBackground();
         }
 
+        protected virtual void OnLostFocus()
+        {
+            AssetDatabase.SaveAssets();
+        }
 
         protected virtual void OnGUI()
         {
@@ -164,7 +169,11 @@ namespace FK.Editor.NodeEditor
             ProcessEvents(Event.current);
 
             // save the offset
-            _data.EditorOffset = Offset;
+            if(_data.EditorOffset != Offset)
+            {
+                _data.EditorOffset = Offset;
+                SetDataDirty();
+            }
 
             // repaint if anything changed
             if (GUI.changed)
@@ -191,6 +200,7 @@ namespace FK.Editor.NodeEditor
             if (_data.Nodes == null || _data.Nodes.Count == 0)
             {
                 InitEmpty();
+                SetDataDirty();
             }
             else
             {
@@ -410,6 +420,8 @@ namespace FK.Editor.NodeEditor
             // initialize the node and add it to the list
             node.Init(mousePosition, _nodeStyle, _selectedNodeStyle, _inPointStyle, _outPointStyle, OnClickInPoint, OnClickOutPoint, RemoveNode);
             Nodes.Add(node);
+
+            SetDataDirty();
             return node;
         }
 
@@ -443,6 +455,8 @@ namespace FK.Editor.NodeEditor
 
             // delete the node
             Nodes.Remove(node);
+
+            SetDataDirty();
         }
 
         /// <summary>
@@ -463,6 +477,8 @@ namespace FK.Editor.NodeEditor
             }
 
             GUI.changed = true;
+
+            SetDataDirty();
         }
 
         /// <summary>
@@ -574,12 +590,21 @@ namespace FK.Editor.NodeEditor
 
         // ######################## DATA ######################## //
         /// <summary>
+        /// Marks the data as dirty
+        /// </summary>
+        public void SetDataDirty()
+        {
+            EditorUtility.SetDirty(_data);
+        }
+
+        /// <summary>
         /// Attempts to add the provided node to the Data. If a node with the same ID already exists, it returns that node.
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
         public TNodeData AddNodeToData(TNodeData node)
         {
+            SetDataDirty();
             return _data.AddNode(node) as TNodeData;
         }
 
@@ -599,6 +624,7 @@ namespace FK.Editor.NodeEditor
         /// <param name="node"></param>
         public void DeleteNodeFromData(TNodeData node)
         {
+            SetDataDirty();
             _data.DeleteNode(node);
         }
 
