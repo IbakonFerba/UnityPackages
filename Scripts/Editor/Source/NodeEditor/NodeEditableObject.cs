@@ -5,7 +5,7 @@ using FK.Editor.NodeEditor;
 /// <summary>
 /// Base Class for an asset that can be edited with an Node Editor
 ///
-/// v2.0 06/2018
+/// v2.1 06/2018
 /// Written by Fabian Kober
 /// fabian-kober@gmx.net
 /// </summary>
@@ -91,7 +91,7 @@ public class NodeEditableObject<T> : ScriptableObject where T : NodeDataBase
     /// </summary>
     /// <param name="ID"></param>
     /// <returns></returns>
-    public T GetNode(string ID)
+    public T GetNode(int ID)
     {
         foreach (T node in Nodes)
         {

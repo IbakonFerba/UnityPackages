@@ -6,7 +6,7 @@ namespace FK.Editor.NodeEditor
     /// <summary>
     /// A List of connections to a Connection Point of another Node
     /// 
-    /// v2.0 06/2018
+    /// v2.1 06/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -24,7 +24,7 @@ namespace FK.Editor.NodeEditor
         /// <param name="nodeID"></param>
         /// <param name="pointIndex"></param>
         /// <returns></returns>
-        public bool Contains(string nodeID, int pointIndex)
+        public bool Contains(int nodeID, int pointIndex)
         {
             foreach(NodeConnectionData connection in Connections)
             {
@@ -42,7 +42,7 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         /// <param name="nodeID"></param>
         /// <returns></returns>
-        public bool Contains(string nodeID)
+        public bool Contains(int nodeID)
         {
             foreach (NodeConnectionData connection in Connections)
             {
@@ -60,7 +60,7 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         /// <param name="nodeID"></param>
         /// <param name="pointIndex"></param>
-        public void Add(string nodeID, int pointIndex)
+        public void Add(int nodeID, int pointIndex)
         {
             Connections.Add(new NodeConnectionData(nodeID, pointIndex));
         }
@@ -70,7 +70,7 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         /// <param name="nodeID"></param>
         /// <param name="pointIndex"></param>
-        public void Remove(string nodeID, int pointIndex)
+        public void Remove(int nodeID, int pointIndex)
         {
             foreach (NodeConnectionData connection in Connections)
             {
@@ -86,7 +86,7 @@ namespace FK.Editor.NodeEditor
         /// Removes all Connections to the provided node
         /// </summary>
         /// <param name="nodeID"></param>
-        public void Remove(string nodeID)
+        public void Remove(int nodeID)
         {
             for(int i = Connections.Count -1; i >= 0; --i)
             {
@@ -112,13 +112,13 @@ namespace FK.Editor.NodeEditor
         /// <summary>
         /// The ID of the Node this Connection Goes to
         /// </summary>
-        public string NodeID;
+        public int NodeID;
         /// <summary>
         /// The Index of the Connection Point of the Node this Connection Goes to
         /// </summary>
         public int PointIndex;
 
-        public NodeConnectionData(string nodeID, int pointIndex)
+        public NodeConnectionData(int nodeID, int pointIndex)
         {
             NodeID = nodeID;
             PointIndex = pointIndex;
@@ -139,7 +139,7 @@ namespace FK.Editor.NodeEditor
         /// <summary>
         /// ID of the Node, should be unique
         /// </summary>
-        public string ID;
+        public int ID;
 
         /// <summary>
         /// The Node IDs of nodes connected to the Inputs. The index of the ConnectionPointData Object is the Input the node is connected to, it contains a list of Connections because more than one node can be connected to the same input
@@ -168,7 +168,7 @@ namespace FK.Editor.NodeEditor
 
         // ######################## INITS ######################## //
         public NodeDataBase() { }
-        public NodeDataBase(string id)
+        public NodeDataBase(int id)
         {
             ID = id;
         }

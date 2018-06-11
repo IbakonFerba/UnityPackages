@@ -13,7 +13,7 @@ namespace FK.Editor.NodeEditor
     /// 
     /// This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/
     /// 
-    /// v2.1 06/2018
+    /// v2.2 06/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -37,7 +37,7 @@ namespace FK.Editor.NodeEditor
         /// <summary>
         /// The ID of the Node.
         /// </summary>
-        public string ID = "ID";
+        public int ID = -1;
         /// <summary>
         /// Title of the Node that is displayed at the top of the node
         /// </summary>
@@ -115,6 +115,16 @@ namespace FK.Editor.NodeEditor
         // ######################## INITS ######################## //
         public Node() { }
 
+        public Node(NodeEditorBase<T, TData> editor, Vector2 position, float width, float height, int numOfInPoints, int numOfOutPoints)
+        {
+            SetUp(editor, position, width, height, numOfInPoints, numOfOutPoints);
+        }
+
+        public Node(NodeEditorBase<T, TData> editor, int id, Vector2 position, float width, float height, int numOfInPoints, int numOfOutPoints)
+        {
+            SetUp(editor, id, position, width, height, numOfInPoints, numOfOutPoints);
+        }
+
         /// <summary>
         /// Initializes values of the Node
         /// </summary>
@@ -126,7 +136,7 @@ namespace FK.Editor.NodeEditor
         /// <param name="numOfOutPoints"></param>
         public void SetUp(NodeEditorBase<T, TData> editor, Vector2 position, float width, float height, int numOfInPoints, int numOfOutPoints)
         {
-            ID = null;
+            ID = -1;
 
             Editor = editor;
             NodeRect = new Rect(position.x, position.y, width, height);
@@ -152,20 +162,10 @@ namespace FK.Editor.NodeEditor
         /// <param name="height"></param>
         /// <param name="numOfInPoints"></param>
         /// <param name="numOfOutPoints"></param>
-        public void SetUp(NodeEditorBase<T, TData> editor, string id, Vector2 position, float width, float height, int numOfInPoints, int numOfOutPoints)
+        public void SetUp(NodeEditorBase<T, TData> editor, int id, Vector2 position, float width, float height, int numOfInPoints, int numOfOutPoints)
         {
             SetUp(editor, position, width, height, numOfInPoints, numOfOutPoints);
             ID = id;
-        }
-
-        public Node(NodeEditorBase<T, TData> editor, Vector2 position, float width, float height, int numOfInPoints, int numOfOutPoints)
-        {
-            SetUp(editor, position, width, height, numOfInPoints, numOfOutPoints);
-        }
-
-        public Node(NodeEditorBase<T, TData> editor, string id, Vector2 position, float width, float height, int numOfInPoints, int numOfOutPoints)
-        {
-            SetUp(editor, id, position, width, height, numOfInPoints, numOfOutPoints);
         }
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace FK.Editor.NodeEditor
             }
 
             // if the node has no ID yet, get one from the editor
-            if (string.IsNullOrEmpty(ID))
+            if (ID == -1)
             {
                 ID = Editor.NextNodeID;
             }
