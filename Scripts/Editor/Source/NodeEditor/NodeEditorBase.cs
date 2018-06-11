@@ -11,7 +11,7 @@ namespace FK.Editor.NodeEditor
     /// 
     /// This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/
     /// 
-    /// v2.1 06/2018
+    /// v2.2 06/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -41,13 +41,13 @@ namespace FK.Editor.NodeEditor
         /// <summary>
         /// Returns the next ID that can be used
         /// </summary>
-        public string NextNodeID
+        public int NextNodeID
         {
             get
             {
                 int nextID = ++_data.LastNodeId;
                 SetDataDirty();
-                return nextID.ToString();
+                return nextID;
             }
         }
 
@@ -613,7 +613,7 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         /// <param name="ID"></param>
         /// <returns></returns>
-        public TNodeData GetNodeFromData(string ID)
+        public TNodeData GetNodeFromData(int ID)
         {
             return _data.GetNode(ID) as TNodeData;
         }
