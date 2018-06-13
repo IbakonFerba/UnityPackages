@@ -1,13 +1,14 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System;
 
 namespace FK.Utility.UI
 {
     /// <summary>
     /// Extension Methods for UI Elements
     /// 
-    /// v1.2 06/2018
+    /// v1.3 06/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -22,7 +23,7 @@ namespace FK.Utility.UI
         /// <param name="duration">Amount of seconds the fading should take</param>
         /// <param name="finished">Callback for when the Fading is finished</param>
         /// <returns></returns>
-        private static IEnumerator FadeCanvasGroup(CanvasGroup group, bool FadeIn, float duration, CoroutineCallback finished)
+        private static IEnumerator FadeCanvasGroup(CanvasGroup group, bool FadeIn, float duration, Action finished)
         {
             float progress = 0;
             while (progress < 1)
@@ -46,7 +47,7 @@ namespace FK.Utility.UI
         /// <param name="FadeIn">Fade In?</param>
         /// <param name="duration">Amount of seconds the fading should take</param>
         /// <param name="finished">Callback for when the Fading is finished</param>
-        public static Coroutine Fade(this CanvasGroup group, MonoBehaviour host, bool FadeIn, float duration, CoroutineCallback finished = null)
+        public static Coroutine Fade(this CanvasGroup group, MonoBehaviour host, bool FadeIn, float duration, Action finished = null)
         {
             return host.StartCoroutine(FadeCanvasGroup(group, FadeIn, duration, finished));
         }
@@ -60,7 +61,7 @@ namespace FK.Utility.UI
         /// <param name="duration">Amount of seconds the fading should take</param>
         /// <param name="finished">Callback for when the Fading is finished</param>
         /// <returns></returns>
-        public static Coroutine Fade(this Image image, MonoBehaviour host, bool FadeIn, float duration, CoroutineCallback finished = null)
+        public static Coroutine Fade(this Image image, MonoBehaviour host, bool FadeIn, float duration, Action finished = null)
         {
             // get start and target color by taking the image color and setting its alpha value to 0 or 1
             Color start = image.color;
@@ -82,7 +83,7 @@ namespace FK.Utility.UI
         /// <param name="duration">Amount of seconds the fading should take</param>
         /// <param name="finished">Callback for when the Fading is finished</param>
         /// <returns></returns>
-        public static Coroutine Fade(this Text text, MonoBehaviour host, bool FadeIn, float duration, CoroutineCallback finished = null)
+        public static Coroutine Fade(this Text text, MonoBehaviour host, bool FadeIn, float duration, Action finished = null)
         {
             // get start and target color by taking the text color and setting its alpha value to 0 or 1
             Color start = text.color;
@@ -105,7 +106,7 @@ namespace FK.Utility.UI
         /// <param name="duration">Amount of seconds the lerp should take</param>
         /// <param name="finished">Callback for when the Fading is finished</param>
         /// <returns></returns>
-        private static IEnumerator LerpColor(Image image, Color target, float duration, CoroutineCallback finished)
+        private static IEnumerator LerpColor(Image image, Color target, float duration, Action finished)
         {
             Color start = image.color;
 
@@ -131,7 +132,7 @@ namespace FK.Utility.UI
         /// <param name="duration">Amount of seconds the lerp should take</param>
         /// <param name="finished">Callback for when the Fading is finished</param>
         /// <returns></returns>
-        private static IEnumerator LerpColor(Text text, Color target, float duration, CoroutineCallback finished)
+        private static IEnumerator LerpColor(Text text, Color target, float duration, Action finished)
         {
             Color start = text.color;
 
@@ -158,7 +159,7 @@ namespace FK.Utility.UI
         /// <param name="duration">Amount of seconds the lerp should take</param>
         /// <param name="finished">Callback for when the Fading is finished</param>
         /// <returns></returns>
-        public static Coroutine LerpColor(this Image image, MonoBehaviour host, Color target, float duration, CoroutineCallback finished = null)
+        public static Coroutine LerpColor(this Image image, MonoBehaviour host, Color target, float duration, Action finished = null)
         {
             return host.StartCoroutine(LerpColor(image, target, duration, finished));
         }
@@ -172,7 +173,7 @@ namespace FK.Utility.UI
         /// <param name="duration">Amount of seconds the lerp should take</param>
         /// <param name="finished">Callback for when the Fading is finished</param>
         /// <returns></returns>
-        public static Coroutine LerpColor(this Text text, MonoBehaviour host, Color target, float duration, CoroutineCallback finished = null)
+        public static Coroutine LerpColor(this Text text, MonoBehaviour host, Color target, float duration, Action finished = null)
         {
             return host.StartCoroutine(LerpColor(text, target, duration, finished));
         }
