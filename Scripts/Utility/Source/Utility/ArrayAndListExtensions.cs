@@ -7,7 +7,7 @@ namespace FK.Utility.ArraysAndLists
     /// <summary>
     /// Extension Methods for manipulating and using Arrays and Lists
     /// 
-    /// v1.1 06/2018
+    /// v1.2 06/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -114,7 +114,8 @@ namespace FK.Utility.ArraysAndLists
         /// <returns></returns>
         public static T GetWithProbability<T>(this T[] objects, float[] probabilities)
         {
-            if (objects.Length != probabilities.Length) //make sure there are as many probabilities as objects
+            float[] normalizedProbabilities = probabilities.Normalize();
+            if (objects.Length != normalizedProbabilities.Length) //make sure there are as many probabilities as objects
             {
                 throw new System.ArgumentException("Objects must have the same count as probabilities");
             }
@@ -127,16 +128,28 @@ namespace FK.Utility.ArraysAndLists
 
                 for (int i = 0; i < objects.Length; i++)
                 {
-                    int objectCount = Mathf.FloorToInt(probabilities[i] * 100); //determine how many times this object should be in the array
+                    int objectCount = Mathf.RoundToInt(normalizedProbabilities[i] * 100); //determine how many times this object should be in the array
 
                     for (int j = 0; j < objectCount; j++) //ad the object to the array
                     {
                         int objsIndex = lastObjsIndex + 1;
                         objs[objsIndex] = objects[i];
                         lastObjsIndex = objsIndex;
+                        if (lastObjsIndex >= objs.Length - 1)
+                            goto Return;
                     }
                 }
 
+                if(lastObjsIndex != objs.Length-1)
+                {
+                    int objIndex = 0;
+                    for(int i = objs.Length - 1 - lastObjsIndex; i < objs.Length; ++i)
+                    {
+                        objs[i] = objects[objIndex];
+                        objIndex = objIndex < objects.Length-1 ? objIndex + 1 : 0;
+                    }
+                }
+                Return:
                 return objs[Random.Range(0, objs.Length)]; //choose an object
             }
         }
@@ -208,6 +221,118 @@ namespace FK.Utility.ArraysAndLists
             }
 
             return newArray;
+        }
+        #endregion
+
+        #region MATH
+        /// <summary>
+        /// Sums the entries of the Array together
+        /// </summary>
+        /// <param name="array"></param>
+        /// <returns></returns>
+        public static int Sum(this int[] array)
+        {
+            int sum = 0;
+            for(int i = 0; i < array.Length; ++i)
+            {
+                sum += array[i];
+            }
+
+            return sum;
+        }
+
+        /// <summary>
+        /// Sums the entries of the Array together
+        /// </summary>
+        /// <param name="array"></param>
+        /// <returns></returns>
+        public static long Sum(this long[] array)
+        {
+            long sum = 0L;
+            for (int i = 0; i < array.Length; ++i)
+            {
+                sum += array[i];
+            }
+
+            return sum;
+        }
+
+        /// <summary>
+        /// Sums the entries of the Array together
+        /// </summary>
+        /// <param name="array"></param>
+        /// <returns></returns>
+        public static float Sum(this float[] array)
+        {
+            float sum = 0f;
+            for (int i = 0; i < array.Length; ++i)
+            {
+                sum += array[i];
+            }
+
+            return sum;
+        }
+
+        /// <summary>
+        /// Sums the entries of the Array together
+        /// </summary>
+        /// <param name="array"></param>
+        /// <returns></returns>
+        public static double Sum(this double[] array)
+        {
+            double sum = 0d;
+            for (int i = 0; i < array.Length; ++i)
+            {
+                sum += array[i];
+            }
+
+            return sum;
+        }
+
+        /// <summary>
+        /// Returns a new Array with the values scaled so they add up exactly to one
+        /// </summary>
+        /// <param name="array"></param>
+        /// <returns></returns>
+        public static float[] Normalize(this float[] array)
+        {
+            float[] returnArray = new float[array.Length];
+            float sum = array.Sum();
+            float error = 1.0f - sum;
+            if (!error.Equals(0f))
+            {
+                float perElementError = error / array.Length;
+
+                for (int i = 0; i < array.Length; ++i)
+                {
+                    returnArray[i] = array[i] + perElementError;
+                }
+            }
+
+            return returnArray;
+        }
+
+        /// <summary>
+        /// Returns a new Array with the values scaled so they add up exactly to one
+        /// </summary>
+        /// <param name="array"></param>
+        /// <returns></returns>
+        public static double[] Normalize(this double[] array)
+        {
+            double[] returnArray = new double[array.Length];
+            double sum = array.Sum();
+            double error = 1.0d - sum;
+            if (!error.Equals(0d))
+            {
+                double perElementError = error / array.Length;
+
+                for (int i = 0; i < array.Length; ++i)
+                {
+                    returnArray[i] = array[i] + perElementError;
+                }
+            }
+
+            return returnArray;
         }
         #endregion
 
