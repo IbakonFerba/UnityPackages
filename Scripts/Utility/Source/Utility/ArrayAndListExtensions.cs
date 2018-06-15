@@ -7,7 +7,7 @@ namespace FK.Utility.ArraysAndLists
     /// <summary>
     /// Extension Methods for manipulating and using Arrays and Lists
     /// 
-    /// v1.2 06/2018
+    /// v1.3 06/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -63,10 +63,10 @@ namespace FK.Utility.ArraysAndLists
         /// <returns></returns>
         public static int Search<T>(this T[] array, T element)
         {
-            for(int i = 0; i < array.Length; ++i)
+            for (int i = 0; i < array.Length; ++i)
             {
                 T elm = array[i];
-                if(elm.Equals(element))
+                if (elm.Equals(element))
                 {
                     return i;
                 }
@@ -140,13 +140,13 @@ namespace FK.Utility.ArraysAndLists
                     }
                 }
 
-                if(lastObjsIndex != objs.Length-1)
+                if (lastObjsIndex != objs.Length - 1)
                 {
                     int objIndex = 0;
-                    for(int i = objs.Length - 1 - lastObjsIndex; i < objs.Length; ++i)
+                    for (int i = objs.Length - 1 - lastObjsIndex; i < objs.Length; ++i)
                     {
                         objs[i] = objects[objIndex];
-                        objIndex = objIndex < objects.Length-1 ? objIndex + 1 : 0;
+                        objIndex = objIndex < objects.Length - 1 ? objIndex + 1 : 0;
                     }
                 }
                 Return:
@@ -215,7 +215,7 @@ namespace FK.Utility.ArraysAndLists
         {
             T[] newArray = new T[index + 1];
 
-            for(int i = 0; i <= index; i++)
+            for (int i = 0; i <= index; i++)
             {
                 newArray[i] = array[i];
             }
@@ -233,7 +233,7 @@ namespace FK.Utility.ArraysAndLists
         public static int Sum(this int[] array)
         {
             int sum = 0;
-            for(int i = 0; i < array.Length; ++i)
+            for (int i = 0; i < array.Length; ++i)
             {
                 sum += array[i];
             }
@@ -297,18 +297,21 @@ namespace FK.Utility.ArraysAndLists
         public static float[] Normalize(this float[] array)
         {
             float[] returnArray = new float[array.Length];
-            float sum = array.Sum();
-            float error = 1.0f - sum;
-            if (!error.Equals(0f))
+            float normalizer = 0;
+            for (int i = 0; i < returnArray.Length; ++i)
             {
-                float perElementError = error / array.Length;
-
-                for (int i = 0; i < array.Length; ++i)
-                {
-                    returnArray[i] = array[i] + perElementError;
-                }
+                normalizer += array[i];
             }
 
+            if (normalizer.Equals(0.0f))
+                return array;
+
+            normalizer = 1 / normalizer;
+
+            for (int i = 0; i < returnArray.Length; ++i)
+            {
+                returnArray[i] = array[i] * normalizer;
+            }
             return returnArray;
         }
 
@@ -320,18 +323,21 @@ namespace FK.Utility.ArraysAndLists
         public static double[] Normalize(this double[] array)
         {
             double[] returnArray = new double[array.Length];
-            double sum = array.Sum();
-            double error = 1.0d - sum;
-            if (!error.Equals(0d))
+            double normalizer = 0;
+            for (int i = 0; i < returnArray.Length; ++i)
             {
-                double perElementError = error / array.Length;
-
-                for (int i = 0; i < array.Length; ++i)
-                {
-                    returnArray[i] = array[i] + perElementError;
-                }
+                normalizer += array[i];
             }
 
+            if (normalizer.Equals(0.0f))
+                return array;
+
+            normalizer = 1 / normalizer;
+
+            for (int i = 0; i < returnArray.Length; ++i)
+            {
+                returnArray[i] = array[i] * normalizer;
+            }
             return returnArray;
         }
         #endregion
@@ -346,7 +352,7 @@ namespace FK.Utility.ArraysAndLists
         {
             bool returnValue = true;
 
-            foreach(bool value in values)
+            foreach (bool value in values)
             {
                 returnValue &= value;
             }
