@@ -3,7 +3,7 @@
 namespace FK.Utility
 {
     /// <summary>
-    /// Base Class for Singleton MonoBehaviours
+    /// <para>Base Class for Singleton MonoBehaviours</para>
     /// 
     /// v1.0 06/2018
     /// Written by Fabian Kober

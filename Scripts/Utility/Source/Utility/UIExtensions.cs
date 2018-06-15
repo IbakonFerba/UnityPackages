@@ -6,7 +6,7 @@ using System;
 namespace FK.Utility.UI
 {
     /// <summary>
-    /// Extension Methods for UI Elements
+    /// <para>Extension Methods for UI Elements</para>
     /// 
     /// v1.3 06/2018
     /// Written by Fabian Kober
