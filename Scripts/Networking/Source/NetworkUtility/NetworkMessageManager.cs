@@ -4,12 +4,16 @@ using FK.Utility.ArraysAndLists;
 namespace UnityEngine.Networking.NetworkSystem
 {
     /// <summary>
-    /// A Manager for Network Messages. This enables you to have multiple scripts monitoring the same network message and all of them actually receiving it.
-    /// If you register a handler for a network message, the message will be removed after one handler received it. So if multiple handlers are monitoring the same
+    /// <para>A Manager for Network Messages. This enables you to have multiple scripts monitoring the same network message and all of them actually receiving it.</para>
+    /// <para>If you register a handler for a network message, the message will be removed after one handler received it. So if multiple handlers are monitoring the same
     /// message, only one of them will actually receive it.
-    /// With this manager you can have as many scripts as you like monitoring the message, and you get the message allready deserialized back
+    /// With this manager you can have as many scripts as you like monitoring the message, and you get the message allready deserialized back.</para>
     /// 
-    /// Make sure to clean up handlers when deleting objects or changing scenes, as this class is static and everything persists!
+    ///<para>Make sure to clean up handlers when deleting objects or changing scenes, as this class is static and everything persists!</para>
+    ///
+    /// v1.0 05/2018
+    /// Written by Fabian Kober
+    /// fabian-kober@gmx.net
     /// </summary>
     public static class NetworkMessageManager
     {

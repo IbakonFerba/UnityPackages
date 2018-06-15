@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace FK.Editor.NodeEditor
 {
     /// <summary>
-    /// A List of connections to a Connection Point of another Node
+    /// <para>A List of connections to a Connection Point of another Node</para>
     /// 
     /// v2.1 06/2018
     /// Written by Fabian Kober
@@ -100,7 +100,7 @@ namespace FK.Editor.NodeEditor
     }
 
     /// <summary>
-    /// Data for a Connection to a Connection Point
+    /// <para>Data for a Connection to a Connection Point</para>
     /// 
     /// v2.0 06/2018
     /// Written by Fabian Kober
@@ -126,7 +126,7 @@ namespace FK.Editor.NodeEditor
     }
 
     /// <summary>
-    /// Data for a NodeEditor Node
+    /// <para>Data for a NodeEditor Node</para>
     /// 
     /// v2.0 06/2018
     /// Written by Fabian Kober

@@ -6,10 +6,10 @@ using FK.Utility.ArraysAndLists;
 namespace FK.Editor.NodeEditor
 {
     /// <summary>
-    /// This is the Base for a node based Editor with multiple types of nodes and variable numbers of connections per node.
-    /// To create your own Node Based Editor, create an Editor class that inherits from this one. Make sure to call OnEnable and OnGui of this script if you overwrite them.
+    /// <para>This is the Base for a node based Editor with multiple types of nodes and variable numbers of connections per node.</para>
+    /// <para>To create your own Node Based Editor, create an Editor class that inherits from this one. Make sure to call OnEnable and OnGui of this script if you overwrite them.</para>
     /// 
-    /// This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/
+    /// <para>This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/ </para>
     /// 
     /// v2.2 06/2018
     /// Written by Fabian Kober

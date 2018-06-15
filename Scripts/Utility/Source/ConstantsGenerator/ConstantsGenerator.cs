@@ -7,10 +7,11 @@ using System.Text.RegularExpressions;
 namespace FK.ConstantsGenerator
 {
     /// <summary>
-    /// A Editor Tool that generates constants classes for Tags, Layers and Scenes
+    /// <para>A Editor Tool that generates constants classes for Tags, Layers and Scenes</para>
     /// 
     /// v1.0, 2018/05
-    /// Written by Fabian Kober, fabian-kober@gmx.net
+    /// Written by Fabian Kober
+    /// fabian-kober@gmx.net
     /// </summary>
     public class ConstantsGenerator : EditorWindow
     {

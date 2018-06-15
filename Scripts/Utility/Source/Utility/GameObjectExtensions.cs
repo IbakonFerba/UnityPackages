@@ -6,7 +6,7 @@ using System;
 namespace FK.Utility
 {
     /// <summary>
-    /// Extension Methods for GameObject
+    /// <para>Extension Methods for GameObject</para>
     /// 
     /// v1.0 06/2018
     /// Written by Fabian Kober
@@ -30,7 +30,7 @@ namespace FK.Utility
     }
 
     /// <summary>
-    /// Extension Methods for Transform and RectTransform
+    /// <para>Extension Methods for Transform and RectTransform</para>
     /// 
     /// v1.2 06/2018
     /// Written by Fabian Kober

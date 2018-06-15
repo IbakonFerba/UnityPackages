@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using FK.Utility.ArraysAndLists;
 
 /// <summary>
-/// A randomly generated maze using the backtracing algorithm described here in an interative way: https://en.wikipedia.org/wiki/Maze_generation_algorithm#Recursive_backtracker
-/// The maze generated is a doubly linked list of connected cells
+/// <para>A randomly generated maze using the backtracing algorithm described here in an interative way: https://en.wikipedia.org/wiki/Maze_generation_algorithm#Recursive_backtracker
+/// The maze generated is a doubly linked list of connected cells </para>
+/// 
+/// v1.0 05/2018
+/// Written by Fabian Kober
+/// fabian-kober@gmx.net
 /// </summary>
 public class Maze
 {

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace FK.Utility.ArraysAndLists
 {
     /// <summary>
-    /// Extension Methods for manipulating and using Arrays and Lists
+    /// <para>Extension Methods for manipulating and using Arrays and Lists</para>
     /// 
     /// v1.3 06/2018
     /// Written by Fabian Kober

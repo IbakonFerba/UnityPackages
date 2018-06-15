@@ -3,7 +3,7 @@
 namespace FK.Utility.Binary
 {
     /// <summary>
-    /// Methods for bit manipulation and binary operations
+    /// <para>Methods for bit manipulation and binary operations</para>
     /// 
     /// v1.0 06/2018
     /// Written by Fabian Kober

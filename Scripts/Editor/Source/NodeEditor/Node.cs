@@ -6,12 +6,12 @@ using System.Collections.Generic;
 namespace FK.Editor.NodeEditor
 {
     /// <summary>
-    /// Base for a Node of the Node Editor
+    /// <para>Base for a Node of the Node Editor</para>
     /// 
-    /// The abstract function Init() is called on a new node when it is created in the editor.
-    /// In the abstract function DrawContent() you can draw all the content of the Node using EditorGUILayout
+    /// <para>The abstract function Init() is called on a new node when it is created in the editor.
+    /// In the abstract function DrawContent() you can draw all the content of the Node using EditorGUILayout.</para>
     /// 
-    /// This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/
+    /// <para>This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/ </para>
     /// 
     /// v2.2 06/2018
     /// Written by Fabian Kober

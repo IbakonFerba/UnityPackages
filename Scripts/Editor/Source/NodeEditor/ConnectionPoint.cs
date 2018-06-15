@@ -10,9 +10,9 @@ namespace FK.Editor.NodeEditor
     }
 
     /// <summary>
-    /// A connetion point for Nodes of my NodeEditor. It knows which Node it belongs to, so you can use it to follow conenctions
+    /// <para>A connetion point for Nodes of my NodeEditor. It knows which Node it belongs to, so you can use it to follow conenctions.</para>
     /// 
-    /// This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/
+    /// <para>This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/ </para>
     /// 
     /// v2.0 06/2018
     /// Written by Fabian Kober

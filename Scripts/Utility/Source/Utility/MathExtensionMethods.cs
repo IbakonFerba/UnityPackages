@@ -3,7 +3,7 @@
 namespace FK.Utility.MathExtensions
 {
     /// <summary>
-    /// Extensions for math operations on math types
+    /// <para>Extensions for math operations on math types</para>
     /// 
     /// v1.1 06/2018
     /// Written by Fabian Kober
