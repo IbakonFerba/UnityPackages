@@ -4,9 +4,9 @@ using UnityEditor;
 namespace FK.Editor.NodeEditor
 {
     /// <summary>
-    /// A Connection of my NodeEditor
+    /// <para>A Connection of my NodeEditor</para>
     /// 
-    /// This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/
+    /// <para>This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/ </para>
     /// 
     /// v2.0 06/2018
     /// Written by Fabian Kober

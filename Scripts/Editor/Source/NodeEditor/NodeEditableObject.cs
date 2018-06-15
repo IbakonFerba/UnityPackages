@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using FK.Editor.NodeEditor;
 
 /// <summary>
-/// Base Class for an asset that can be edited with an Node Editor
+/// <para>Base Class for an asset that can be edited with an Node Editor</para>
 ///
 /// v2.1 06/2018
 /// Written by Fabian Kober
