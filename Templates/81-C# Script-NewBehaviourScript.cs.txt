@@ -1,0 +1,42 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class #SCRIPTNAME# : MonoBehaviour 
+{
+	// ######################## STRUCTS & CLASSES ######################## //
+
+	// ######################## ENUMS & DELEGATES ######################## //
+
+	// ######################## PROPERTIES ######################## //
+
+	// ######################## PUBLIC VARS ######################## //
+
+	// ######################## PROTECTED VARS ######################## //
+
+	// ######################## PRIVATE VARS ######################## //
+
+	// ######################## UNITY EVENT FUNCTIONS ######################## //
+	private void Start () {
+		Init();
+	}
+	
+	private void Update () {
+		#NOTRIM#
+	}
+
+	// ######################## INITS ######################## //
+	///<summary>
+	/// Does the Init for this Behaviour
+	///</summary>
+	private void Init() 
+	{
+		#NOTRIM#
+	}
+
+	// ######################## FUNCTIONALITY ######################## //
+
+	// ######################## COROUTINES ######################## //
+
+	// ######################## UTILITies ######################## //
+}
