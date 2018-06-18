@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// <para>Class Info</para>
+///
+/// v1.0 mm/20yy
+/// Written by Fabian Kober
+/// fabian-kober@gmx.net
+/// </summary>
 public class #SCRIPTNAME# : MonoBehaviour 
 {
 	// ######################## STRUCTS & CLASSES ######################## //
