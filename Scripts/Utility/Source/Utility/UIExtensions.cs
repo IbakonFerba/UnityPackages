@@ -8,7 +8,7 @@ namespace FK.Utility.UI
     /// <summary>
     /// <para>Extension Methods for UI Elements</para>
     /// 
-    /// v1.3 06/2018
+    /// v2.0 06/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -22,13 +22,15 @@ namespace FK.Utility.UI
         /// <param name="FadeIn">Fade In?</param>
         /// <param name="duration">Amount of seconds the fading should take</param>
         /// <param name="finished">Callback for when the Fading is finished</param>
+        /// <param name="progressMapping">Function for mapping the progress, takes one float argument between 0 and 1 and should return a float between 0 and 1</param>
         /// <returns></returns>
-        private static IEnumerator FadeCanvasGroup(CanvasGroup group, bool FadeIn, float duration, Action finished)
+        private static IEnumerator FadeCanvasGroup(CanvasGroup group, bool FadeIn, float duration, Action finished, Func<float, float> progressMapping)
         {
             float progress = 0;
             while (progress < 1)
             {
-                group.alpha = FadeIn ? progress : 1 - progress;
+                float mappedProgress = progressMapping != null ? Mathf.Clamp01(progressMapping(progress)) : progress;
+                group.alpha = FadeIn ? mappedProgress : 1 - mappedProgress;
                 yield return null;
                 progress += Time.deltaTime / duration;
             }
@@ -49,51 +51,61 @@ namespace FK.Utility.UI
         /// <param name="finished">Callback for when the Fading is finished</param>
         public static Coroutine Fade(this CanvasGroup group, MonoBehaviour host, bool FadeIn, float duration, Action finished = null)
         {
-            return host.StartCoroutine(FadeCanvasGroup(group, FadeIn, duration, finished));
+            return host.StartCoroutine(FadeCanvasGroup(group, FadeIn, duration, finished, null));
         }
 
         /// <summary>
-        /// Fades an Image in or out
+        /// Fades a Canvas Group in or out
         /// </summary>
-        /// <param name="image">The image to Fade</param>
+        /// <param name="group">The Group to fade</param>
+        /// <param name="host">The MonoBehavoiur to run the Coroutine on</param>
+        /// <param name="FadeIn">Fade In?</param>
+        /// <param name="duration">Amount of seconds the fading should take</param>
+        /// <param name="progressMapping">Function for mapping the progress, takes one float argument between 0 and 1 and should return a float between 0 and 1</param>
+        /// <param name="finished">Callback for when the Fading is finished</param>
+        /// <returns></returns>
+        public static Coroutine Fade(this CanvasGroup group, MonoBehaviour host, bool FadeIn, float duration, Func<float, float> progressMapping, Action finished = null)
+        {
+            return host.StartCoroutine(FadeCanvasGroup(group, FadeIn, duration, finished, progressMapping));
+        }
+
+        /// <summary>
+        /// Fades a graphic in or out
+        /// </summary>
+        /// <param name="graphic">The graphic to fade</param>
         /// <param name="host">The MonoBehavoiur to run the Coroutine on</param>
         /// <param name="FadeIn">Fade In?</param>
         /// <param name="duration">Amount of seconds the fading should take</param>
         /// <param name="finished">Callback for when the Fading is finished</param>
         /// <returns></returns>
-        public static Coroutine Fade(this Image image, MonoBehaviour host, bool FadeIn, float duration, Action finished = null)
+        public static Coroutine Fade(this Graphic graphic, MonoBehaviour host, bool FadeIn, float duration, Action finished = null)
         {
-            // get start and target color by taking the image color and setting its alpha value to 0 or 1
-            Color start = image.color;
+            Color start = graphic.color;
             start.a = FadeIn ? 0 : 1;
-            Color target = image.color;
+            Color target = graphic.color;
             target.a = FadeIn ? 1 : 0;
 
-            // set start color and start fading by using a Color Lerp
-            image.color = start;
-            return host.StartCoroutine(LerpColor(image, target, duration, finished));
+            return host.StartCoroutine(LerpColor(graphic, target, duration, finished, null));
         }
 
         /// <summary>
-        /// Fades a Text in or out
+        /// Fades a graphic in or out
         /// </summary>
-        /// <param name="text">The text to fade</param>
+        /// <param name="graphic">The graphic to fade</param>
         /// <param name="host">The MonoBehavoiur to run the Coroutine on</param>
         /// <param name="FadeIn">Fade In?</param>
         /// <param name="duration">Amount of seconds the fading should take</param>
+        /// <param name="progressMapping">Function for mapping the progress, takes one float argument between 0 and 1 and should return a float between 0 and 1</param>
         /// <param name="finished">Callback for when the Fading is finished</param>
         /// <returns></returns>
-        public static Coroutine Fade(this Text text, MonoBehaviour host, bool FadeIn, float duration, Action finished = null)
+        public static Coroutine Fade(this Graphic graphic, MonoBehaviour host, bool FadeIn, float duration, Func<float, float> progressMapping, Action finished = null)
         {
-            // get start and target color by taking the text color and setting its alpha value to 0 or 1
-            Color start = text.color;
+            Color start = graphic.color;
             start.a = FadeIn ? 0 : 1;
-            Color target = text.color;
+            Color target = graphic.color;
             target.a = FadeIn ? 1 : 0;
 
-            // set start color and start fading by using a Color Lerp
-            text.color = start;
-            return host.StartCoroutine(LerpColor(text, target, duration, finished));
+            return host.StartCoroutine(LerpColor(graphic, target, duration, finished, progressMapping));
         }
         #endregion
 
@@ -101,50 +113,26 @@ namespace FK.Utility.UI
         /// <summary>
         /// Lerps the Color of an Image
         /// </summary>
-        /// <param name="image">The image to set the Color to</param>
+        /// <param name="graphic">The graphic to set the Color to</param>
         /// <param name="target">The Color to lerp to</param>
         /// <param name="duration">Amount of seconds the lerp should take</param>
         /// <param name="finished">Callback for when the Fading is finished</param>
+        /// <param name="progressMapping">Function for mapping the progress, takes one float argument between 0 and 1 and should return a float between 0 and 1</param>
         /// <returns></returns>
-        private static IEnumerator LerpColor(Image image, Color target, float duration, Action finished)
+        private static IEnumerator LerpColor(Graphic graphic, Color target, float duration, Action finished, Func<float, float> progressMapping)
         {
-            Color start = image.color;
+            Color start = graphic.color;
 
             float progress = 0;
             while (progress < 1)
             {
-                image.color = Color.Lerp(start, target, progress);
+                float mappedProgress = progressMapping != null ? Mathf.Clamp01(progressMapping(progress)) : progress;
+                graphic.color = Color.Lerp(start, target, progress);
                 yield return null;
                 progress += Time.deltaTime / duration;
             }
 
-            image.color = target;
-
-            if (finished != null)
-                finished();
-        }
-
-        /// <summary>
-        /// Lerps the Color of a Text
-        /// </summary>
-        /// <param name="text">The text to set the Color to</param>
-        /// <param name="target">The Color to lerp to</param>
-        /// <param name="duration">Amount of seconds the lerp should take</param>
-        /// <param name="finished">Callback for when the Fading is finished</param>
-        /// <returns></returns>
-        private static IEnumerator LerpColor(Text text, Color target, float duration, Action finished)
-        {
-            Color start = text.color;
-
-            float progress = 0;
-            while (progress < 1)
-            {
-                text.color = Color.Lerp(start, target, progress);
-                yield return null;
-                progress += Time.deltaTime / duration;
-            }
-
-            text.color = target;
+            graphic.color = target;
 
             if (finished != null)
                 finished();
@@ -153,29 +141,30 @@ namespace FK.Utility.UI
         /// <summary>
         /// Lerps the Color of the Image in the given Duration
         /// </summary>
-        /// <param name="image">The image to set the Color to</param>
+        /// <param name="graphic">The image to set the Color to</param>
         /// <param name="host">Mono Behaviour to run the Coroutine on</param>
         /// <param name="target">The Color to lerp to</param>
         /// <param name="duration">Amount of seconds the lerp should take</param>
         /// <param name="finished">Callback for when the Fading is finished</param>
         /// <returns></returns>
-        public static Coroutine LerpColor(this Image image, MonoBehaviour host, Color target, float duration, Action finished = null)
+        public static Coroutine LerpColor(this Graphic graphic, MonoBehaviour host, Color target, float duration, Action finished = null)
         {
-            return host.StartCoroutine(LerpColor(image, target, duration, finished));
+            return host.StartCoroutine(LerpColor(graphic, target, duration, finished, null));
         }
 
         /// <summary>
-        /// Lerps the Color of a Text in the given Duration
+        /// Lerps the Color of the Image in the given Duration
         /// </summary>
-        /// <param name="image">The text to set the Color to</param>
+        /// <param name="graphic">The image to set the Color to</param>
         /// <param name="host">Mono Behaviour to run the Coroutine on</param>
         /// <param name="target">The Color to lerp to</param>
         /// <param name="duration">Amount of seconds the lerp should take</param>
+        /// <param name="progressMapping">Function for mapping the progress, takes one float argument between 0 and 1 and should return a float between 0 and 1</param>
         /// <param name="finished">Callback for when the Fading is finished</param>
         /// <returns></returns>
-        public static Coroutine LerpColor(this Text text, MonoBehaviour host, Color target, float duration, Action finished = null)
+        public static Coroutine LerpColor(this Graphic graphic, MonoBehaviour host, Color target, float duration, Func<float, float> progressMapping, Action finished = null)
         {
-            return host.StartCoroutine(LerpColor(text, target, duration, finished));
+            return host.StartCoroutine(LerpColor(graphic, target, duration, finished, progressMapping));
         }
         #endregion
     }
