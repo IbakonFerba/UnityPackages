@@ -4,7 +4,7 @@ using unexpected;
 /// <summary>
 /// <para>A spotlight that affects which parts of Objects with the MagicLightShader will be displayed</para>
 /// 
-/// v1.1 06/2018
+/// v1.2 06/2018
 /// Written by Fabian Kober
 /// fabian-kober@gmx.net
 /// </summary>
@@ -52,8 +52,8 @@ public class MagicLightsource : Singleton<MagicLightsource>
     /// </summary>
     private void InitSpotlight()
     {
-        Light light = GetComponent<Light>();
-        light.type = LightType.Spot;
+        _light = GetComponent<Light>();
+        _light.type = LightType.Spot;
         _light.spotAngle = Angle;
     }
 }
