@@ -3,20 +3,15 @@ A place for a whole bunche Quality-Of-Life Utilities
 
 # Packages
 ## Utility
-- `ArrayAndListExtensions`: Extension Methods for manipulating and using Arrays and Lists. (Shuffeling, Searching, Getting Random Object or Random Object with Probability, manipulating lenght of Arrays)
-Everything in this class is in the namespace `FK.Utility.ArraysAndLists`
+- `namespace FK.Utility`: General Utility. Singleton Base Class and extension Methods for GameObject and Transform.
 
-- `BinaryUtility`: Methods for bit manipulation and binary operations. (Get the Value of a single bit as a bool)
-Everything in this class is in the namespace `FK.Utility.Binary`
+- `namespace FK.Utility.ArraysAndLists`: Extension Methods for manipulating and using Arrays and Lists.
 
-- `GameObjectExtensions`: Extension Methods for GameObject. (Set layers Recursively).
-Everything in this class is in the namespace `FK.Utility`
+- `namespace FK.Utility.Binary`: Methods for bit manipulation and binary operations.
 
-- `TransformExtensions`: Extension Methods for Transform and RectTransform. (Interpolation, SetAnchoredSize, FindDeepChildren)
-Everything in this class is in the namespace `FK.Utility`
+- `namespace FK.Utility.MathExtensions`: Extensions for math operations on math types and formatting of strings
 
-- `MathExtensionMethods`: Extensions for math operations on math types. (Remapping of numbers, formatting of numbers)
-Everything in this class is in the namespace `FK.Utility.MathExtensions`
+- `namespace FK.Utility.UI`: Helpful UI Components and extension methods for UI components.
 
 ## ConstantsGenerator
 - Editor Extension that creates constants classes for Tags, Layers and Scenes.
