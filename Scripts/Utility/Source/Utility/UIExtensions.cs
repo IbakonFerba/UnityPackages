@@ -127,7 +127,7 @@ namespace FK.Utility.UI
             while (progress < 1)
             {
                 float mappedProgress = progressMapping != null ? Mathf.Clamp01(progressMapping(progress)) : progress;
-                graphic.color = Color.Lerp(start, target, progress);
+                graphic.color = Color.Lerp(start, target, mappedProgress);
                 yield return null;
                 progress += Time.deltaTime / duration;
             }
