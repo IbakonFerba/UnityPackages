@@ -12,26 +12,26 @@ using UnityEngine;
 public class #SCRIPTNAME# : MonoBehaviour 
 {
 	// ######################## STRUCTS & CLASSES ######################## //
-
+	
 	// ######################## ENUMS & DELEGATES ######################## //
-
+	
 	// ######################## PROPERTIES ######################## //
-
+	
 	// ######################## PUBLIC VARS ######################## //
-
+	
 	// ######################## PROTECTED VARS ######################## //
-
+	
 	// ######################## PRIVATE VARS ######################## //
-
+	
 	// ######################## UNITY EVENT FUNCTIONS ######################## //
 	private void Start () {
 		Init();
 	}
-	
+		
 	private void Update () {
 		#NOTRIM#
 	}
-
+	
 	// ######################## INITS ######################## //
 	///<summary>
 	/// Does the Init for this Behaviour
@@ -40,10 +40,10 @@ public class #SCRIPTNAME# : MonoBehaviour
 	{
 		#NOTRIM#
 	}
-
+	
 	// ######################## FUNCTIONALITY ######################## //
-
+	
 	// ######################## COROUTINES ######################## //
-
+	
 	// ######################## UTILITIES ######################## //
 }
