@@ -6,7 +6,7 @@ namespace FK.Utility.UI
     /// <summary>
     /// <para>This class swaps the sprite of a toggle instead of overlaying another graphic</para>
     /// 
-    /// v2.0 06/2018
+    /// v2.1 06/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -24,6 +24,10 @@ namespace FK.Utility.UI
         // ######################## UNITY START & UPDATE ######################## //
         void Awake() { Init(); }
 
+        private void OnEnable()
+        {
+            SwapSpriteImmediate();
+        }
 
 
         // ######################## INITS ######################## //
@@ -40,8 +44,6 @@ namespace FK.Utility.UI
 
             // add a listener
             _toggle.onValueChanged.AddListener(SwapSprite);
-
-            SwapSpriteImmediate();
         }
 
 
