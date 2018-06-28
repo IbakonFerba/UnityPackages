@@ -8,7 +8,7 @@
 * Written by Fabian Kober
 * fabian-kober@gmx.net
 */
-Shader "Custom/MagicLightShader" {
+Shader "FK/Effects/Magic Light" {
 	Properties {
 		_Color ("Color", Color) = (1,1,1,1)
 		_Color2 ("Secondary Color", Color) = (1,1,1,1)
