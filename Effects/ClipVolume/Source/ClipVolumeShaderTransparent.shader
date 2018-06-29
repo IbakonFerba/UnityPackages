@@ -6,10 +6,10 @@
 * Written by Fabian Kober
 * fabian-kober@gmx.net
 */
-Shader "Clip Volume/Clip Volume" {
+Shader "Clip Volume/Clip Volume Transparent" {
 	Properties {
 		_Color ("Color", Color) = (1,1,1,1)
-		_MainTex ("Albedo (RGB)", 2D) = "white" {}
+		_MainTex ("Albedo (RGBA)", 2D) = "white" {}
 		[NoScaleOffset]
 		_SmoothnessMap("Smoothness (R), Metallic (G)", 2D) = "white" {}
 		_Glossiness ("Smoothness", Range(0,1)) = 0.5
@@ -22,16 +22,15 @@ Shader "Clip Volume/Clip Volume" {
 		_EmissionMap("Emission (RGB)", 2D) = "white" {}
 		_ClipVolumeMin("Min XYZ", Vector) = (0,0,0)	
 		_ClipVolumeMax("Max XYZ", Vector) = (1,1,1)
-		_InsideColor("Inside Color", Color) = (1,1,1,1)
 	}
 	SubShader {
-		Tags { "RenderType"="Opaque" }
+		Tags { "RenderType"="Transparent" "Queue"="Transparent"}
 		LOD 200
 
-        Cull Off
+        ZWrite Off
 		CGPROGRAM
 		// Custom lighting model based on the Physically based Standard lighting model, and enable shadows on all light types
-		#pragma surface surf Custom fullforwardshadows
+		#pragma surface surf Standard fullforwardshadows alpha:premul
         #include "UnityPBSLighting.cginc"
 		// Use shader model 3.0 target, to get nicer looking lighting
 		#pragma target 3.0
@@ -58,30 +57,13 @@ Shader "Clip Volume/Clip Volume" {
 		float4 _ClipVolumeMax;
 		
 		float4x4 _ClipVolumeWorldToLocal;
-		float3 _ClipVolumeWorldPos;
-
-        int backface = 0;
-        
+		float3 _ClipVolumeWorldPos;        
 		// Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
 		// See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
 		// #pragma instancing_options assumeuniformscaling
 		UNITY_INSTANCING_BUFFER_START(Props)
 			// put more per-instance properties here
 		UNITY_INSTANCING_BUFFER_END(Props)
-        
-        // custom lighting function that uses the Standard PBR Lighting when rendering a fronface and just returns a color when rendering a backface
-        half4 LightingCustom(SurfaceOutputStandard s, half3 lightDir, UnityGI gi)
-        {
-	        if (!backface)
-		        return LightingStandard(s, lightDir, gi); // Unity5 PBR
-	        return _InsideColor; // Unlit
-        }
-
-        // custom GI function needed when using custom lighting model
-        void LightingCustom_GI(SurfaceOutputStandard s, UnityGIInput data, inout UnityGI gi)
-        {
-	        LightingStandard_GI(s, data, gi);		
-        }
         
 		void surf (Input IN, inout SurfaceOutputStandard o) 
 		{
@@ -95,10 +77,6 @@ Shader "Clip Volume/Clip Volume" {
 		    outOfBounds = max(outOfBounds, max(offset.x, offset.y));
 		    outOfBounds = max(outOfBounds, offset.z);
 		    clip(-outOfBounds);
-		    
-		    // determine whether this fragment is on a backface or on a front face	
-		    if(dot(o.Normal, IN.viewDir) < 0)
-		        backface = 1;
 		       
 		
 			// Albedo comes from a texture tinted by color

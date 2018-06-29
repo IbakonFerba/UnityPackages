@@ -5,7 +5,7 @@ using UnityEngine;
 /// <para>This is the Controller Class for Objects with the ClipVolumeShader.
 /// It defines the volume in which all of its child objects with the Clip Volume Shader are rendered</para>
 ///
-/// v2.0 06/2018
+/// v2.1 06/2018
 /// Written by Fabian Kober
 /// fabian-kober@gmx.net
 /// </summary>
@@ -55,6 +55,7 @@ public class ClipVolume : MonoBehaviour
     }
 
     #region EDITOR
+    #if UNITY_EDITOR
     void OnDrawGizmos()
     {
         // Draw the volume as a green Cube
@@ -82,6 +83,7 @@ public class ClipVolume : MonoBehaviour
         Undo.RegisterCreatedObjectUndo(volumeObject, "Create " + volumeObject.name);
         Selection.activeObject = volumeObject;
     }
+    #endif
     #endregion
 
 
