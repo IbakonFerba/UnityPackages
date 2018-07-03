@@ -3,7 +3,11 @@ A place for a whole bunche Quality-Of-Life Utilities
 
 # Packages
 ## Utility
-- `namespace FK.Utility`: General Utility. Singleton Base Class and extension Methods for GameObject and Transform.
+- `namespace FK.Utility`: General Utility:
+  - Singleton Base Class
+  - Timer
+  - Extension Methods for GameObject
+  - Extension Methods for Transform
 
 - `namespace FK.Utility.ArraysAndLists`: Extension Methods for manipulating and using Arrays and Lists.
 
