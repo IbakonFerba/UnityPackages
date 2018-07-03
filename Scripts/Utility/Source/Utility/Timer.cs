@@ -23,16 +23,34 @@ namespace FK.Utility
             /// Uses Time.deltaTime to update the timer
             /// </summary>
             SCALED_TIME,
+
             /// <summary>
             /// Uses Time.unscaledDeltaTime to update the timer
             /// </summary>
             USCALED_TIME
         }
-        
+
+        /// <summary>
+        /// Count modes of a timer
+        /// </summary>
+        public enum CountMode
+        {
+            /// <summary>
+            /// Makes the Timer count up
+            /// </summary>
+            UP,
+
+            /// <summary>
+            /// Makes the Timer count down
+            /// </summary>
+            DOWN
+        }
+
         /// <summary>
         /// This Event is Invoked when the Timer reaches its end
         /// </summary>
         public Action OnTimeElapsed;
+
         /// <summary>
         /// This Event is Invoked each Time the timer Updates and contains the current elapsed Time;
         /// </summary>
@@ -58,21 +76,31 @@ namespace FK.Utility
         /// <summary>
         /// The current Time of the Timer
         /// </summary>
-        public float ElapsedTime { get; private set; }
+        public float ElapsedTime
+        {
+            get { return CountDirection == CountMode.UP ? _elapsedTime : Duration - _elapsedTime; }
+        }
 
         // ######################## PUBLIC VARS ######################## //
         /// <summary>
         /// The amount of Time in Seconds the Timer should run for
         /// </summary>
         public float Duration;
+
         /// <summary>
         /// If this is set to true, the Timer restarts itself automatically
         /// </summary>
         public bool Loop;
+
         /// <summary>
         /// Defines whether the Timer uses scaled or unscaled Time to update
         /// </summary>
         public UpdateMode Mode;
+
+        /// <summary>
+        /// Defines whether the timer counts up or down
+        /// </summary>
+        public CountMode CountDirection;
 
         // ######################## PRIVATE VARS ######################## //
         /// <summary>
@@ -85,8 +113,15 @@ namespace FK.Utility
         /// </summary>
         private Coroutine _runRoutine;
 
+        /// <summary>
+        /// The current Time of the Timer
+        /// </summary>
+        private float _elapsedTime;
+
 
         // ######################## INITS ######################## //
+        #region CONSTRUCTOR
+
         /// <summary>
         /// Creates a Timer with the given Time as duration
         /// </summary>
@@ -95,7 +130,19 @@ namespace FK.Utility
         /// <param name="loop">If true, the Timer restarts itself automatically</param>
         public Timer(MonoBehaviour host, float duration, bool loop = false)
         {
-            Init(host, duration, null, null, loop);
+            Init(host, duration, CountMode.UP, null, null, loop);
+        }
+
+        /// <summary>
+        /// Creates a Timer with the given Time as duration
+        /// </summary>
+        /// <param name="host">MonoBehaviour to run the Timer on</param>
+        /// <param name="duration">Duration of the Timer in seconds</param>
+        /// <param name="countDirection">Defines whether the Timer counts up or down</param>
+        /// <param name="loop">If true, the Timer restarts itself automatically</param>
+        public Timer(MonoBehaviour host, float duration, CountMode countDirection, bool loop = false)
+        {
+            Init(host, duration, countDirection, null, null, loop);
         }
 
         /// <summary>
@@ -107,7 +154,20 @@ namespace FK.Utility
         /// <param name="loop">If true, the Timer restarts itself automatically</param>
         public Timer(MonoBehaviour host, float duration, Action onTimeElapsed, bool loop = false)
         {
-            Init(host, duration, null, onTimeElapsed, loop);
+            Init(host, duration, CountMode.UP, null, onTimeElapsed, loop);
+        }
+
+        /// <summary>
+        /// Creates a Timer with the given Time as duration and registers the provided function as a callback when its time is elapsed
+        /// </summary>
+        /// <param name="host">MonoBehaviour to run the Timer on</param>
+        /// <param name="duration">Duration of the Timer in seconds</param>
+        /// <param name="countDirection">Defines whether the Timer counts up or down</param>
+        /// <param name="onTimeElapsed">Callback for when the Timer finishes</param>
+        /// <param name="loop">If true, the Timer restarts itself automatically</param>
+        public Timer(MonoBehaviour host, float duration, CountMode countDirection, Action onTimeElapsed, bool loop = false)
+        {
+            Init(host, duration, countDirection, null, onTimeElapsed, loop);
         }
 
         /// <summary>
@@ -119,7 +179,20 @@ namespace FK.Utility
         /// <param name="loop">If true, the Timer restarts itself automatically</param>
         public Timer(MonoBehaviour host, float duration, Action<float> onTimerUpdate, bool loop = false)
         {
-            Init(host, duration, onTimerUpdate, null, loop);
+            Init(host, duration, CountMode.UP, onTimerUpdate, null, loop);
+        }
+
+        /// <summary>
+        /// Creates a Timer with the given Time as duration and registers the provided function as a callback that is called each time it updates
+        /// </summary>
+        /// <param name="host">MonoBehaviour to run the Timer on</param>
+        /// <param name="duration">Duration of the Timer in seconds</param>
+        /// <param name="countDirection">Defines whether the Timer counts up or down</param>
+        /// <param name="onTimerUpdate">Callback for the timer Update</param>
+        /// <param name="loop">If true, the Timer restarts itself automatically</param>
+        public Timer(MonoBehaviour host, float duration, CountMode countDirection, Action<float> onTimerUpdate, bool loop = false)
+        {
+            Init(host, duration, countDirection, onTimerUpdate, null, loop);
         }
 
         /// <summary>
@@ -132,26 +205,44 @@ namespace FK.Utility
         /// <param name="loop">If true, the Timer restarts itself automatically</param>
         public Timer(MonoBehaviour host, float duration, Action<float> onTimerUpdate, Action onTimeElapsed, bool loop = false)
         {
-            Init(host, duration, onTimerUpdate, onTimeElapsed, loop);
+            Init(host, duration, CountMode.UP, onTimerUpdate, onTimeElapsed, loop);
         }
+
+        /// <summary>
+        /// Creates a Timer with the given Time as duration and registers a callback for when it updates and when it finishes
+        /// </summary>
+        /// <param name="host">MonoBehaviour to run the Timer on</param>
+        /// <param name="duration">Duration of the Timer in seconds</param>
+        /// <param name="countDirection">Defines whether the Timer counts up or down</param>
+        /// <param name="onTimerUpdate">Callback for the timer Update</param>
+        /// <param name="onTimeElapsed">Callback for when the Timer finishes</param>
+        /// <param name="loop">If true, the Timer restarts itself automatically</param>
+        public Timer(MonoBehaviour host, float duration, CountMode countDirection, Action<float> onTimerUpdate, Action onTimeElapsed, bool loop = false)
+        {
+            Init(host, duration, countDirection, onTimerUpdate, onTimeElapsed, loop);
+        }
+
+        #endregion
 
         /// <summary>
         /// Initializes the Timer
         /// </summary>
         /// <param name="host">MonoBehaviour to run the Timer on</param>
         /// <param name="duration">Duration of the Timer in seconds</param>
+        /// <param name="countDirection">Defines whether the Timer counts up or down</param>
         /// <param name="onTimerUpdate">Callback for the timer Update</param>
         /// <param name="onTimeElapsed">Callback for when the Timer finishes</param>
         /// <param name="loop">If true, the Timer restarts itself automatically</param>
-        private void Init(MonoBehaviour host, float duration, Action<float> onTimerUpdate, Action onTimeElapsed, bool loop)
+        private void Init(MonoBehaviour host, float duration, CountMode countDirection, Action<float> onTimerUpdate, Action onTimeElapsed, bool loop)
         {
             // set values
             _host = host;
             Duration = duration;
-            ElapsedTime = 0.0f;
+            _elapsedTime = 0.0f;
             Loop = loop;
             Mode = UpdateMode.SCALED_TIME;
-            
+            CountDirection = countDirection;
+
             // register Callbacks
             if (onTimeElapsed != null)
                 OnTimeElapsed += onTimeElapsed;
@@ -171,7 +262,7 @@ namespace FK.Utility
                 Debug.LogWarning("Can't start Timer because it is already running!");
                 return;
             }
-            
+
             _runRoutine = _host.StartCoroutine(Run());
         }
 
@@ -186,7 +277,7 @@ namespace FK.Utility
                 Debug.LogWarning("Can't pause Timer because it is not running!");
                 return;
             }
-            
+
             // stop
             StopTimer();
         }
@@ -202,7 +293,7 @@ namespace FK.Utility
                 Debug.LogWarning("Can't stop Timer because it is not running!");
                 return;
             }
-            
+
             // stop and reset
             StopTimer();
             Reset();
@@ -218,12 +309,12 @@ namespace FK.Utility
             {
                 StopTimer();
             }
-            
+
             // reset
-            ElapsedTime = 0.0f;
+            _elapsedTime = 0.0f;
         }
-        
-        
+
+
         // ######################## COROUTINES ######################## //
         /// <summary>
         /// Runs the Timer
@@ -232,15 +323,15 @@ namespace FK.Utility
         private IEnumerator Run()
         {
             // Run as long the Elapsed Time is less than the set duration
-            while (ElapsedTime < Duration)
+            while (_elapsedTime < Duration)
             {
                 yield return null;
-                ElapsedTime += Mode == UpdateMode.SCALED_TIME ? Time.deltaTime : Time.unscaledDeltaTime;
+                _elapsedTime += Mode == UpdateMode.SCALED_TIME ? Time.deltaTime : Time.unscaledDeltaTime;
                 OnTimerUpdate?.Invoke(ElapsedTime);
             }
 
             // finish
-            ElapsedTime = 0.0f;
+            _elapsedTime = 0.0f;
             OnTimeElapsed?.Invoke();
 
             // restart if looping
