@@ -8,7 +8,7 @@ namespace FK.Utility.UI
     /// <summary>
     /// <para>Extension Methods for UI Elements</para>
     /// 
-    /// v2.0 06/2018
+    /// v2.2 06/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -165,6 +165,98 @@ namespace FK.Utility.UI
         public static Coroutine LerpColor(this Graphic graphic, MonoBehaviour host, Color target, float duration, Func<float, float> progressMapping, Action finished = null)
         {
             return host.StartCoroutine(LerpColor(graphic, target, duration, finished, progressMapping));
+        }
+        #endregion
+
+        #region FILL_IMAGE
+        /// <summary>
+        /// Fills an Image and sets it type to fill if it is not yet fill
+        /// </summary>
+        /// <param name="img">The Image to fill</param>
+        /// <param name="fillIn">Fill In or Out?</param>
+        /// <param name="duration">The Amount of time in seconds the filling will take</param>
+        /// <param name="method">The Fill Method</param>
+        /// <param name="clockwise">Fill clockwise?</param>
+        /// <param name="finished">Callback for when the Fading is finished</param>
+        /// <param name="progressMapping">Function for mapping the progress, takes one float argument between 0 and 1 and should return a float between 0 and 1</param>
+        /// <returns></returns>
+        private static IEnumerator FillImage(Image img, bool fillIn, float duration, Image.FillMethod method, bool clockwise, Action finished, Func<float, float> progressMapping)
+        {
+            if (img.type != Image.Type.Filled)
+                img.type = Image.Type.Filled;
+            img.fillMethod = method;
+            img.fillClockwise = clockwise;
+
+            float progress = 0.0f;
+            while (progress < 1.0f)
+            {
+                float mappedProgress = progressMapping?.Invoke(progress) ?? progress;
+
+                img.fillAmount = fillIn ? mappedProgress : 1 - mappedProgress;
+                yield return null;
+                progress += Time.deltaTime / duration;
+            }
+
+            img.fillAmount = fillIn ? 1 : 0;
+            finished?.Invoke();
+        }
+
+        /// <summary>
+        /// Fills an Image and sets it type to fill if it is not yet fill
+        /// </summary>
+        /// <param name="img">The Image to fill</param>
+        /// <param name="fillIn">Fill In or Out?</param>
+        /// <param name="duration">The Amount of time in seconds the filling will take</param>
+        /// <param name="finished">Callback for when the Fading is finished</param>
+        /// <returns></returns>
+        public static Coroutine Fill(this Image img, MonoBehaviour host, bool fillIn, float duration, Action finished = null)
+        {
+            return host.StartCoroutine(FillImage(img, fillIn, duration, img.fillMethod, img.fillClockwise, finished, null));
+        }
+        
+        /// <summary>
+        /// Fills an Image and sets it type to fill if it is not yet fill
+        /// </summary>
+        /// <param name="img">The Image to fill</param>
+        /// <param name="fillIn">Fill In or Out?</param>
+        /// <param name="duration">The Amount of time in seconds the filling will take</param>
+        /// <param name="finished">Callback for when the Fading is finished</param>
+        /// <param name="progressMapping">Function for mapping the progress, takes one float argument between 0 and 1 and should return a float between 0 and 1</param>
+        /// <returns></returns>
+        public static Coroutine Fill(this Image img, MonoBehaviour host, bool fillIn, float duration, Func<float, float> progressMapping, Action finished = null)
+        {
+            return host.StartCoroutine(FillImage(img, fillIn, duration, img.fillMethod, img.fillClockwise, finished, progressMapping));
+        }
+        
+        /// <summary>
+        /// Fills an Image and sets it type to fill if it is not yet fill
+        /// </summary>
+        /// <param name="img">The Image to fill</param>
+        /// <param name="fillIn">Fill In or Out?</param>
+        /// <param name="duration">The Amount of time in seconds the filling will take</param>
+        /// <param name="method">The Fill Method</param>
+        /// <param name="clockwise">Fill clockwise?</param>
+        /// <param name="finished">Callback for when the Fading is finished</param>
+        /// <returns></returns>
+        public static Coroutine Fill(this Image img, MonoBehaviour host, bool fillIn, float duration, Image.FillMethod method, bool clockwise, Action finished = null)
+        {
+            return host.StartCoroutine(FillImage(img, fillIn, duration, method, clockwise, finished, null));
+        }
+        
+        /// <summary>
+        /// Fills an Image and sets it type to fill if it is not yet fill
+        /// </summary>
+        /// <param name="img">The Image to fill</param>
+        /// <param name="fillIn">Fill In or Out?</param>
+        /// <param name="duration">The Amount of time in seconds the filling will take</param>
+        /// <param name="method">The Fill Method</param>
+        /// <param name="clockwise">Fill clockwise?</param>
+        /// <param name="finished">Callback for when the Fading is finished</param>
+        /// <param name="progressMapping">Function for mapping the progress, takes one float argument between 0 and 1 and should return a float between 0 and 1</param>
+        /// <returns></returns>
+        public static Coroutine Fill(this Image img, MonoBehaviour host, bool fillIn, float duration, Image.FillMethod method, bool clockwise, Func<float, float> progressMapping, Action finished = null)
+        {
+            return host.StartCoroutine(FillImage(img, fillIn, duration, method, clockwise, finished, progressMapping));
         }
         #endregion
     }
