@@ -1,6 +1,6 @@
-# Fire Particle Systems
+# Particle Systems
 
-In this folder you can find Fire Particle Sytstems.
+In this folder you can find finished Particle Systems.
 
 # Packages
 ## Fire Particles
