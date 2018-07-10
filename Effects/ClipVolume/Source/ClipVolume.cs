@@ -5,7 +5,7 @@ using UnityEngine;
 /// <para>This is the Controller Class for Objects with the ClipVolumeShader.
 /// It defines the volume in which all of its child objects with the Clip Volume Shader are rendered</para>
 ///
-/// v2.1 06/2018
+/// v2.2 07/2018
 /// Written by Fabian Kober
 /// fabian-kober@gmx.net
 /// </summary>
@@ -71,7 +71,7 @@ public class ClipVolume : MonoBehaviour
     /// Context Menu function for creating a Clip Volume Object
     /// </summary>
     /// <param name="menuCommand"></param>
-    [MenuItem("GameObject/Effects/ClipVolume")]
+    [MenuItem("GameObject/Effects/Clip Volume")]
     public static void CreateClipVolume(MenuCommand menuCommand)
     {
         // create game object with a clip volume component
@@ -94,7 +94,7 @@ public class ClipVolume : MonoBehaviour
     private void Init()
     {
         // get the child renderes
-        _renderers = GetComponentsInChildren<Renderer>();
+        _renderers = GetComponentsInChildren<Renderer>(true);
         
         // update once
         UpdateShaderValues();
