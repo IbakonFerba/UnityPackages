@@ -2,7 +2,7 @@
 * This Shader is basically a Standard Surface Shader, but with the added effect that it is only visible inside a Clip Volume.
 * Backface Culling is turned of and the inside is Colored in a Flat, unlit color so that the object looks solid (from most angles)
 *
-* v1.0 06/2018
+* v1.1 07/2018
 * Written by Fabian Kober
 * fabian-kober@gmx.net
 */
@@ -25,17 +25,22 @@ Shader "Clip Volume/Clip Volume" {
 		_InsideColor("Inside Color", Color) = (1,1,1,1)
 	}
 	SubShader {
-		Tags { "RenderType"="Opaque" }
+		Tags { "RenderType"="Opaque"}
 		LOD 200
 
         Cull Off
 		CGPROGRAM
 		// Custom lighting model based on the Physically based Standard lighting model, and enable shadows on all light types
 		#pragma surface surf Custom fullforwardshadows
+
+        // includes
         #include "UnityPBSLighting.cginc"
+        #include "Assets/Shaders/Includes/ClipVolume.cginc"
+        
 		// Use shader model 3.0 target, to get nicer looking lighting
 		#pragma target 3.0
 
+        // textures and maps
 		sampler2D _MainTex;
 		sampler2D _NormalMap;
 		sampler2D _SmoothnessMap;
@@ -46,21 +51,22 @@ Shader "Clip Volume/Clip Volume" {
 			float3 worldPos;
 			float3 viewDir;
 		};
-
+        
+        // surface shader values
 		half _Glossiness;
 		half _Metallic;
 		fixed4 _Color;
 		float4 _EmissionColor;
 		
-		fixed4 _InsideColor;
-		
+		// backface rendering
+		fixed4 _InsideColor;	
+        int back = 0;
+        
+        // clip volume definition
 		float4 _ClipVolumeMin;
-		float4 _ClipVolumeMax;
-		
+		float4 _ClipVolumeMax;	
 		float4x4 _ClipVolumeWorldToLocal;
 		float3 _ClipVolumeWorldPos;
-
-        int backface = 0;
         
 		// Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
 		// See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
@@ -72,7 +78,7 @@ Shader "Clip Volume/Clip Volume" {
         // custom lighting function that uses the Standard PBR Lighting when rendering a fronface and just returns a color when rendering a backface
         half4 LightingCustom(SurfaceOutputStandard s, half3 lightDir, UnityGI gi)
         {
-	        if (!backface)
+	        if (!back)
 		        return LightingStandard(s, lightDir, gi); // Unity5 PBR
 	        return _InsideColor; // Unlit
         }
@@ -85,21 +91,11 @@ Shader "Clip Volume/Clip Volume" {
         
 		void surf (Input IN, inout SurfaceOutputStandard o) 
 		{
-		    // calculate whether this fragment is inside the volume or outside the volume
-            float4 volumeSpacePosition = mul(_ClipVolumeWorldToLocal, IN.worldPos.xyz);
-            float4 clipVolumeLocalPos = mul(_ClipVolumeWorldToLocal, _ClipVolumeWorldPos.xyz);
-		    float3 offset = (volumeSpacePosition.xyz) - (clipVolumeLocalPos.xyz+_ClipVolumeMax.xyz);
-		    float outOfBounds = max(offset.x, offset.y);
-		    outOfBounds = max(outOfBounds, offset.z);
-		    offset = (clipVolumeLocalPos.xyz+_ClipVolumeMin.xyz) - (volumeSpacePosition.xyz);
-		    outOfBounds = max(outOfBounds, max(offset.x, offset.y));
-		    outOfBounds = max(outOfBounds, offset.z);
-		    clip(-outOfBounds);
+		    // use clip volume
+            useClipVolume(IN.worldPos.xyz, _ClipVolumeWorldToLocal, _ClipVolumeWorldPos.xyz, _ClipVolumeMin.xyz, _ClipVolumeMax.xyz); 
 		    
 		    // determine whether this fragment is on a backface or on a front face	
-		    if(dot(o.Normal, IN.viewDir) < 0)
-		        backface = 1;
-		       
+		    back = backface(o.Normal.xyz, IN.viewDir.xyz);
 		
 			// Albedo comes from a texture tinted by color
 			fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color;
