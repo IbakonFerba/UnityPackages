@@ -1,7 +1,7 @@
 /*
 *   This include file contains useful functions that might be used in several shaders
 *   
-*   v1.0 07/2018
+*   v1.1 07/2018
 *   Written by Fabian Kober
 *   fabian-kober@gmx.net
 */
@@ -22,19 +22,19 @@ int backface(float3 normal, float3 viewDir) {
 *   texX - The texture that is used for the plane perpendicular to the X axis
 *   texY - The texture that is used for the plane perpendicular to the Y axis
 *   texZ - The texture that is used for the plane perpendicular to the Z axis
-*   worldPos - World Position of the fragment
-*   worldNormal - World Normal of the fragment
+*   localPos - Object Space Position of the fragment
+*   localNormal - Object Space Normal of the fragment
 *   scale - scaling factor for the maps
 */
-fixed4 triplanarTex(sampler2D texX, sampler2D texY, sampler2D texZ, float3 worldPos, float3 worldNormal, float scale) {
+fixed4 triplanarTex(sampler2D texX, sampler2D texY, sampler2D texZ, float3 localPos, float3 localNormal, float scale) {
     // Blending factor of triplanar mapping
-    half3 bf = normalize(abs(worldNormal));
+    half3 bf = normalize(abs(localNormal));
     bf /= dot(bf, (float3)1);
     
     // Triplanar mapping
-    half2 tx = worldPos.yz * scale;
-    half2 ty = worldPos.zx * scale;
-    half2 tz = worldPos.xy * scale;  
+    half2 tx = localPos.yz * scale;
+    half2 ty = localPos.zx * scale;
+    half2 tz = localPos.xy * scale;  
      
     // Base colors
     half4 cx = tex2D(texX, tx) * bf.x;
