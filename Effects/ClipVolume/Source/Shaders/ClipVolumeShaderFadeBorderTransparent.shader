@@ -35,7 +35,7 @@ Shader "Clip Volume/Fade Border Transparent" {
         ZWrite Off
 		CGPROGRAM
 		// Custom lighting model based on the Physically based Standard lighting model, and enable shadows on all light types
-		#pragma surface surf Standard fullforwardshadows alpha:premul
+		#pragma surface surf Standard vertex:vert fullforwardshadows alpha:premul
 		
 		// includes
         #include "UnityPBSLighting.cginc"
@@ -55,7 +55,8 @@ Shader "Clip Volume/Fade Border Transparent" {
 			float2 uv_MainTex;
 			float3 worldPos;
 			float3 viewDir;
-			float3 worldNormal;
+			float3 localPos;
+			float3 localNormal;
 			INTERNAL_DATA
 		};
 
@@ -82,6 +83,13 @@ Shader "Clip Volume/Fade Border Transparent" {
 		UNITY_INSTANCING_BUFFER_START(Props)
 			// put more per-instance properties here
 		UNITY_INSTANCING_BUFFER_END(Props)
+		
+        void vert(inout appdata_full v, out Input data)
+        {
+            UNITY_INITIALIZE_OUTPUT(Input, data);
+            data.localPos = v.vertex.xyz;
+            data.localNormal = v.normal.xyz;
+        }
         
 		void surf (Input IN, inout SurfaceOutputStandard o) 
 		{
@@ -92,7 +100,7 @@ Shader "Clip Volume/Fade Border Transparent" {
 			o.Normal = UnpackNormal(tex2D(_NormalMap, IN.uv_MainTex));
 			
 			// fade border
-		    fadeBorder(outOfBounds, _NoiseMap, _NoiseScale, _NoiseThreshold, _BorderGradientHardness, IN.worldPos, WorldNormalVector (IN, o.Normal));
+		    fadeBorder(outOfBounds, _NoiseMap, _NoiseScale, _NoiseThreshold, _BorderGradientHardness, IN.localPos, IN.localNormal);
 		    
 			// Albedo comes from a texture tinted by color
 			fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color;
