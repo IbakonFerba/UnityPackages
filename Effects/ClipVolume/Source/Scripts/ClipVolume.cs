@@ -42,7 +42,7 @@ public class ClipVolume : MonoBehaviour
     private Matrix4x4 _volumeMatrix;
     
     // ######################## UNITY EVENT FUNCTIONS ######################## //
-    private void Start()
+    private void Awake()
     {
         Init();
     }

@@ -7,7 +7,7 @@ namespace FK.Utility
     /// <summary>
     /// <para>A Timer that can be started, stopped and paused. You can also set it to loop so it restarts automatically when it's time elapses.</para>
     ///
-    /// v1.0 07/2018
+    /// v1.1 07/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -333,6 +333,8 @@ namespace FK.Utility
             // finish
             _elapsedTime = 0.0f;
             OnTimeElapsed?.Invoke();
+
+            _runRoutine = null;
 
             // restart if looping
             if (Loop)
