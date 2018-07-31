@@ -36,7 +36,7 @@ Shader "Clip Volume/Fade Border" {
         Cull Off
 		CGPROGRAM
 		// Custom lighting model based on the Physically based Standard lighting model, and enable shadows on all light types
-		#pragma surface surf Custom fullforwardshadows
+		#pragma surface surf Custom vertex:vert fullforwardshadows
         
 		// includes
         #include "UnityPBSLighting.cginc"
@@ -57,7 +57,8 @@ Shader "Clip Volume/Fade Border" {
 			float2 uv_MainTex;
 			float3 worldPos;
 			float3 viewDir;
-			float3 worldNormal;		
+			float3 localPos;
+			float3 localNormal;	
 			INTERNAL_DATA
 		};
 
@@ -103,6 +104,13 @@ Shader "Clip Volume/Fade Border" {
 	        LightingStandard_GI(s, data, gi);		
         }
         
+        void vert(inout appdata_full v, out Input data)
+        {
+            UNITY_INITIALIZE_OUTPUT(Input, data);
+            data.localPos = v.vertex.xyz;
+            data.localNormal = v.normal.xyz;
+        }
+        
 		void surf (Input IN, inout SurfaceOutputStandard o) 
 		{
 		    // use clip volume and get the out of bounds value back
@@ -115,7 +123,7 @@ Shader "Clip Volume/Fade Border" {
 		    back = backface(o.Normal.xyz, IN.viewDir.xyz);
 		    
 		    // fade border
-		    fadeBorder(outOfBounds, _NoiseMap, _NoiseScale, _NoiseThreshold, _BorderGradientHardness, IN.worldPos, WorldNormalVector (IN, o.Normal));
+		    fadeBorder(outOfBounds, _NoiseMap, _NoiseScale, _NoiseThreshold, _BorderGradientHardness, IN.localPos, IN.localNormal);
 		
 			// Albedo comes from a texture tinted by color
 			fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color;
