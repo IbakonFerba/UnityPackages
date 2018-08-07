@@ -8,6 +8,7 @@ A place for a whole bunche Quality-Of-Life Utilities
   - Timer
   - Extension Methods for GameObject
   - Extension Methods for Transform
+  - Easing Methods
 
 - `namespace FK.Utility.ArraysAndLists`: Extension Methods for manipulating and using Arrays and Lists.
 
@@ -15,9 +16,7 @@ A place for a whole bunche Quality-Of-Life Utilities
 
 - `namespace FK.Utility.MathExtensions`: Extensions for math operations on math types and formatting of strings
 
-- `namespace FK.Utility.UI`: Helpful UI Components and extension methods for UI components.
-
-- `namespace FK.Utility.Audio`: Extension Methods for everything Audio Related
+- `namespace FK.Utility.Fading`: Extension Methods for fading all kinds of Objects
 
 - `#include "Assets/Shaders/Includes/Utility.cginc"`: Shader Methods that might be useful for multiple shaders
 
