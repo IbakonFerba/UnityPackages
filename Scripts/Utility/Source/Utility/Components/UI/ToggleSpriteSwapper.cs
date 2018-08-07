@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using FK.Utility.Fading;
 
 namespace FK.Utility.UI
 {
@@ -65,8 +66,8 @@ namespace FK.Utility.UI
             _toggle.targetGraphic = toggleOn ? _onGraphic : _offGraphic;
 
             // fade
-            _offGraphic.Fade(this, !toggleOn, FadeDuration);
-            _onGraphic.Fade(this, toggleOn, FadeDuration);
+            _offGraphic.Fade(this, !toggleOn, FadeDuration, false);
+            _onGraphic.Fade(this, toggleOn, FadeDuration, false);
         }
 
         /// <summary>
