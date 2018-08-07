@@ -1,13 +1,15 @@
 ﻿﻿using System.Collections;
 using UnityEngine;
 using System;
+using FK.Utility.Fading;
+using UnityEngine.UI;
 
 namespace FK.Utility
 {
 	/// <summary>
-	/// <para>Color Extension Methods</para>
+	/// <para>Extension Methods Concerning Colors of different types</para>
 	///
-	/// v1.0 06/2018
+	/// v2.0 08/2018
 	/// Written by Fabian Kober
 	/// fabian-kober@gmx.net
 	/// </summary>
@@ -70,5 +72,139 @@ namespace FK.Utility
 		{
 			return host.StartCoroutine(LerpColor(color, target, duration, returnAction, finished, progressMapping));
 		}
+
+		#region GRAPHIC
+		/// <summary>
+		/// Lerps the Color of the Graphic in the given Duration
+		/// </summary>
+		/// <param name="graphic">The Graphic to set the Color to</param>
+		/// <param name="host">Mono Behaviour to run the Coroutine on</param>
+		/// <param name="target">The Color to lerp to</param>
+		/// <param name="duration">Amount of seconds the lerp should take</param>
+		/// <param name="finished">Callback for when the Fading is finished</param>
+		/// <returns></returns>
+		public static Coroutine LerpColor(this Graphic graphic, MonoBehaviour host, Color target, float duration, Action finished = null)
+		{
+			return host.StartCoroutine(FadingMethods.LerpColor(graphic, target, duration,false, finished, null));
+		}
+
+		/// <summary>
+		/// Lerps the Color of the Graphic in the given Duration
+		/// </summary>
+		/// <param name="graphic">The Graphic to set the Color to</param>
+		/// <param name="host">Mono Behaviour to run the Coroutine on</param>
+		/// <param name="target">The Color to lerp to</param>
+		/// <param name="duration">Amount of seconds the lerp should take</param>
+		/// <param name="progressMapping">Function for mapping the progress, takes one float argument between 0 and 1 and should return a float between 0 and 1</param>
+		/// <param name="finished">Callback for when the Fading is finished</param>
+		/// <returns></returns>
+		public static Coroutine LerpColor(this Graphic graphic, MonoBehaviour host, Color target, float duration, Func<float, float> progressMapping, Action finished = null)
+		{
+			return host.StartCoroutine(FadingMethods.LerpColor(graphic, target, duration, false, finished, progressMapping));
+		}
+		#endregion
+
+		#region SPRITE
+		/// <summary>
+		/// Lerps the Color of the Sprite in the given Duration
+		/// </summary>
+		/// <param name="sprite">The Sprite to set the Color to</param>
+		/// <param name="host">Mono Behaviour to run the Coroutine on</param>
+		/// <param name="target">The Color to lerp to</param>
+		/// <param name="duration">Amount of seconds the lerp should take</param>
+		/// <param name="finished">Callback for when the Fading is finished</param>
+		/// <returns></returns>
+		public static Coroutine LerpColor(this SpriteRenderer sprite, MonoBehaviour host, Color target, float duration, Action finished = null)
+		{
+			return host.StartCoroutine(FadingMethods.LerpColor(sprite, target, duration,false, finished, null));
+		}
+
+		/// <summary>
+		/// Lerps the Color of the Sprite in the given Duration
+		/// </summary>
+		/// <param name="sprite">The Sprite to set the Color to</param>
+		/// <param name="host">Mono Behaviour to run the Coroutine on</param>
+		/// <param name="target">The Color to lerp to</param>
+		/// <param name="duration">Amount of seconds the lerp should take</param>
+		/// <param name="progressMapping">Function for mapping the progress, takes one float argument between 0 and 1 and should return a float between 0 and 1</param>
+		/// <param name="finished">Callback for when the Fading is finished</param>
+		/// <returns></returns>
+		public static Coroutine LerpColor(this SpriteRenderer sprite, MonoBehaviour host, Color target, float duration, Func<float, float> progressMapping, Action finished = null)
+		{
+			return host.StartCoroutine(FadingMethods.LerpColor(sprite, target, duration, false, finished, progressMapping));
+		}
+		#endregion
+
+		#region MATERIAL
+		/// <summary>
+		/// Lerps the Color of the Material in the given Duration
+		/// </summary>
+		/// <param name="material">The Material to set the Color to</param>
+		/// <param name="host">Mono Behaviour to run the Coroutine on</param>
+		/// <param name="target">The Color to lerp to</param>
+		/// <param name="duration">Amount of seconds the lerp should take</param>
+		/// <param name="finished">Callback for when the Fading is finished</param>
+		/// <returns></returns>
+		public static Coroutine LerpColor(this Material material, MonoBehaviour host, Color target, float duration, Action finished = null)
+		{
+			return host.StartCoroutine(FadingMethods.LerpColor(material, target, duration, finished, null));
+		}
+
+		/// <summary>
+		/// Lerps the Color of the Material in the given Duration
+		/// </summary>
+		/// <param name="material">The Material to set the Color to</param>
+		/// <param name="host">Mono Behaviour to run the Coroutine on</param>
+		/// <param name="target">The Color to lerp to</param>
+		/// <param name="duration">Amount of seconds the lerp should take</param>
+		/// <param name="progressMapping">Function for mapping the progress, takes one float argument between 0 and 1 and should return a float between 0 and 1</param>
+		/// <param name="finished">Callback for when the Fading is finished</param>
+		/// <returns></returns>
+		public static Coroutine LerpColor(this Material material, MonoBehaviour host, Color target, float duration, Func<float, float> progressMapping, Action finished = null)
+		{
+			return host.StartCoroutine(FadingMethods.LerpColor(material, target, duration, finished, progressMapping));
+		}
+		#endregion
+
+		#region RENDERER
+		/// <summary>
+		/// Lerps the Color of the Renderer in the given Duration
+		/// </summary>
+		/// <param name="rend">The Renderer to set the Color to</param>
+		/// <param name="host">Mono Behaviour to run the Coroutine on</param>
+		/// <param name="target">The Color to lerp to</param>
+		/// <param name="duration">Amount of seconds the lerp should take</param>
+		/// <param name="finished">Callback for when the Fading is finished</param>
+		/// <returns></returns>
+		public static Coroutine LerpColor(this Renderer rend, MonoBehaviour host, Color target, float duration, Action finished = null)
+		{
+			Color[] targets = new Color[rend.materials.Length];
+			for (int i = 0; i < targets.Length; ++i)
+			{
+				targets[i] = target;
+			}
+			return host.StartCoroutine(FadingMethods.LerpColor(rend, targets, duration,false, finished, null));
+		}
+
+		/// <summary>
+		/// Lerps the Color of the Renderer in the given Duration
+		/// </summary>
+		/// <param name="rend">The Renderer to set the Color to</param>
+		/// <param name="host">Mono Behaviour to run the Coroutine on</param>
+		/// <param name="target">The Color to lerp to</param>
+		/// <param name="duration">Amount of seconds the lerp should take</param>
+		/// <param name="progressMapping">Function for mapping the progress, takes one float argument between 0 and 1 and should return a float between 0 and 1</param>
+		/// <param name="finished">Callback for when the Fading is finished</param>
+		/// <returns></returns>
+		public static Coroutine LerpColor(this Renderer rend, MonoBehaviour host, Color target, float duration, Func<float, float> progressMapping, Action finished = null)
+		{
+			Color[] targets = new Color[rend.materials.Length];
+			for (int i = 0; i < targets.Length; ++i)
+			{
+				targets[i] = target;
+			}
+			return host.StartCoroutine(FadingMethods.LerpColor(rend, targets, duration, false, finished, progressMapping));
+		}
+		#endregion
 	}
 }
