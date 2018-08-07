@@ -1,10 +1,12 @@
-﻿namespace FK.Utility
+﻿using UnityEngine;
+
+namespace FK.Utility
 {
     /// <summary>
     /// <para>This class contains functions to map a value between 0 and 1 to different easing functions. Some of them return values bigger than 1 or smaller than 0 during easing, but they all start at 0 and end up at 1.</para>
     /// <para>Created using https://gist.github.com/gre/1650294 and Timothée Groleaus Easing Function Generator (http://www.timotheegroleau.com/Flash/experiments/easing_function_generator.htm)</para>
     ///
-    /// v2.0 08/2018
+    /// v2.1 08/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -259,6 +261,20 @@
                    20 * progress;
         }
 
+        #endregion
+
+        
+        #region CUSTOM
+        /// <summary>
+        /// This function allows you to Ease using a provided AnimationCurve. Keep in mind than only values between 0 an 1 on the x Axis will be used
+        /// </summary>
+        /// <param name="curve">The Animation Curve to use</param>
+        /// <param name="progress">The progress between 0 and 1</param>
+        /// <returns></returns>
+        public static float CustomCurve(AnimationCurve curve, float progress)
+        {
+            return curve.Evaluate(progress);
+        }
         #endregion
     }
 }
