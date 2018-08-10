@@ -9,7 +9,7 @@ namespace FK.ConstantsGenerator
     /// <summary>
     /// <para>A Editor Tool that generates constants classes for Tags, Layers and Scenes</para>
     /// 
-    /// v1.1 08/2018
+    /// v1.2 08/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -28,7 +28,11 @@ namespace FK.ConstantsGenerator
         /// <summary>
         /// Path to the Config Data Object
         /// </summary>
-        private static readonly string CONFIG_PATH = $"{BASE_PATH}Scripts/Editor/Tools/ConstantsGeneratorConfig.asset";
+        private static readonly string CONFIG_PATH = $"{BASE_PATH}Scripts/Editor/Tools/";
+        /// <summary>
+        /// Name of Config Data Object
+        /// </summary>
+        private static readonly string CONFIG_FILE_NAME = "ConstantsGeneratorConfig.asset";
 
         /// <summary>
         /// Template for the generated classes
@@ -75,7 +79,7 @@ namespace FK.ConstantsGenerator
         /// <summary>
         /// Generates the Constant classes
         /// </summary>
-        [MenuItem("Tools/Generate Constats Classes %&g", false, 51)]
+        [MenuItem("Tools/Generate Constants Classes %&g", false, 51)]
         public static void GenerateConstantsClasses()
         {
             GetConfig();
@@ -100,7 +104,9 @@ namespace FK.ConstantsGenerator
             if (_config == null)
             {
                 _config = ScriptableObject.CreateInstance<ConstantsGeneratorConfig>();
-                AssetDatabase.CreateAsset(_config, CONFIG_PATH);
+                if(!Directory.Exists(CONFIG_PATH))
+                   Directory.CreateDirectory(CONFIG_PATH);
+                AssetDatabase.CreateAsset(_config, CONFIG_PATH+CONFIG_FILE_NAME);
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
             }
