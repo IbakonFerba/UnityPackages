@@ -9,7 +9,7 @@ namespace FK.ConstantsGenerator
     /// <summary>
     /// <para>A Editor Tool that generates constants classes for Tags, Layers and Scenes</para>
     /// 
-    /// v1.1, 07/2018
+    /// v1.2 08/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -37,7 +37,7 @@ namespace FK.ConstantsGenerator
         /// <summary>
         /// Template for the generated classes
         /// </summary>
-        private static readonly string CLASS_TEMPLATE = "namespace NAMESPACE\r\n{\r\n\tDESCRIPTION\r\n\tpublic class CLASS_NAME\r\n\t{\r\n\tCONTENT}\r\n}";
+        private static readonly string CLASS_TEMPLATE = "INCLUDES\r\nnamespace NAMESPACE\r\n{\r\n\tDESCRIPTION\r\n\tpublic static class CLASS_NAME\r\n\t{\r\n\tCONTENT}\r\n}";
 
 
 
@@ -79,7 +79,7 @@ namespace FK.ConstantsGenerator
         /// <summary>
         /// Generates the Constant classes
         /// </summary>
-        [MenuItem("Tools/Generate Constants Classes %&c", false, 51)]
+        [MenuItem("Tools/Generate Constants Classes %&g", false, 51)]
         public static void GenerateConstantsClasses()
         {
             GetConfig();
@@ -117,8 +117,9 @@ namespace FK.ConstantsGenerator
         /// </summary>
         /// <param name="className"></param>
         /// <param name="content"></param>
+        /// <param name="includes"></param>
         /// <param name="summary">An optional summary for the class that is added as a Visual Studio summary comment</param>
-        private static void GenerateClass(string className, string content, string summary = null)
+        private static void GenerateClass(string className, string content, string[] includes, string summary = null)
         {
             // if there is no namespace specified, use default
             if (string.IsNullOrEmpty(_config.Namespace))
@@ -127,8 +128,18 @@ namespace FK.ConstantsGenerator
                 Debug.LogWarning("Cannot create Constants Class without namespace, using default C");
             }
 
+            // create includes
+            string includesString = "";
+            if (includes != null)
+            {
+                foreach (string include in includes)
+                {
+                    includesString += $"using {include};\r\n";
+                }
+            }
+            
             // replace marked parts in template with the data for this class
-            string generatedClassContent = CLASS_TEMPLATE.Replace("NAMESPACE", _config.Namespace).Replace("CLASS_NAME", className).Replace("CONTENT", content);
+            string generatedClassContent = CLASS_TEMPLATE.Replace("INCLUDES", includesString).Replace("NAMESPACE", _config.Namespace).Replace("CLASS_NAME", className).Replace("CONTENT", content);
 
             // if we have a summary, add it
             if(!string.IsNullOrEmpty(summary))
@@ -178,7 +189,7 @@ namespace FK.ConstantsGenerator
             }
 
             // generate the class
-            GenerateClass("Tags", content, "Constants for easy access to Tags. If you add tags, you have to regenerate this class by pressing CTRL+ALT+C or clicking on Tools/Generate Constats Classes");
+            GenerateClass("Tags", content, null, "Constants for easy access to Tags. If you add tags, you have to regenerate this class by pressing CTRL+ALT+C or clicking on Tools/Generate Constats Classes");
         }
 
         /// <summary>
@@ -186,6 +197,9 @@ namespace FK.ConstantsGenerator
         /// </summary>
         private static void GenerateLayersClass()
         {
+            // create includes
+            string[] includes = {"UnityEngine"};
+            
             // create empty content
             string content = "";
 
@@ -211,11 +225,12 @@ namespace FK.ConstantsGenerator
 
             // layer mask functions
             string onlyInclundingFunction = "\t\t/// <summary>\r\n\t\t/// Returns a layermask only including the provided Layers\r\n\t\t/// </summary>\r\n\t\tpublic static int OnlyIncluding(params int[] layers)\r\n\t\t{\r\n\t\t\tint mask = 0;\r\n\t\t\tforeach(int layer in layers)\r\n\t\t\t\tmask |= (1 << layer);\r\n\t\t\treturn mask;\r\n\t\t}";
-            string everythingButFunction = "\t\t/// <summary>\r\n\t\t/// Returns a layermask including all Layers but the provided ones\r\n\t\t/// </summary>\r\n\t\tpublic static int EverythingBut(params int[] layers)\r\n\t\t{\r\n\t\t\treturn ~OnlyIncluding(layers);\r\n\t\t}";
-            content += $"\r\n{onlyInclundingFunction}\r\n\r\n{everythingButFunction}\r\n\t";
+            string everythingButFunction  = "\t\t/// <summary>\r\n\t\t/// Returns a layermask including all Layers but the provided ones\r\n\t\t/// </summary>\r\n\t\tpublic static int EverythingBut(params int[] layers)\r\n\t\t{\r\n\t\t\treturn ~OnlyIncluding(layers);\r\n\t\t}";
+            string isInLayerMaskFunction  = "\t\t/// <summary>\r\n\t\t/// Returns true if the provided layer is in the layermask and false if it is not\r\n\t\t/// </summary>\r\n\t\tpublic static bool IsInLayerMask(this int layer, LayerMask mask)\r\n\t\t{\r\n\t\t\treturn mask == (mask | (1 << layer));\r\n\t\t}";
+            content += $"\r\n{onlyInclundingFunction}\r\n\r\n{everythingButFunction}\r\n\r\n{isInLayerMaskFunction}\r\n\t";
 
             // generate the class
-            GenerateClass("Layers", content, "Constants for easy access to layers and easy creation of Layer Masks. If you add layers, you have to regenerate this class by pressing CTRL+ALT+C or clicking on Tools/Generate Constats Classes");
+            GenerateClass("Layers", content, includes, "Constants for easy access to layers and easy creation of Layer Masks. If you add layers, you have to regenerate this class by pressing CTRL+ALT+C or clicking on Tools/Generate Constats Classes");
         }
 
         /// <summary>
@@ -244,7 +259,7 @@ namespace FK.ConstantsGenerator
             content += $"\r\n\t\tpublic const int TOTAL_SCENES = {scenes.Length}{lineEnding}";
 
             // generate the class
-            GenerateClass("Scenes", content, "Constants for easy access to Scenes that are referenced in the Build settings. If you add scenes, you have to regenerate this class by pressing CTRL+ALT+C or clicking on Tools/Generate Constats Classes");
+            GenerateClass("Scenes", content, null, "Constants for easy access to Scenes that are referenced in the Build settings. If you add scenes, you have to regenerate this class by pressing CTRL+ALT+C or clicking on Tools/Generate Constats Classes");
         }
 
 
