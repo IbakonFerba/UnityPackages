@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// <para>This class represents a Volumetric Object. It contains all the data and manages registering itself at the VolumetricObjectRenderer</para>
 ///
-/// v1.1 08/2018
+/// v1.2 08/2018
 /// Written by Fabian Kober
 /// fabian-kober@gmx.net
 /// </summary>
@@ -20,6 +20,59 @@ public class VolumetricObject : MonoBehaviour
         BOX,
         SPHERE,
         CAPSULE
+    }
+
+    // ######################## PROPERTIES VARS ######################## //
+    /// <summary>
+    /// Sets scale of the Noise and enables noise
+    /// </summary>
+    public Vector3 NoiseScale
+    {
+        get { return new Vector3(NoiseST[0, 0], NoiseST[0, 1], NoiseST[0, 2]); }
+        set
+        {
+            NoiseST[0, 0] = value.x;
+            NoiseST[0, 1] = value.y;
+            NoiseST[0, 2] = value.z;
+            NoiseST[2, 0] = 1;
+        }
+    }
+
+    /// <summary>
+    /// Sets transform of the Noise and enables noise
+    /// </summary>
+    public Vector3 NoiseTransform
+    {
+        get { return new Vector3(NoiseST[1, 0], NoiseST[1, 1], NoiseST[1, 2]); }
+        set
+        {
+            NoiseST[1, 0] = value.x;
+            NoiseST[1, 1] = value.y;
+            NoiseST[1, 2] = value.z;
+            NoiseST[2, 0] = 1;
+        }
+    }
+
+    /// <summary>
+    /// Sets strenght og the noise and enables noise
+    /// </summary>
+    public float NoiseStrength
+    {
+        get { return NoiseST[2, 1]; }
+        set
+        {
+            NoiseST[2, 1] = Mathf.Clamp01(value);
+            NoiseST[2, 0] = 1;
+        }
+    }
+
+    /// <summary>
+    /// Enables or diables noise
+    /// </summary>
+    public bool Noise
+    {
+        get { return NoiseST[2, 0] > 0; }
+        set { NoiseST[2, 0] = value ? 1 : 0; }
     }
 
     // ######################## PUBLIC VARS ######################## //
