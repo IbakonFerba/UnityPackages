@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// <para>This class represents a Volumetric Object. It contains all the data and manages registering itself at the VolumetricObjectRenderer</para>
 ///
-/// v1.0 08/2018
+/// v1.1 08/2018
 /// Written by Fabian Kober
 /// fabian-kober@gmx.net
 /// </summary>
@@ -26,6 +26,12 @@ public class VolumetricObject : MonoBehaviour
     public Types Type;
     public Color Color = Color.white;
     public float Density = 1;
+    public bool EnableNoise = false;
+
+    /// <summary>
+    /// This matrix contains all noise related values like scale, transform and strength
+    /// </summary>
+    public Matrix4x4 NoiseST = new Matrix4x4(new Vector4(1, 0, 0, 0), new Vector4(1, 0, 0, 0), new Vector4(1, 0, 0, 0), new Vector4(1, 0, 0, 0));
 
     /// <summary>
     /// Dimensions of a Box object
