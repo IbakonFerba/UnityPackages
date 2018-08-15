@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// <para>This class represents a Volumetric Object. It contains all the data and manages registering itself at the VolumetricObjectRenderer</para>
 ///
-/// v1.2 08/2018
+/// v1.3 08/2018
 /// Written by Fabian Kober
 /// fabian-kober@gmx.net
 /// </summary>
@@ -28,13 +28,13 @@ public class VolumetricObject : MonoBehaviour
     /// </summary>
     public Vector3 NoiseScale
     {
-        get { return new Vector3(NoiseST[0, 0], NoiseST[0, 1], NoiseST[0, 2]); }
+        get { return new Vector3(NoiseSTO[0, 0], NoiseSTO[0, 1], NoiseSTO[0, 2]); }
         set
         {
-            NoiseST[0, 0] = value.x;
-            NoiseST[0, 1] = value.y;
-            NoiseST[0, 2] = value.z;
-            NoiseST[2, 0] = 1;
+            NoiseSTO[0, 0] = value.x;
+            NoiseSTO[0, 1] = value.y;
+            NoiseSTO[0, 2] = value.z;
+            NoiseSTO[2, 0] = 1;
         }
     }
 
@@ -43,13 +43,13 @@ public class VolumetricObject : MonoBehaviour
     /// </summary>
     public Vector3 NoiseTransform
     {
-        get { return new Vector3(NoiseST[1, 0], NoiseST[1, 1], NoiseST[1, 2]); }
+        get { return new Vector3(NoiseSTO[1, 0], NoiseSTO[1, 1], NoiseSTO[1, 2]); }
         set
         {
-            NoiseST[1, 0] = value.x;
-            NoiseST[1, 1] = value.y;
-            NoiseST[1, 2] = value.z;
-            NoiseST[2, 0] = 1;
+            NoiseSTO[1, 0] = value.x;
+            NoiseSTO[1, 1] = value.y;
+            NoiseSTO[1, 2] = value.z;
+            NoiseSTO[2, 0] = 1;
         }
     }
 
@@ -58,33 +58,41 @@ public class VolumetricObject : MonoBehaviour
     /// </summary>
     public float NoiseStrength
     {
-        get { return NoiseST[2, 1]; }
+        get { return NoiseSTO[2, 1]; }
         set
         {
-            NoiseST[2, 1] = Mathf.Clamp01(value);
-            NoiseST[2, 0] = 1;
+            NoiseSTO[2, 1] = Mathf.Clamp01(value);
+            NoiseSTO[2, 0] = 1;
         }
     }
 
     /// <summary>
     /// Enables or diables noise
     /// </summary>
-    public bool Noise
+    public bool EnableNoise
     {
-        get { return NoiseST[2, 0] > 0; }
-        set { NoiseST[2, 0] = value ? 1 : 0; }
+        get { return NoiseSTO[2, 0] > 0; }
+        set { NoiseSTO[2, 0] = value ? 1 : 0; }
+    }
+
+    /// <summary>
+    /// Sets the noise to be local or global
+    /// </summary>
+    public bool GlobalNoise
+    {
+        get { return NoiseSTO[2, 2] > 0; }
+        set { NoiseSTO[2, 2] = value ? 1 : 0; }
     }
 
     // ######################## PUBLIC VARS ######################## //
     public Types Type;
     public Color Color = Color.white;
     public float Density = 1;
-    public bool EnableNoise = false;
 
     /// <summary>
     /// This matrix contains all noise related values like scale, transform and strength
     /// </summary>
-    public Matrix4x4 NoiseST = new Matrix4x4(new Vector4(1, 0, 0, 0), new Vector4(1, 0, 0, 0), new Vector4(1, 0, 0, 0), new Vector4(1, 0, 0, 0));
+    public Matrix4x4 NoiseSTO = new Matrix4x4(new Vector4(1, 0, 0, 0), new Vector4(1, 0, 1, 0), new Vector4(1, 0, 0, 0), new Vector4(1, 0, 0, 0));
 
     /// <summary>
     /// Dimensions of a Box object
@@ -99,7 +107,7 @@ public class VolumetricObject : MonoBehaviour
     /// <summary>
     /// Row 1 and 2 contain the two Points for a Capsule
     /// </summary>
-    public Matrix4x4 Bounds = Matrix4x4.identity;
+    public Matrix4x4 Bounds = new Matrix4x4(Vector4.zero, new Vector4(1, 0, 0, 0), Vector4.zero, Vector4.zero);
 
     // ######################## UNITY EVENT FUNCTIONS ######################## //
     private void Update()

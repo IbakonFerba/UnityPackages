@@ -5,7 +5,7 @@ using UnityEngine;
 /// <para>This script renders Volumetric Objects as an Image Effect. Each Volumetric Object adds one Pass, so be careful with how many you use!</para>
 /// <para>Created with this Tutorial on Raymarching: http://flafla2.github.io/2016/10/01/raymarching.html</para>
 ///
-/// v1.1 08/2018
+/// v1.2 08/2018
 /// Written by Fabian Kober
 /// fabian-kober@gmx.net
 /// </summary>
@@ -154,7 +154,7 @@ public class VolumetricObjectsRenderer : SceneViewFilter
             // set non type dependent per Object values
             EffectMaterial.SetColor("_Color", _objs[i].Color);
             EffectMaterial.SetFloat("_Density", _objs[i].Density);
-            EffectMaterial.SetMatrix("_Noise_ST", _objs[i].NoiseST);
+            EffectMaterial.SetMatrix("_Noise_STO", _objs[i].NoiseSTO);
             EffectMaterial.SetMatrix("_InvModel", _objs[i].transform.localToWorldMatrix.inverse);
 
             // render the Object by alternating between buffers
