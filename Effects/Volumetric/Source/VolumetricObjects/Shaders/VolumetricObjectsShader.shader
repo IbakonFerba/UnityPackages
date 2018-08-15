@@ -7,7 +7,7 @@
 * 
 * Created with this Tutorial on Raymarching: http://flafla2.github.io/2016/10/01/raymarching.html
 *   
-* v1.0 08/2018
+* v1.2 08/2018
 * Written by Fabian Kober
 * fabian-kober@gmx.net
 */
@@ -30,6 +30,7 @@ Shader "Hidden/VolumetricObjectsShader"
 			
 			#include "UnityCG.cginc"
 			#include "Assets/Shaders/Includes/SignedDistanceFunctions.cginc"
+			#include "Assets/Shaders/Includes/Noise.cginc" 
 
 			struct appdata
 			{
@@ -65,6 +66,9 @@ Shader "Hidden/VolumetricObjectsShader"
             uniform float4x4 _CapsuleBounds;
             uniform int _Type;
             
+            //noise values
+            uniform float4x4 _Noise_STO;
+            
             // raymarching values
             uniform int _StepCount;
             uniform int _StepCountInside;
@@ -86,6 +90,17 @@ Shader "Hidden/VolumetricObjectsShader"
                 }
                 
                 return 0;
+            }
+            
+            // adds noise to the object
+            float weightStep(float3 p) {
+                float3 tp = p;
+                if(_Noise_STO[2].z < 1)
+                    tp = mul(_InvModel, float4(p, 1)).xyz;
+                if(_Noise_STO[2].x > 0)
+                return saturate(snoise((tp+_Noise_STO[1].xyz)*_Noise_STO[0].xyz))*_Noise_STO[2].y+1-_Noise_STO[2].y;
+                
+                return 1;
             }
             
             // does the raymarching and returns a color
@@ -112,7 +127,7 @@ Shader "Hidden/VolumetricObjectsShader"
 
                     // If the sample <= 0, we have hit something.
                      if (dist < 0.0001) {
-                        ++stepsInside;
+                        stepsInside += weightStep(p);
                         for(int i = 0; i < _StepCountInside; ++i) {
                             // If we run past the depth buffer or the max Draw distance, stop and return nothing (transparent pixel)
                             // this way raymarched objects and traditional meshes can coexist.
@@ -125,7 +140,7 @@ Shader "Hidden/VolumetricObjectsShader"
 
                             // If the sample <= 0, we are still inside the object
                             if (dist < 0.001) {
-                                ++stepsInside;
+                                stepsInside += weightStep(p);
                             } else {
                                 break;
                             }
