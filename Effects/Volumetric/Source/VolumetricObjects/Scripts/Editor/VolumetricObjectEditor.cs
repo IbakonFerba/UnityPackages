@@ -5,7 +5,7 @@ using System.Collections;
 /// <summary>
 /// <para>Custom Editor for Volumetric Objects</para>
 ///
-/// v2.0 08/2018
+/// v2.1 08/2018
 /// Written by Fabian Kober
 /// fabian-kober@gmx.net
 /// </summary>
@@ -25,28 +25,31 @@ public class VolumetricObjectEditor : Editor
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Noise", EditorStyles.boldLabel);
-        bool enableNoise = EditorGUILayout.Toggle(new GUIContent("Enable Noise", ""), vo.EnableNoise);
+        bool enableNoise = EditorGUILayout.Toggle(new GUIContent("Enable Noise", "If true, a simplex noise is added to the volume"), vo.EnableNoise);
 
-        Matrix4x4 noiseSt = vo.NoiseST;
+        Matrix4x4 noiseSto = vo.NoiseSTO;
         if (enableNoise)
         {
-            Vector3 noiseScale = EditorGUILayout.Vector3Field("Noise Scale", new Vector3(vo.NoiseST[0, 0], vo.NoiseST[0, 1], vo.NoiseST[0, 2]));
-            Vector3 noiseTransform = EditorGUILayout.Vector3Field("Noise Transform", new Vector3(vo.NoiseST[1, 0], vo.NoiseST[1, 1], vo.NoiseST[1, 2]));
-            float noiseStrenght = EditorGUILayout.Slider("Strength", vo.NoiseST[2, 1], 0, 1);
+            EditorGUI.indentLevel++;
+            bool globalNoise = EditorGUILayout.Toggle(new GUIContent("Global", "If true, the noise is calculated in world space"), vo.GlobalNoise);
+            Vector3 noiseScale = EditorGUILayout.Vector3Field("Noise Scale", new Vector3(vo.NoiseSTO[0, 0], vo.NoiseSTO[0, 1], vo.NoiseSTO[0, 2]));
+            Vector3 noiseTransform = EditorGUILayout.Vector3Field("Noise Transform", new Vector3(vo.NoiseSTO[1, 0], vo.NoiseSTO[1, 1], vo.NoiseSTO[1, 2]));
+            float noiseStrenght = EditorGUILayout.Slider("Strength", vo.NoiseSTO[2, 1], 0, 1);
+            EditorGUI.indentLevel--;
 
-
-            noiseSt[0, 0] = noiseScale.x;
-            noiseSt[0, 1] = noiseScale.y;
-            noiseSt[0, 2] = noiseScale.z;
-            noiseSt[1, 0] = noiseTransform.x;
-            noiseSt[1, 1] = noiseTransform.y;
-            noiseSt[1, 2] = noiseTransform.z;
-            noiseSt[2, 0] = 1;
-            noiseSt[2, 1] = noiseStrenght;
+            noiseSto[0, 0] = noiseScale.x;
+            noiseSto[0, 1] = noiseScale.y;
+            noiseSto[0, 2] = noiseScale.z;
+            noiseSto[1, 0] = noiseTransform.x;
+            noiseSto[1, 1] = noiseTransform.y;
+            noiseSto[1, 2] = noiseTransform.z;
+            noiseSto[2, 0] = 1;
+            noiseSto[2, 1] = noiseStrenght;
+            noiseSto[2, 2] = globalNoise ? 1 : 0;
         }
         else
         {
-            noiseSt[2, 0] = 0;
+            noiseSto[2, 0] = 0;
         }
 
         EditorGUILayout.Space();
@@ -87,8 +90,7 @@ public class VolumetricObjectEditor : Editor
 
             vo.Color = color;
             vo.Density = density;
-            vo.EnableNoise = enableNoise;
-            vo.NoiseST = noiseSt;
+            vo.NoiseSTO = noiseSto;
             vo.Type = type;
             vo.Dimensions = dimensions;
             vo.Radius = radius;
