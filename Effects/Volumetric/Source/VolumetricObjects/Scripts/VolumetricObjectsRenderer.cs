@@ -5,7 +5,7 @@ using UnityEngine;
 /// <para>This script renders Volumetric Objects as an Image Effect. Each Volumetric Object adds one Pass, so be careful with how many you use!</para>
 /// <para>Created with this Tutorial on Raymarching: http://flafla2.github.io/2016/10/01/raymarching.html</para>
 ///
-/// v1.2 08/2018
+/// v1.4 08/2018
 /// Written by Fabian Kober
 /// fabian-kober@gmx.net
 /// </summary>
@@ -111,16 +111,13 @@ public class VolumetricObjectsRenderer : SceneViewFilter
         // sort the Objects by depth
         _objs.Sort((x, y) => (int) Mathf.Clamp(CurrentCamera.transform.InverseTransformPoint(y.transform.position).z - CurrentCamera.transform.InverseTransformPoint(x.transform.position).z, -1, 1));
 
-        // set general shader values dor camera
+        // set general shader values for camera
         EffectMaterial.SetMatrix("_FrustumCornersES", GetFrustumCorners(CurrentCamera));
         EffectMaterial.SetMatrix("_CameraInvViewMatrix", CurrentCamera.cameraToWorldMatrix);
         EffectMaterial.SetVector("_CameraWS", CurrentCamera.transform.position);
 
         // set general shader values for raymarching
-        EffectMaterial.SetInt("_StepCount", StepCount);
-        EffectMaterial.SetInt("_StepCountInside", StepCountInsideVolume);
-        EffectMaterial.SetFloat("_StepSize", StepSize);
-        EffectMaterial.SetInt("_DrawDist", DrawDist);
+        EffectMaterial.SetVector("_RaymarchingParams", new Vector4(StepCount, StepCountInsideVolume, StepSize, DrawDist));
 
         // create to temporary Render textures as buffers
         RenderTexture temp0 = RenderTexture.GetTemporary(src.width, src.height, 0, src.format);
@@ -132,30 +129,35 @@ public class VolumetricObjectsRenderer : SceneViewFilter
         // render all objects
         for (int i = 0; i < _objs.Count; ++i)
         {
+            VolumetricObject obj = _objs[i];
             // set shader values that are type dependend
-            VolumetricObject.Types t = _objs[i].Type;
+            VolumetricObject.Types t = obj.Type;
             switch (t)
             {
                 case VolumetricObject.Types.BOX:
                     EffectMaterial.SetInt("_Type", 0);
-                    EffectMaterial.SetVector("_BoxDimensions", _objs[i].Dimensions * 0.5f);
+                    EffectMaterial.SetVector("_BoxDimensions", obj.Dimensions * 0.5f);
                     break;
                 case VolumetricObject.Types.SPHERE:
                     EffectMaterial.SetInt("_Type", 1);
-                    EffectMaterial.SetFloat("_SphereRad", _objs[i].Radius);
+                    EffectMaterial.SetFloat("_SphereRad", obj.Radius);
                     break;
                 case VolumetricObject.Types.CAPSULE:
                     EffectMaterial.SetInt("_Type", 2);
-                    EffectMaterial.SetFloat("_SphereRad", _objs[i].Radius);
-                    EffectMaterial.SetMatrix("_CapsuleBounds", _objs[i].Bounds);
+                    EffectMaterial.SetMatrix("_CapsuleBounds", obj.CapsuleParams);
                     break;
             }
 
             // set non type dependent per Object values
-            EffectMaterial.SetColor("_Color", _objs[i].Color);
-            EffectMaterial.SetFloat("_Density", _objs[i].Density);
-            EffectMaterial.SetMatrix("_Noise_STO", _objs[i].NoiseSTO);
-            EffectMaterial.SetMatrix("_InvModel", _objs[i].transform.localToWorldMatrix.inverse);
+            EffectMaterial.SetColor("_Color", obj.Color);
+
+            Color dc = obj.DenseColor;
+            dc.a = obj.UseDenseColor ? 1 : 0;
+            EffectMaterial.SetColor("_DenseColor", dc);
+            
+            EffectMaterial.SetVector("_FogOptions", new Vector4(obj.Density, (float)obj.Falloff, (float)obj.BlendMode, 0));
+            EffectMaterial.SetMatrix("_Noise_STO", obj.NoiseSTO);
+            EffectMaterial.SetMatrix("_InvModel", obj.transform.localToWorldMatrix.inverse);
 
             // render the Object by alternating between buffers
             if (i == 0)

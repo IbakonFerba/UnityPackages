@@ -7,7 +7,7 @@
 * 
 * Created with this Tutorial on Raymarching: http://flafla2.github.io/2016/10/01/raymarching.html
 *   
-* v1.2 08/2018
+* v2.0 08/2018
 * Written by Fabian Kober
 * fabian-kober@gmx.net
 */
@@ -59,21 +59,45 @@ Shader "Hidden/VolumetricObjectsShader"
             
             // model values
             uniform float4x4 _InvModel;
-            uniform fixed4 _Color;
-            uniform float _Density;
             uniform float3 _BoxDimensions;
             uniform float _SphereRad;
+            /*
+            * [0].xyz: Point1
+            * [1].xyz: Point2
+            * [2].x: Radius;
+            */
             uniform float4x4 _CapsuleBounds;
             uniform int _Type;
             
+            // color values
+            uniform fixed4 _Color;
+            uniform fixed4 _DenseColor;
+            /* 
+            * x: density
+            * y: falloff
+            * z: blend mode
+            */
+            uniform float3 _FogOptions;
+            
             //noise values
-            uniform float4x4 _Noise_STO;
+            /*
+            * [0].xyz: scale
+            * [1].xyz: translation
+            * [2]: Options
+            *       x: noise enabled (true if > 0)
+            *       y: noise strength (between 0 and 1)
+            *       z: noise global or local (global if 1, local if < 1)
+            */
+            uniform float3x4 _Noise_STO;
             
             // raymarching values
-            uniform int _StepCount;
-            uniform int _StepCountInside;
-            uniform float _StepSize;
-            uniform float _DrawDist;
+            /*
+            * x: step count
+            * y: step count inside
+            * z: step size
+            * w: draw dist
+            */
+            float4 _RaymarchingParams;
            
             // maps a point to the correct sd function       
             float map(float3 p) {
@@ -86,7 +110,7 @@ Shader "Hidden/VolumetricObjectsShader"
                 } else if(_Type == 1) {           
                     return sdSphere(tp, _SphereRad);
                 }else if(_Type == 2) {
-                    return sdCapsule(tp, _CapsuleBounds[0].xyz, _CapsuleBounds[1].xyz, _SphereRad);
+                    return sdCapsule(tp, _CapsuleBounds[0].xyz, _CapsuleBounds[1].xyz, _CapsuleBounds[2].x);
                 }
                 
                 return 0;
@@ -115,10 +139,10 @@ Shader "Hidden/VolumetricObjectsShader"
                 float traveled = 0;
                 
                 // do raymarching
-                for(int i = 0; i < _StepCount; ++i) {
+                for(int i = 0; i < _RaymarchingParams.x; ++i) {
                     // If we run past the depth buffer or the max Draw distance, stop and return nothing (transparent pixel)
                     // this way raymarched objects and traditional meshes can coexist.
-                    if (traveled >= depthBuffer || traveled > _DrawDist) {
+                    if (traveled >= depthBuffer || traveled > _RaymarchingParams.w) {
                         break;
                     }
         
@@ -128,10 +152,10 @@ Shader "Hidden/VolumetricObjectsShader"
                     // If the sample <= 0, we have hit something.
                      if (dist < 0.0001) {
                         stepsInside += weightStep(p);
-                        for(int i = 0; i < _StepCountInside; ++i) {
+                        for(int i = 0; i < _RaymarchingParams.y; ++i) {
                             // If we run past the depth buffer or the max Draw distance, stop and return nothing (transparent pixel)
                             // this way raymarched objects and traditional meshes can coexist.
-                            if (traveled >= depthBuffer || traveled > _DrawDist) {
+                            if (traveled >= depthBuffer || traveled > _RaymarchingParams.w) {
                                 break;
                             }
         
@@ -146,7 +170,7 @@ Shader "Hidden/VolumetricObjectsShader"
                             }
 
                             // march forward by step size
-                            traveled += _StepSize;
+                            traveled += _RaymarchingParams.z;
                         }
                         break;
                      }
@@ -157,8 +181,19 @@ Shader "Hidden/VolumetricObjectsShader"
                     traveled += dist;
                 }
                 
-                // set the alpha of the Color to a value dependend from the density of the Object and how long we where inside it
-                ret.a = saturate((stepsInside*_Density)/_StepCountInside);
+                // set the alpha of the Color to a value dependend from the density of the Object and how long we where inside it, according to a falloff function
+                if(_FogOptions.y == 0) { // linear
+                    ret.a = 1-saturate(((_RaymarchingParams.y/(0.00001+_FogOptions.x))-stepsInside)/(_RaymarchingParams.y/(0.00001+_FogOptions.x)));
+                } else if(_FogOptions.y == 1) { // exponential
+                    ret.a = 1-saturate(1/exp(stepsInside*_FogOptions.x*0.03));
+                } else if (_FogOptions.y = 2) { // squared exponential
+                    ret.a = 1-saturate(1/exp(pow(stepsInside*_FogOptions.x*0.025,2)));
+                }
+                
+                // blend with another color for denser areas
+                if(_DenseColor.a > 0)
+                    ret.rgb = _DenseColor.rgb*ret.a + ret.rgb*(1-ret.a);
+                    
                 return ret;
             }
             
@@ -213,11 +248,15 @@ Shader "Hidden/VolumetricObjectsShader"
                 depth *= length(i.ray.xyz);
 
                 // sample texture and create color
-                fixed3 col = tex2D(_MainTex,i.uv);
+                fixed4 col = tex2D(_MainTex,i.uv);
                 fixed4 add = raymarch(rayOrigin, rayDir, depth);
 
-                // Returns final color using alpha blending
-                return fixed4(col*(1.0 - add.w) + add.xyz * add.w,1.0);
+                // Returns final color using a specified blend mode
+                if(_FogOptions.z > 0) // additive
+                    return col + add*add.a;
+                    
+                //alpha blended
+                return fixed4(col*(1 - add.a) + add.rbg * add.a,1);
 			}
 			ENDCG
 		}
