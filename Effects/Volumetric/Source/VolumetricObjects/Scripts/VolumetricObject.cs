@@ -1,10 +1,11 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
 
 /// <summary>
 /// <para>This class represents a Volumetric Object. It contains all the data and manages registering itself at the VolumetricObjectRenderer</para>
 ///
-/// v1.3 08/2018
+/// v2.0 08/2018
 /// Written by Fabian Kober
 /// fabian-kober@gmx.net
 /// </summary>
@@ -20,6 +21,25 @@ public class VolumetricObject : MonoBehaviour
         BOX,
         SPHERE,
         CAPSULE
+    }
+
+    /// <summary>
+    /// All alvailable falloff types
+    /// </summary>
+    public enum FalloffTypes
+    {
+        LINEAR = 0,
+        EXPONENTIAL = 1,
+        SQUARED_EXPONENTIAL = 2
+    }
+
+    /// <summary>
+    /// All available alpha blend modes
+    /// </summary>
+    public enum BlendModes
+    {
+        ALPHA_BLENDED = 0,
+        ADDITIVE = 1
     }
 
     // ######################## PROPERTIES VARS ######################## //
@@ -85,14 +105,38 @@ public class VolumetricObject : MonoBehaviour
     }
 
     // ######################## PUBLIC VARS ######################## //
-    public Types Type;
-    public Color Color = Color.white;
     public float Density = 1;
+    public FalloffTypes Falloff = FalloffTypes.SQUARED_EXPONENTIAL;
+    public Color Color = Color.white;
+
+    /// <summary>
+    /// If true, the denser the fog is the more its color will become the DenseColor
+    /// </summary>
+    public bool UseDenseColor;
+
+    /// <summary>
+    /// Color for denser areas
+    /// </summary>
+    public Color DenseColor = Color.white;
+
+    public BlendModes BlendMode = BlendModes.ALPHA_BLENDED;
 
     /// <summary>
     /// This matrix contains all noise related values like scale, transform and strength
+    ///
+    /// Row 0: Scale
+    /// Row 1: Translation
+    /// Row 2: Options
+    ///     0: enable noise (true if > 0)
+    ///     1: noise strength between 0 and 1
+    ///     2: global noise (true if > 0
     /// </summary>
     public Matrix4x4 NoiseSTO = new Matrix4x4(new Vector4(1, 0, 0, 0), new Vector4(1, 0, 1, 0), new Vector4(1, 0, 0, 0), new Vector4(1, 0, 0, 0));
+
+    /// <summary>
+    /// The type of the Object
+    /// </summary>
+    public Types Type;
 
     /// <summary>
     /// Dimensions of a Box object
@@ -105,9 +149,11 @@ public class VolumetricObject : MonoBehaviour
     public float Radius = 1;
 
     /// <summary>
-    /// Row 1 and 2 contain the two Points for a Capsule
+    /// Row 0: Point 1
+    /// Row 1: Point 2
+    /// [2,0]: Radius
     /// </summary>
-    public Matrix4x4 Bounds = new Matrix4x4(Vector4.zero, new Vector4(1, 0, 0, 0), Vector4.zero, Vector4.zero);
+    public Matrix4x4 CapsuleParams = new Matrix4x4(new Vector4(0, 0, 0.5f, 0), new Vector4(1, 0, 0, 0), Vector4.zero, Vector4.zero);
 
     // ######################## UNITY EVENT FUNCTIONS ######################## //
     private void Update()
@@ -130,6 +176,9 @@ public class VolumetricObject : MonoBehaviour
     }
 
     // ######################## FUNCTIONALITY ######################## //
+
+    #region EDITOR
+
     /// <summary>
     /// Creates a Volumetric Object
     /// </summary>
@@ -188,13 +237,7 @@ public class VolumetricObject : MonoBehaviour
     public static void CreateVolumetricCapsule(MenuCommand menuCommand)
     {
         VolumetricObject vo = CreateVolumetricObject(menuCommand, Types.CAPSULE, "VolumetricCapsule");
-
-        // set bounds
-        vo.Bounds[0, 0] = 0;
-        vo.Bounds[0, 1] = 1;
-        vo.Bounds[0, 2] = 0;
-        vo.Bounds[1, 0] = 0;
-        vo.Bounds[1, 1] = 0;
-        vo.Bounds[1, 2] = 0;
     }
+
+    #endregion
 }
