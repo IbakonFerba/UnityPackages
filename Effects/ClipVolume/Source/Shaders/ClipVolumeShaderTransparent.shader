@@ -1,12 +1,12 @@
 ﻿/*
-* This Shader is basically a Standard Surface Shader, but with the added effect that it is only visible inside a Clip Volume.
+* This Shader is basically a Standard Surface Shader, but with the added effect that it is only visible inside a Clip Volume and Fades using Dithering towards the Border of the Clip Volume.
 * Backface Culling is turned of and the inside is Colored in a Flat, unlit color so that the object looks solid (from most angles)
 *
 * v2.0 08/2018
 * Written by Fabian Kober
 * fabian-kober@gmx.net
 */
-Shader "Clip Volume/Clip Volume Transparent" {
+Shader "Clip Volume/Transparent" {
 	Properties {
 		_Color ("Color", Color) = (1,1,1,1)
 		_MainTex ("Albedo (RGBA)", 2D) = "white" {}
@@ -18,7 +18,7 @@ Shader "Clip Volume/Clip Volume Transparent" {
 		[Normal] [NoScaleOffset]
 		_BumpMap("Normal Map (RGB)", 2D) = "bump" {}
 		[NoScaleOffset]
-        _OcclusionMap("Occlusion", 2D) = "white" {}
+        _OcclusionMap("Occlusion (R)", 2D) = "white" {}
 		_OcclusionStrength("Strength", Range(0.0, 1.0)) = 1.0
 		[HDR]
 		_EmissionColor("EmissionColor", Color) = (0,0,0,0)
@@ -26,7 +26,17 @@ Shader "Clip Volume/Clip Volume Transparent" {
 		_EmissionMap("Emission (RGB)", 2D) = "white" {}
 		_ClipVolumeMin("Min XYZ", Vector) = (0,0,0)	
 		_ClipVolumeMax("Max XYZ", Vector) = (1,1,1)
+		
+		[Toggle(FADE_BORDER)]
+        _FadeBorder("Fade Border", Float) = 0	
+        
+		_BorderGradientHardness("Border Hardness", Float) = 50
+		[NoScaleOffset]
+		_NoiseMap("Noise Map (R)", 2D) = "white" {}
+		_NoiseScale("Noise Scale", Float) = 1
+		_NoiseThreshold("Threshold", Range(0,1)) = 0.5
 	}
+	CustomEditor "ClipVolumeTransparentEditor"
 	SubShader {
 		Tags { "RenderType"="Transparent" "Queue"="Transparent"}
 		LOD 200
@@ -34,8 +44,9 @@ Shader "Clip Volume/Clip Volume Transparent" {
         ZWrite Off
 		CGPROGRAM
 		// Custom lighting model based on the Physically based Standard lighting model, and enable shadows on all light types
-		#pragma surface surf Standard fullforwardshadows alpha:premul
-		
+		#pragma surface surf Standard vertex:vert fullforwardshadows alpha:premul
+		#pragma multi_compile _ FADE_BORDER
+        
 		// includes
         #include "UnityPBSLighting.cginc"
         #include "Assets/Shaders/Includes/ClipVolume.cginc"
@@ -43,17 +54,26 @@ Shader "Clip Volume/Clip Volume Transparent" {
 		// Use shader model 3.0 target, to get nicer looking lighting
 		#pragma target 3.0
 
-        // textures and maps
+        // Textures and Maps
 		sampler2D _MainTex;
 		sampler2D _BumpMap;
 		sampler2D _SmoothnessMap;
 		sampler2D _EmissionMap;
 		sampler2D _OcclusionMap;
+		
+		#if FADE_BORDER
+		sampler2D _NoiseMap;
+		#endif
 
 		struct Input {
 			float2 uv_MainTex;
 			float3 worldPos;
 			float3 viewDir;
+			#if FADE_BORDER
+			float3 localPos;
+			float3 localNormal;	
+			#endif
+			INTERNAL_DATA
 		};
 
         // surface shader values
@@ -63,12 +83,19 @@ Shader "Clip Volume/Clip Volume Transparent" {
 		float4 _EmissionColor;
 		float _OcclusionStrength;
 		
-		// Clip volume definition
+		// clip volume definition
 		float4 _ClipVolumeMin;
 		float4 _ClipVolumeMax;	
 		float4x4 _ClipVolumeWorldToLocal;
-		float3 _ClipVolumeWorldPos;  
-		      
+		float3 _ClipVolumeWorldPos;
+		
+		#if FADE_BORDER
+		// border fading
+		float _BorderGradientHardness;
+        float _NoiseThreshold;
+        float _NoiseScale;
+        #endif
+        
 		// Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
 		// See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
 		// #pragma instancing_options assumeuniformscaling
@@ -76,10 +103,24 @@ Shader "Clip Volume/Clip Volume Transparent" {
 			// put more per-instance properties here
 		UNITY_INSTANCING_BUFFER_END(Props)
         
+        void vert(inout appdata_full v, out Input data)
+        {
+            UNITY_INITIALIZE_OUTPUT(Input, data);
+            #if FADE_BORDER
+            data.localPos = v.vertex.xyz;
+            data.localNormal = v.normal.xyz;
+            #endif
+        }
+        
 		void surf (Input IN, inout SurfaceOutputStandard o) 
-		{
-		     // use clip volume
-            useClipVolume(IN.worldPos.xyz, _ClipVolumeWorldToLocal, _ClipVolumeWorldPos.xyz, _ClipVolumeMin.xyz, _ClipVolumeMax.xyz);
+		{			
+		    // use clip volume and get the out of bounds value back
+            float outOfBounds = useClipVolume(IN.worldPos.xyz, _ClipVolumeWorldToLocal, _ClipVolumeWorldPos.xyz, _ClipVolumeMin.xyz, _ClipVolumeMax.xyz);
+		    
+		    #if FADE_BORDER
+		    // fade border
+		    fadeBorder(outOfBounds, _NoiseMap, _NoiseScale, _NoiseThreshold, _BorderGradientHardness, IN.localPos, IN.localNormal);
+		    #endif
 		
 			// Albedo comes from a texture tinted by color
 			fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color;
@@ -98,52 +139,12 @@ Shader "Clip Volume/Clip Volume Transparent" {
 			o.Emission = tex2D(_EmissionMap, IN.uv_MainTex) * _EmissionColor;
 			
 			//Occlusion
-			o.Occlusion = tex2D(_OcclusionMap, IN.uv_MainTex)*_OcclusionStrength;
+			o.Occlusion = tex2D(_OcclusionMap, IN.uv_MainTex).r*_OcclusionStrength;
 		}       
 		ENDCG
+		
 			
-		// shadow caster pass	
-		Tags{ "LightMode" = "ShadowCaster"  }
-        Name "ShadowCaster"
-        Pass
-        {
-        CGPROGRAM
-
-        #pragma vertex vert
-        #pragma fragment frag
-        #pragma multi_compile_shadowcaster
-        #pragma fragmentoption ARB_precision_hint_fastest
-
-        #include "UnityCG.cginc"
-        #include "Assets/Shaders/Includes/ClipVolume.cginc"
-
-        struct v2f
-        {
-            V2F_SHADOW_CASTER;
-            float3 worldPos : TEXCOORD0;
-        };
-
-        v2f vert(appdata_base v)
-        {
-            v2f o;
-            o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
-            TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
-            return o;
-        }
-    
-       // clip volume definition
-	    float4 _ClipVolumeMin;
-	    float4 _ClipVolumeMax;	
-	    float4x4 _ClipVolumeWorldToLocal;
-	    float3 _ClipVolumeWorldPos;
-
-        float4 frag(v2f i) : COLOR
-        {
-            useClipVolume(i.worldPos.xyz, _ClipVolumeWorldToLocal, _ClipVolumeWorldPos.xyz, _ClipVolumeMin.xyz, _ClipVolumeMax.xyz);
-            SHADOW_CASTER_FRAGMENT(i)
-        }
-        ENDCG
-        }
+		UsePass "Clip Volume/Standard/ShadowCaster"
 	}
 	FallBack "Diffuse"
 }
