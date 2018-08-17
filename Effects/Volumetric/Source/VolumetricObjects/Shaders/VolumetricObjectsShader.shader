@@ -7,7 +7,7 @@
 * 
 * Created with this Tutorial on Raymarching: http://flafla2.github.io/2016/10/01/raymarching.html
 *   
-* v2.0 08/2018
+* v2.1 08/2018
 * Written by Fabian Kober
 * fabian-kober@gmx.net
 */
@@ -251,12 +251,16 @@ Shader "Hidden/VolumetricObjectsShader"
                 fixed4 col = tex2D(_MainTex,i.uv);
                 fixed4 add = raymarch(rayOrigin, rayDir, depth);
 
+                 
                 // Returns final color using a specified blend mode
                 if(_FogOptions.z > 0) // additive
-                    return col + add*add.a;
+                    col += add*add.a;
+                else
+                    col.rgb = col.rgb*(1-add.a)+add.rgb*add.a;
+                
                     
                 //alpha blended
-                return fixed4(col*(1 - add.a) + add.rbg * add.a,1);
+                return col;
 			}
 			ENDCG
 		}

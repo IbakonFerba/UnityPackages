@@ -1,7 +1,7 @@
 /*
 *   This Include File contains Functions that are used for all Clip Volume shaders
 *   
-*   v1.0 07/2018
+*   v1.1 08/2018
 *   Written by Fabian Kober
 *   fabian-kober@gmx.net
 */
@@ -39,14 +39,14 @@ float useClipVolume(float3 worldPos, float4x4 clipVolumeWorldToLocal, float3 cli
 *   noiseScale - scaling factor for the noise map
 *   threshold - threshold for determining which pixels to discard at which color of the noise map
 *   gradientHardness - How fast should we fade?
-*   worldPos - world Position of the fragment
-*   worldNormal - world Normal of the fragment
+*   localPos - local Position of the fragment
+*   local - local Normal of the fragment
 */
-void fadeBorder(float outOfBounds, sampler2D noiseMap, float noiseScale, float threshold, float gradientHardness, float3 worldPos, float3 worldNormal) {
+void fadeBorder(float outOfBounds, sampler2D noiseMap, float noiseScale, float threshold, float gradientHardness, float3 localPos, float3 localNormal) {
     // fade the border using a triplanar mapped noise map for dithering
-    float border = 1-saturate(-outOfBounds*gradientHardness);
-    half noise = triplanarTex(noiseMap, noiseMap, noiseMap, worldPos, worldNormal, noiseScale)*border;
-    clip(threshold-noise.r);
+    float border = saturate(-outOfBounds*gradientHardness);
+    half noise = triplanarTex(noiseMap, noiseMap, noiseMap, localPos, localNormal, noiseScale)+border;
+    clip(noise.r-threshold);
 }
 
 #endif
