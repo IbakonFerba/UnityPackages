@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#if UNITY_EDITOR
+using UnityEngine;
 using UnityEditor;
 
 namespace FK.Editor
@@ -850,3 +851,4 @@ namespace FK.Editor
         #endregion
     }
 }
+#endif
