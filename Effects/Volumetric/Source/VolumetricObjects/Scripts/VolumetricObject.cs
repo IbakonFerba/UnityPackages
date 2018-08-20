@@ -1,11 +1,12 @@
-﻿using System;
+﻿#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 /// <summary>
 /// <para>This class represents a Volumetric Object. It contains all the data and manages registering itself at the VolumetricObjectRenderer</para>
 ///
-/// v2.1 08/2018
+/// v2.0 08/2018
 /// Written by Fabian Kober
 /// fabian-kober@gmx.net
 /// </summary>
@@ -179,7 +180,6 @@ public class VolumetricObject : MonoBehaviour
 
     #region EDITOR
 
-#if UNITY_EDITOR
     /// <summary>
     /// Creates a Volumetric Object
     /// </summary>
@@ -239,7 +239,6 @@ public class VolumetricObject : MonoBehaviour
     {
         VolumetricObject vo = CreateVolumetricObject(menuCommand, Types.CAPSULE, "VolumetricCapsule");
     }
-#endif
 
     #endregion
 }
