@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+using UnityEditor;
 using UnityEngine;
 using FK.Utility.UI;
 using FK.Editor;
@@ -25,3 +26,4 @@ public class SpriteSwapperEditor : Editor
         serializedObject.ApplyModifiedProperties ();
     }
 }
+#endif
