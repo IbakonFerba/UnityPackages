@@ -7,7 +7,7 @@ namespace FK.Editor
     /// <summary>
     /// <para>Elements for Multi Material Editing supporting Material Editors</para>
     ///
-    /// v1.0 08/2018
+    /// v1.1 08/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -800,8 +800,8 @@ namespace FK.Editor
             EditorGUI.BeginChangeCheck();
             MaterialProperty p = MaterialEditor.GetMaterialProperty(materialEditor.targets, property);
             EditorGUI.showMixedValue = p.hasMixedValue;
-            Vector2 textureTiling = textureTiling = EditorGUILayout.Vector2Field("Tiling", new Vector2(p.textureScaleAndOffset.x, p.textureScaleAndOffset.y));
-            Vector2 textureOffset = textureOffset = EditorGUILayout.Vector2Field("Offset", new Vector2(p.textureScaleAndOffset.z, p.textureScaleAndOffset.w));
+            Vector2 textureTiling = EditorGUILayout.Vector2Field("Tiling", new Vector2(p.textureScaleAndOffset.x, p.textureScaleAndOffset.y));
+            Vector2 textureOffset = EditorGUILayout.Vector2Field("Offset", new Vector2(p.textureScaleAndOffset.z, p.textureScaleAndOffset.w));
             EditorGUI.showMixedValue = false;
 
             Vector4 result = new Vector4(textureTiling.x, textureTiling.y, textureOffset.x, textureOffset.y);
