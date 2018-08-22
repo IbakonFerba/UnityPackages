@@ -5,10 +5,11 @@ using UnityEngine;
 /// <para>This is the Controller Class for Objects with the ClipVolumeShader.
 /// It defines the volume in which all of its child objects with the Clip Volume Shader are rendered</para>
 ///
-/// v2.2 07/2018
+/// v3.0 08/2018
 /// Written by Fabian Kober
 /// fabian-kober@gmx.net
 /// </summary>
+[ExecuteInEditMode]
 public class ClipVolume : MonoBehaviour
 {
     // ######################## PROPERTIES ######################## //
@@ -25,22 +26,37 @@ public class ClipVolume : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// This property makes sure a Property Block exists and returns it
+    /// </summary>
+    private MaterialPropertyBlock PropertyBlock => _propertyBlock ?? (_propertyBlock = new MaterialPropertyBlock());
+
+    /// <summary>
+    /// This property makes sure we have the renderers and returns them
+    /// </summary>
+    private Renderer[] Renderers => _renderers ?? (_renderers = GetComponentsInChildren<Renderer>(true));
+
     // ######################## PRIVATE VARS ######################## //
     /// <summary>
     /// The size of the Box Volume
     /// </summary>
     [SerializeField] private Vector3 _size = Vector3.one;
-    
+
     /// <summary>
-    /// All Renderers that we need to take care of
+    /// All Renderers that we need to take care of (use Renderers Property to make sure this is initialized)
     /// </summary>
     private Renderer[] _renderers;
-    
+
+    /// <summary>
+    /// The property block for setting our uniforms (use PropertyBlock Property to make sure this is initialized)
+    /// </summary>
+    private MaterialPropertyBlock _propertyBlock;
+
     /// <summary>
     /// The transform matrix of the volume
     /// </summary>
     private Matrix4x4 _volumeMatrix;
-    
+
     // ######################## UNITY EVENT FUNCTIONS ######################## //
     private void Awake()
     {
@@ -55,7 +71,8 @@ public class ClipVolume : MonoBehaviour
     }
 
     #region EDITOR
-    #if UNITY_EDITOR
+
+#if UNITY_EDITOR
     void OnDrawGizmos()
     {
         // Draw the volume as a green Cube
@@ -66,7 +83,7 @@ public class ClipVolume : MonoBehaviour
 
         Gizmos.DrawCube(Vector3.zero, _size);
     }
-    
+
     /// <summary>
     /// Context Menu function for creating a Clip Volume Object
     /// </summary>
@@ -76,14 +93,15 @@ public class ClipVolume : MonoBehaviour
     {
         // create game object with a clip volume component
         GameObject volumeObject = new GameObject("ClipVolume", typeof(ClipVolume));
-        
+
         // Ensure it gets reparented if this was a context click (otherwise does nothing)
         GameObjectUtility.SetParentAndAlign(volumeObject, menuCommand.context as GameObject);
         // Register the creation in the undo system
         Undo.RegisterCreatedObjectUndo(volumeObject, "Create " + volumeObject.name);
         Selection.activeObject = volumeObject;
     }
-    #endif
+#endif
+
     #endregion
 
 
@@ -95,7 +113,8 @@ public class ClipVolume : MonoBehaviour
     {
         // get the child renderes
         _renderers = GetComponentsInChildren<Renderer>(true);
-        
+        _propertyBlock = new MaterialPropertyBlock();
+
         // update once
         UpdateShaderValues();
     }
@@ -104,21 +123,21 @@ public class ClipVolume : MonoBehaviour
     /// <summary>
     /// Updates the Uniforms of the ClipVolumeShader
     /// </summary>
-    private void UpdateShaderValues()
+    public void UpdateShaderValues()
     {
         // get the transform matrix
         _volumeMatrix = transform.worldToLocalMatrix;
-        
-        // set uniforms in all materials of all child renderers
-        foreach (Renderer rend in _renderers)
+
+        // set uniforms in property block
+        PropertyBlock.SetVector("_ClipVolumeWorldPos", transform.position);
+        PropertyBlock.SetMatrix("_ClipVolumeWorldToLocal", _volumeMatrix);
+        PropertyBlock.SetVector("_ClipVolumeMin", -_size / 2);
+        PropertyBlock.SetVector("_ClipVolumeMax", _size / 2);
+
+        // set property block in all child renderers
+        foreach (Renderer rend in Renderers)
         {
-            foreach (Material material in rend.materials)
-            {
-                material.SetVector("_ClipVolumeWorldPos", transform.position);
-                material.SetMatrix("_ClipVolumeWorldToLocal", _volumeMatrix);
-                material.SetVector("_ClipVolumeMin", -_size / 2);
-                material.SetVector("_ClipVolumeMax", _size / 2);
-            }
+            rend.SetPropertyBlock(PropertyBlock);
         }
     }
 }
