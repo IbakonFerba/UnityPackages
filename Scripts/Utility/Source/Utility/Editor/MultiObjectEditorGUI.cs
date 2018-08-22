@@ -8,7 +8,7 @@ namespace FK.Editor
     /// <summary>
     /// <para>Elements for Multi Object Editing supporting Editors</para>
     ///
-    /// v1.0 08/2018
+    /// v2.0 08/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -21,17 +21,55 @@ namespace FK.Editor
         /// <summary>
         /// Make Center & Extents field for entering a Bounds.
         /// </summary>
-        public static Bounds BoundsField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        public static Bounds BoundsField(SerializedProperty property, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Bounds b = EditorGUILayout.BoundsField(p.boundsValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Bounds b = EditorGUILayout.BoundsField(property.boundsValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.boundsValue = b;
+                property.boundsValue = b;
 
             return b;
+        }
+
+        /// <summary>
+        /// Make Center & Extents field for entering a Bounds.
+        /// </summary>
+        public static Bounds BoundsField(SerializedProperty property, string label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Bounds b = EditorGUILayout.BoundsField(label, property.boundsValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.boundsValue = b;
+
+            return b;
+        }
+
+        /// <summary>
+        /// Make Center & Extents field for entering a Bounds.
+        /// </summary>
+        public static Bounds BoundsField(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Bounds b = EditorGUILayout.BoundsField(label, property.boundsValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.boundsValue = b;
+
+            return b;
+        }
+
+        /// <summary>
+        /// Make Center & Extents field for entering a Bounds.
+        /// </summary>
+        public static Bounds BoundsField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return BoundsField(p, options);
         }
 
         /// <summary>
@@ -39,15 +77,8 @@ namespace FK.Editor
         /// </summary>
         public static Bounds BoundsField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Bounds b = EditorGUILayout.BoundsField(label, p.boundsValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.boundsValue = b;
-
-            return b;
+            return BoundsField(p, label, options);
         }
 
         /// <summary>
@@ -55,15 +86,8 @@ namespace FK.Editor
         /// </summary>
         public static Bounds BoundsField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Bounds b = EditorGUILayout.BoundsField(label, p.boundsValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.boundsValue = b;
-
-            return b;
+            return BoundsField(p, label, options);
         }
 
         #endregion
@@ -72,51 +96,75 @@ namespace FK.Editor
         #region BoundsInt
 
         /// <summary>
-        /// Make Position & Size field for entering a BoundsInt.
+        /// Make Center & Extents field for entering a BoundsInt.
+        /// </summary>
+        public static BoundsInt BoundsIntField(SerializedProperty property, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            BoundsInt b = EditorGUILayout.BoundsIntField(property.boundsIntValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.boundsIntValue = b;
+
+            return b;
+        }
+
+        /// <summary>
+        /// Make Center & Extents field for entering a BoundsInt.
+        /// </summary>
+        public static BoundsInt BoundsIntField(SerializedProperty property, string label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            BoundsInt b = EditorGUILayout.BoundsIntField(label, property.boundsIntValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.boundsIntValue = b;
+
+            return b;
+        }
+
+        /// <summary>
+        /// Make Center & Extents field for entering a BoundsInt.
+        /// </summary>
+        public static BoundsInt BoundsIntField(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            BoundsInt b = EditorGUILayout.BoundsIntField(label, property.boundsIntValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.boundsIntValue = b;
+
+            return b;
+        }
+
+        /// <summary>
+        /// Make Center & Extents field for entering a BoundsInt.
         /// </summary>
         public static BoundsInt BoundsIntField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            BoundsInt b = EditorGUILayout.BoundsIntField(p.boundsIntValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.boundsIntValue = b;
-
-            return b;
+            return BoundsIntField(p, options);
         }
 
         /// <summary>
-        /// Make Position & Size field for entering a BoundsInt.
+        /// Make Center & Extents field for entering a BoundsInt.
         /// </summary>
         public static BoundsInt BoundsIntField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            BoundsInt b = EditorGUILayout.BoundsIntField(label, p.boundsIntValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.boundsIntValue = b;
-
-            return b;
+            return BoundsIntField(p, label, options);
         }
 
         /// <summary>
-        /// Make Position & Size field for entering a BoundsInt.
+        /// Make Center & Extents field for entering a BoundsInt.
         /// </summary>
         public static BoundsInt BoundsIntField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            BoundsInt b = EditorGUILayout.BoundsIntField(label, p.boundsIntValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.boundsIntValue = b;
-
-            return b;
+            return BoundsIntField(p, label, options);
         }
 
         #endregion
@@ -127,17 +175,86 @@ namespace FK.Editor
         /// <summary>
         /// Make a field for selecting a Color.
         /// </summary>
-        public static Color ColorField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        public static Color ColorField(SerializedProperty property, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Color c = EditorGUILayout.ColorField(p.colorValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Color c = EditorGUILayout.ColorField(property.colorValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.colorValue = c;
+                property.colorValue = c;
 
             return c;
+        }
+
+        /// <summary>
+        /// Make a field for selecting a Color.
+        /// </summary>
+        public static Color ColorField(SerializedProperty property, string label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Color c = EditorGUILayout.ColorField(label, property.colorValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.colorValue = c;
+
+            return c;
+        }
+
+        /// <summary>
+        /// Make a field for selecting a Color.
+        /// </summary>
+        public static Color ColorField(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Color c = EditorGUILayout.ColorField(label, property.colorValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.colorValue = c;
+
+            return c;
+        }
+
+        /// <summary>
+        /// Make a field for selecting a Color.
+        /// </summary>
+        public static Color ColorField(SerializedProperty property, string label, bool showEyedropper, bool showAlpha, bool hdr, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Color c = EditorGUILayout.ColorField(new GUIContent(label), property.colorValue, showEyedropper, showAlpha, hdr, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.colorValue = c;
+
+            return c;
+        }
+
+        /// <summary>
+        /// Make a field for selecting a Color.
+        /// </summary>
+        public static Color ColorField(SerializedProperty property, GUIContent label, bool showEyedropper, bool showAlpha, bool hdr, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Color c = EditorGUILayout.ColorField(label, property.colorValue, showEyedropper, showAlpha, hdr, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.colorValue = c;
+
+            return c;
+        }
+
+
+        /// <summary>
+        /// Make a field for selecting a Color.
+        /// </summary>
+        public static Color ColorField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return ColorField(p, options);
         }
 
         /// <summary>
@@ -145,15 +262,8 @@ namespace FK.Editor
         /// </summary>
         public static Color ColorField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Color c = EditorGUILayout.ColorField(label, p.colorValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.colorValue = c;
-
-            return c;
+            return ColorField(p, label, options);
         }
 
         /// <summary>
@@ -161,15 +271,8 @@ namespace FK.Editor
         /// </summary>
         public static Color ColorField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Color c = EditorGUILayout.ColorField(label, p.colorValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.colorValue = c;
-
-            return c;
+            return ColorField(p, label, options);
         }
 
         /// <summary>
@@ -177,15 +280,8 @@ namespace FK.Editor
         /// </summary>
         public static Color ColorField(SerializedObject serializedObject, string property, string label, bool showEyedropper, bool showAlpha, bool hdr, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Color c = EditorGUILayout.ColorField(new GUIContent(label), p.colorValue, showEyedropper, showAlpha, hdr, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.colorValue = c;
-
-            return c;
+            return ColorField(p, label, showEyedropper, showAlpha, hdr, options);
         }
 
         /// <summary>
@@ -193,15 +289,8 @@ namespace FK.Editor
         /// </summary>
         public static Color ColorField(SerializedObject serializedObject, string property, GUIContent label, bool showEyedropper, bool showAlpha, bool hdr, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Color c = EditorGUILayout.ColorField(label, p.colorValue, showEyedropper, showAlpha, hdr, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.colorValue = c;
-
-            return c;
+            return ColorField(p, label, showEyedropper, showAlpha, hdr, options);
         }
 
         #endregion
@@ -212,17 +301,101 @@ namespace FK.Editor
         /// <summary>
         /// Make a field for editing an AnimationCurve.
         /// </summary>
-        public static AnimationCurve CurveField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        public static AnimationCurve CurveField(SerializedProperty property, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            AnimationCurve c = EditorGUILayout.CurveField(p.animationCurveValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            AnimationCurve c = EditorGUILayout.CurveField(property.animationCurveValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.animationCurveValue = c;
+                property.animationCurveValue = c;
 
             return c;
+        }
+
+        /// <summary>
+        /// Make a field for editing an AnimationCurve.
+        /// </summary>
+        public static AnimationCurve CurveField(SerializedProperty property, string label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            AnimationCurve c = EditorGUILayout.CurveField(label, property.animationCurveValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.animationCurveValue = c;
+
+            return c;
+        }
+
+        /// <summary>
+        /// Make a field for editing an AnimationCurve.
+        /// </summary>
+        public static AnimationCurve CurveField(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            AnimationCurve c = EditorGUILayout.CurveField(label, property.animationCurveValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.animationCurveValue = c;
+
+            return c;
+        }
+
+        /// <summary>
+        /// Make a field for editing an AnimationCurve.
+        /// </summary>
+        public static AnimationCurve CurveField(SerializedProperty property, Color color, Rect ranges, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            AnimationCurve c = EditorGUILayout.CurveField(property.animationCurveValue, color, ranges, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.animationCurveValue = c;
+
+            return c;
+        }
+
+        /// <summary>
+        /// Make a field for editing an AnimationCurve.
+        /// </summary>
+        public static AnimationCurve CurveField(SerializedProperty property, string label, Color color, Rect ranges, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            AnimationCurve c = EditorGUILayout.CurveField(label, property.animationCurveValue, color, ranges, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.animationCurveValue = c;
+
+            return c;
+        }
+
+        /// <summary>
+        /// Make a field for editing an AnimationCurve.
+        /// </summary>
+        public static AnimationCurve CurveField(SerializedProperty property, GUIContent label, Color color, Rect ranges, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            AnimationCurve c = EditorGUILayout.CurveField(label, property.animationCurveValue, color, ranges, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.animationCurveValue = c;
+
+            return c;
+        }
+
+
+        /// <summary>
+        /// Make a field for editing an AnimationCurve.
+        /// </summary>
+        public static AnimationCurve CurveField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return CurveField(p, options);
         }
 
         /// <summary>
@@ -230,15 +403,8 @@ namespace FK.Editor
         /// </summary>
         public static AnimationCurve CurveField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            AnimationCurve c = EditorGUILayout.CurveField(label, p.animationCurveValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.animationCurveValue = c;
-
-            return c;
+            return CurveField(p, label, options);
         }
 
         /// <summary>
@@ -246,15 +412,8 @@ namespace FK.Editor
         /// </summary>
         public static AnimationCurve CurveField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            AnimationCurve c = EditorGUILayout.CurveField(label, p.animationCurveValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.animationCurveValue = c;
-
-            return c;
+            return CurveField(p, label, options);
         }
 
         /// <summary>
@@ -262,15 +421,8 @@ namespace FK.Editor
         /// </summary>
         public static AnimationCurve CurveField(SerializedObject serializedObject, string property, Color color, Rect ranges, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            AnimationCurve c = EditorGUILayout.CurveField(p.animationCurveValue, color, ranges, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.animationCurveValue = c;
-
-            return c;
+            return CurveField(p, color, ranges, options);
         }
 
         /// <summary>
@@ -278,15 +430,8 @@ namespace FK.Editor
         /// </summary>
         public static AnimationCurve CurveField(SerializedObject serializedObject, string property, string label, Color color, Rect ranges, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            AnimationCurve c = EditorGUILayout.CurveField(label, p.animationCurveValue, color, ranges, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.animationCurveValue = c;
-
-            return c;
+            return CurveField(p, label, color, ranges, options);
         }
 
         /// <summary>
@@ -294,15 +439,8 @@ namespace FK.Editor
         /// </summary>
         public static AnimationCurve CurveField(SerializedObject serializedObject, string property, GUIContent label, Color color, Rect ranges, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            AnimationCurve c = EditorGUILayout.CurveField(label, p.animationCurveValue, color, ranges, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.animationCurveValue = c;
-
-            return c;
+            return CurveField(p, label, color, ranges, options);
         }
 
         #endregion
@@ -313,17 +451,101 @@ namespace FK.Editor
         /// <summary>
         /// Make a delayed text field for entering doubles.
         /// </summary>
-        public static double DelayedDoubleField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        public static double DelayedDoubleField(SerializedProperty property, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            double d = EditorGUILayout.DelayedDoubleField(p.doubleValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            double d = EditorGUILayout.DelayedDoubleField(property.doubleValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.doubleValue = d;
+                property.doubleValue = d;
 
             return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field for entering doubles.
+        /// </summary>
+        public static double DelayedDoubleField(SerializedProperty property, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            double d = EditorGUILayout.DelayedDoubleField(property.doubleValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.doubleValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field for entering doubles.
+        /// </summary>
+        public static double DelayedDoubleField(SerializedProperty property, string label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            double d = EditorGUILayout.DelayedDoubleField(label, property.doubleValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.doubleValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field for entering doubles.
+        /// </summary>
+        public static double DelayedDoubleField(SerializedProperty property, string label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            double d = EditorGUILayout.DelayedDoubleField(label, property.doubleValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.doubleValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field for entering doubles.
+        /// </summary>
+        public static double DelayedDoubleField(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            double d = EditorGUILayout.DelayedDoubleField(label, property.doubleValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.doubleValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field for entering doubles.
+        /// </summary>
+        public static double DelayedDoubleField(SerializedProperty property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            double d = EditorGUILayout.DelayedDoubleField(label, property.doubleValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.doubleValue = d;
+
+            return d;
+        }
+
+
+        /// <summary>
+        /// Make a delayed text field for entering doubles.
+        /// </summary>
+        public static double DelayedDoubleField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return DelayedDoubleField(p, options);
         }
 
         /// <summary>
@@ -331,15 +553,8 @@ namespace FK.Editor
         /// </summary>
         public static double DelayedDoubleField(SerializedObject serializedObject, string property, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            double d = EditorGUILayout.DelayedDoubleField(p.doubleValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.doubleValue = d;
-
-            return d;
+            return DelayedDoubleField(p, style, options);
         }
 
         /// <summary>
@@ -347,15 +562,8 @@ namespace FK.Editor
         /// </summary>
         public static double DelayedDoubleField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            double d = EditorGUILayout.DelayedDoubleField(label, p.doubleValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.doubleValue = d;
-
-            return d;
+            return DelayedDoubleField(p, label, options);
         }
 
         /// <summary>
@@ -363,15 +571,8 @@ namespace FK.Editor
         /// </summary>
         public static double DelayedDoubleField(SerializedObject serializedObject, string property, string label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            double d = EditorGUILayout.DelayedDoubleField(label, p.doubleValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.doubleValue = d;
-
-            return d;
+            return DelayedDoubleField(p, label, style, options);
         }
 
         /// <summary>
@@ -379,15 +580,8 @@ namespace FK.Editor
         /// </summary>
         public static double DelayedDoubleField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            double d = EditorGUILayout.DelayedDoubleField(label, p.doubleValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.doubleValue = d;
-
-            return d;
+            return DelayedDoubleField(p, label, options);
         }
 
         /// <summary>
@@ -395,15 +589,8 @@ namespace FK.Editor
         /// </summary>
         public static double DelayedDoubleField(SerializedObject serializedObject, string property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            double d = EditorGUILayout.DelayedDoubleField(label, p.doubleValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.doubleValue = d;
-
-            return d;
+            return DelayedDoubleField(p, label, style, options);
         }
 
         #endregion
@@ -414,17 +601,101 @@ namespace FK.Editor
         /// <summary>
         /// Make a delayed text field for entering floats.
         /// </summary>
-        public static float DelayedFloatField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        public static float DelayedFloatField(SerializedProperty property, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            float f = EditorGUILayout.DelayedFloatField(p.floatValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            float d = EditorGUILayout.DelayedFloatField(property.floatValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.floatValue = f;
+                property.floatValue = d;
 
-            return f;
+            return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field for entering floats.
+        /// </summary>
+        public static float DelayedFloatField(SerializedProperty property, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            float d = EditorGUILayout.DelayedFloatField(property.floatValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.floatValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field for entering floats.
+        /// </summary>
+        public static float DelayedFloatField(SerializedProperty property, string label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            float d = EditorGUILayout.DelayedFloatField(label, property.floatValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.floatValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field for entering floats.
+        /// </summary>
+        public static float DelayedFloatField(SerializedProperty property, string label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            float d = EditorGUILayout.DelayedFloatField(label, property.floatValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.floatValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field for entering floats.
+        /// </summary>
+        public static float DelayedFloatField(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            float d = EditorGUILayout.DelayedFloatField(label, property.floatValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.floatValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field for entering floats.
+        /// </summary>
+        public static float DelayedFloatField(SerializedProperty property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            float d = EditorGUILayout.DelayedFloatField(label, property.floatValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.floatValue = d;
+
+            return d;
+        }
+
+
+        /// <summary>
+        /// Make a delayed text field for entering floats.
+        /// </summary>
+        public static float DelayedFloatField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return DelayedFloatField(p, options);
         }
 
         /// <summary>
@@ -432,15 +703,8 @@ namespace FK.Editor
         /// </summary>
         public static float DelayedFloatField(SerializedObject serializedObject, string property, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            float f = EditorGUILayout.DelayedFloatField(p.floatValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.floatValue = f;
-
-            return f;
+            return DelayedFloatField(p, style, options);
         }
 
         /// <summary>
@@ -448,15 +712,8 @@ namespace FK.Editor
         /// </summary>
         public static float DelayedFloatField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            float f = EditorGUILayout.DelayedFloatField(label, p.floatValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.floatValue = f;
-
-            return f;
+            return DelayedFloatField(p, label, options);
         }
 
         /// <summary>
@@ -464,15 +721,8 @@ namespace FK.Editor
         /// </summary>
         public static float DelayedFloatField(SerializedObject serializedObject, string property, string label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            float f = EditorGUILayout.DelayedFloatField(label, p.floatValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.floatValue = f;
-
-            return f;
+            return DelayedFloatField(p, label, style, options);
         }
 
         /// <summary>
@@ -480,15 +730,8 @@ namespace FK.Editor
         /// </summary>
         public static float DelayedFloatField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            float f = EditorGUILayout.DelayedFloatField(label, p.floatValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.floatValue = f;
-
-            return f;
+            return DelayedFloatField(p, label, options);
         }
 
         /// <summary>
@@ -496,15 +739,8 @@ namespace FK.Editor
         /// </summary>
         public static float DelayedFloatField(SerializedObject serializedObject, string property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            float f = EditorGUILayout.DelayedFloatField(label, p.floatValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.floatValue = f;
-
-            return f;
+            return DelayedFloatField(p, label, style, options);
         }
 
         #endregion
@@ -513,99 +749,148 @@ namespace FK.Editor
         #region DelayedInt
 
         /// <summary>
-        /// Make a delayed text field for entering integers.
+        /// Make a delayed text field for entering ints.
+        /// </summary>
+        public static int DelayedIntField(SerializedProperty property, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int d = EditorGUILayout.DelayedIntField(property.intValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field for entering ints.
+        /// </summary>
+        public static int DelayedIntField(SerializedProperty property, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int d = EditorGUILayout.DelayedIntField(property.intValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field for entering ints.
+        /// </summary>
+        public static int DelayedIntField(SerializedProperty property, string label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int d = EditorGUILayout.DelayedIntField(label, property.intValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field for entering ints.
+        /// </summary>
+        public static int DelayedIntField(SerializedProperty property, string label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int d = EditorGUILayout.DelayedIntField(label, property.intValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field for entering ints.
+        /// </summary>
+        public static int DelayedIntField(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int d = EditorGUILayout.DelayedIntField(label, property.intValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field for entering ints.
+        /// </summary>
+        public static int DelayedIntField(SerializedProperty property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int d = EditorGUILayout.DelayedIntField(label, property.intValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = d;
+
+            return d;
+        }
+
+
+        /// <summary>
+        /// Make a delayed text field for entering ints.
         /// </summary>
         public static int DelayedIntField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.DelayedIntField(p.intValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return DelayedIntField(p, options);
         }
 
         /// <summary>
-        /// Make a delayed text field for entering integers.
+        /// Make a delayed text field for entering ints.
         /// </summary>
         public static int DelayedIntField(SerializedObject serializedObject, string property, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.DelayedIntField(p.intValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return DelayedIntField(p, style, options);
         }
 
         /// <summary>
-        /// Make a delayed text field for entering integers.
+        /// Make a delayed text field for entering ints.
         /// </summary>
         public static int DelayedIntField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.DelayedIntField(label, p.intValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return DelayedIntField(p, label, options);
         }
 
         /// <summary>
-        /// Make a delayed text field for entering integers.
+        /// Make a delayed text field for entering ints.
         /// </summary>
         public static int DelayedIntField(SerializedObject serializedObject, string property, string label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.DelayedIntField(label, p.intValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return DelayedIntField(p, label, style, options);
         }
 
         /// <summary>
-        /// Make a delayed text field for entering integers.
+        /// Make a delayed text field for entering ints.
         /// </summary>
         public static int DelayedIntField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.DelayedIntField(label, p.intValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return DelayedIntField(p, label, options);
         }
 
         /// <summary>
-        /// Make a delayed text field for entering integers.
+        /// Make a delayed text field for entering ints.
         /// </summary>
         public static int DelayedIntField(SerializedObject serializedObject, string property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.DelayedIntField(label, p.intValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return DelayedIntField(p, label, style, options);
         }
 
         #endregion
@@ -616,17 +901,101 @@ namespace FK.Editor
         /// <summary>
         /// Make a delayed text field.
         /// </summary>
-        public static string DelayedTextField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        public static string DelayedTextField(SerializedProperty property, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.DelayedTextField(p.stringValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string d = EditorGUILayout.DelayedTextField(property.stringValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
+                property.stringValue = d;
 
-            return s;
+            return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field.
+        /// </summary>
+        public static string DelayedTextField(SerializedProperty property, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string d = EditorGUILayout.DelayedTextField(property.stringValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.stringValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field.
+        /// </summary>
+        public static string DelayedTextField(SerializedProperty property, string label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string d = EditorGUILayout.DelayedTextField(label, property.stringValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.stringValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field.
+        /// </summary>
+        public static string DelayedTextField(SerializedProperty property, string label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string d = EditorGUILayout.DelayedTextField(label, property.stringValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.stringValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field.
+        /// </summary>
+        public static string DelayedTextField(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string d = EditorGUILayout.DelayedTextField(label, property.stringValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.stringValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a delayed text field.
+        /// </summary>
+        public static string DelayedTextField(SerializedProperty property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string d = EditorGUILayout.DelayedTextField(label, property.stringValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.stringValue = d;
+
+            return d;
+        }
+
+
+        /// <summary>
+        /// Make a delayed text field.
+        /// </summary>
+        public static string DelayedTextField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return DelayedTextField(p, options);
         }
 
         /// <summary>
@@ -634,15 +1003,8 @@ namespace FK.Editor
         /// </summary>
         public static string DelayedTextField(SerializedObject serializedObject, string property, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.DelayedTextField(p.stringValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
-
-            return s;
+            return DelayedTextField(p, style, options);
         }
 
         /// <summary>
@@ -650,15 +1012,8 @@ namespace FK.Editor
         /// </summary>
         public static string DelayedTextField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.DelayedTextField(label, p.stringValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
-
-            return s;
+            return DelayedTextField(p, label, options);
         }
 
         /// <summary>
@@ -666,15 +1021,8 @@ namespace FK.Editor
         /// </summary>
         public static string DelayedTextField(SerializedObject serializedObject, string property, string label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.DelayedTextField(label, p.stringValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
-
-            return s;
+            return DelayedTextField(p, label, style, options);
         }
 
         /// <summary>
@@ -682,15 +1030,8 @@ namespace FK.Editor
         /// </summary>
         public static string DelayedTextField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.DelayedTextField(label, p.stringValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
-
-            return s;
+            return DelayedTextField(p, label, options);
         }
 
         /// <summary>
@@ -698,15 +1039,8 @@ namespace FK.Editor
         /// </summary>
         public static string DelayedTextField(SerializedObject serializedObject, string property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.DelayedTextField(label, p.stringValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
-
-            return s;
+            return DelayedTextField(p, label, style, options);
         }
 
         #endregion
@@ -715,99 +1049,148 @@ namespace FK.Editor
         #region Double
 
         /// <summary>
-        /// Make a text field for entering double values.
+        /// Make a text field for entering doubles.
+        /// </summary>
+        public static double DoubleField(SerializedProperty property, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            double d = EditorGUILayout.DoubleField(property.doubleValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.doubleValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering doubles.
+        /// </summary>
+        public static double DoubleField(SerializedProperty property, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            double d = EditorGUILayout.DoubleField(property.doubleValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.doubleValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering doubles.
+        /// </summary>
+        public static double DoubleField(SerializedProperty property, string label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            double d = EditorGUILayout.DoubleField(label, property.doubleValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.doubleValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering doubles.
+        /// </summary>
+        public static double DoubleField(SerializedProperty property, string label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            double d = EditorGUILayout.DoubleField(label, property.doubleValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.doubleValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering doubles.
+        /// </summary>
+        public static double DoubleField(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            double d = EditorGUILayout.DoubleField(label, property.doubleValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.doubleValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering doubles.
+        /// </summary>
+        public static double DoubleField(SerializedProperty property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            double d = EditorGUILayout.DoubleField(label, property.doubleValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.doubleValue = d;
+
+            return d;
+        }
+
+
+        /// <summary>
+        /// Make a text field for entering doubles.
         /// </summary>
         public static double DoubleField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            double d = EditorGUILayout.DoubleField(p.doubleValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.doubleValue = d;
-
-            return d;
+            return DoubleField(p, options);
         }
 
         /// <summary>
-        /// Make a text field for entering double values.
+        /// Make a text field for entering doubles.
         /// </summary>
         public static double DoubleField(SerializedObject serializedObject, string property, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            double d = EditorGUILayout.DoubleField(p.doubleValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.doubleValue = d;
-
-            return d;
+            return DoubleField(p, style, options);
         }
 
         /// <summary>
-        /// Make a text field for entering double values.
+        /// Make a text field for entering doubles.
         /// </summary>
         public static double DoubleField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            double d = EditorGUILayout.DoubleField(label, p.doubleValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.doubleValue = d;
-
-            return d;
+            return DoubleField(p, label, options);
         }
 
         /// <summary>
-        /// Make a text field for entering double values.
+        /// Make a text field for entering doubles.
         /// </summary>
         public static double DoubleField(SerializedObject serializedObject, string property, string label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            double d = EditorGUILayout.DoubleField(label, p.doubleValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.doubleValue = d;
-
-            return d;
+            return DoubleField(p, label, style, options);
         }
 
         /// <summary>
-        /// Make a text field for entering double values.
+        /// Make a text field for entering doubles.
         /// </summary>
         public static double DoubleField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            double d = EditorGUILayout.DoubleField(label, p.doubleValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.doubleValue = d;
-
-            return d;
+            return DoubleField(p, label, options);
         }
 
         /// <summary>
-        /// Make a text field for entering double values.
+        /// Make a text field for entering doubles.
         /// </summary>
         public static double DoubleField(SerializedObject serializedObject, string property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            double d = EditorGUILayout.DoubleField(label, p.doubleValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.doubleValue = d;
-
-            return d;
+            return DoubleField(p, label, style, options);
         }
 
         #endregion
@@ -816,99 +1199,148 @@ namespace FK.Editor
         #region Float
 
         /// <summary>
-        /// Make a text field for entering float values.
+        /// Make a text field for entering floats.
+        /// </summary>
+        public static float FloatField(SerializedProperty property, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            float d = EditorGUILayout.FloatField(property.floatValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.floatValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering floats.
+        /// </summary>
+        public static float FloatField(SerializedProperty property, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            float d = EditorGUILayout.FloatField(property.floatValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.floatValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering floats.
+        /// </summary>
+        public static float FloatField(SerializedProperty property, string label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            float d = EditorGUILayout.FloatField(label, property.floatValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.floatValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering floats.
+        /// </summary>
+        public static float FloatField(SerializedProperty property, string label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            float d = EditorGUILayout.FloatField(label, property.floatValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.floatValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering floats.
+        /// </summary>
+        public static float FloatField(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            float d = EditorGUILayout.FloatField(label, property.floatValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.floatValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering floats.
+        /// </summary>
+        public static float FloatField(SerializedProperty property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            float d = EditorGUILayout.FloatField(label, property.floatValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.floatValue = d;
+
+            return d;
+        }
+
+
+        /// <summary>
+        /// Make a text field for entering floats.
         /// </summary>
         public static float FloatField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            float f = EditorGUILayout.FloatField(p.floatValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.floatValue = f;
-
-            return f;
+            return FloatField(p, options);
         }
 
         /// <summary>
-        /// Make a text field for entering float values.
+        /// Make a text field for entering floats.
         /// </summary>
         public static float FloatField(SerializedObject serializedObject, string property, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            float f = EditorGUILayout.FloatField(p.floatValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.floatValue = f;
-
-            return f;
+            return FloatField(p, style, options);
         }
 
         /// <summary>
-        /// Make a text field for entering float values.
+        /// Make a text field for entering floats.
         /// </summary>
         public static float FloatField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            float f = EditorGUILayout.FloatField(label, p.floatValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.floatValue = f;
-
-            return f;
+            return FloatField(p, label, options);
         }
 
         /// <summary>
-        /// Make a text field for entering float values.
+        /// Make a text field for entering floats.
         /// </summary>
         public static float FloatField(SerializedObject serializedObject, string property, string label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            float f = EditorGUILayout.FloatField(label, p.floatValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.floatValue = f;
-
-            return f;
+            return FloatField(p, label, style, options);
         }
 
         /// <summary>
-        /// Make a text field for entering float values.
+        /// Make a text field for entering floats.
         /// </summary>
         public static float FloatField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            float f = EditorGUILayout.FloatField(label, p.floatValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.floatValue = f;
-
-            return f;
+            return FloatField(p, label, options);
         }
 
         /// <summary>
-        /// Make a text field for entering float values.
+        /// Make a text field for entering floats.
         /// </summary>
         public static float FloatField(SerializedObject serializedObject, string property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            float f = EditorGUILayout.FloatField(label, p.floatValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.floatValue = f;
-
-            return f;
+            return FloatField(p, label, style, options);
         }
 
         #endregion
@@ -917,99 +1349,148 @@ namespace FK.Editor
         #region Int
 
         /// <summary>
-        /// Make a text field for entering integer values.
+        /// Make a text field for entering ints.
+        /// </summary>
+        public static int IntField(SerializedProperty property, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int d = EditorGUILayout.IntField(property.intValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering ints.
+        /// </summary>
+        public static int IntField(SerializedProperty property, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int d = EditorGUILayout.IntField(property.intValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering ints.
+        /// </summary>
+        public static int IntField(SerializedProperty property, string label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int d = EditorGUILayout.IntField(label, property.intValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering ints.
+        /// </summary>
+        public static int IntField(SerializedProperty property, string label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int d = EditorGUILayout.IntField(label, property.intValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering ints.
+        /// </summary>
+        public static int IntField(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int d = EditorGUILayout.IntField(label, property.intValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering ints.
+        /// </summary>
+        public static int IntField(SerializedProperty property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int d = EditorGUILayout.IntField(label, property.intValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = d;
+
+            return d;
+        }
+
+
+        /// <summary>
+        /// Make a text field for entering ints.
         /// </summary>
         public static int IntField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.IntField(p.intValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return IntField(p, options);
         }
 
         /// <summary>
-        /// Make a text field for entering integer values.
+        /// Make a text field for entering ints.
         /// </summary>
         public static int IntField(SerializedObject serializedObject, string property, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.IntField(p.intValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return IntField(p, style, options);
         }
 
         /// <summary>
-        /// Make a text field for entering integer values.
+        /// Make a text field for entering ints.
         /// </summary>
         public static int IntField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.IntField(label, p.intValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return IntField(p, label, options);
         }
 
         /// <summary>
-        /// Make a text field for entering integer values.
+        /// Make a text field for entering ints.
         /// </summary>
         public static int IntField(SerializedObject serializedObject, string property, string label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.IntField(label, p.intValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return IntField(p, label, style, options);
         }
 
         /// <summary>
-        /// Make a text field for entering integer values.
+        /// Make a text field for entering ints.
         /// </summary>
         public static int IntField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.IntField(label, p.intValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return IntField(p, label, options);
         }
 
         /// <summary>
-        /// Make a text field for entering integer values.
+        /// Make a text field for entering ints.
         /// </summary>
         public static int IntField(SerializedObject serializedObject, string property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.IntField(label, p.intValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return IntField(p, label, style, options);
         }
 
         #endregion
@@ -1018,99 +1499,148 @@ namespace FK.Editor
         #region Long
 
         /// <summary>
-        /// Make a text field for entering long integer values.
+        /// Make a text field for entering longs.
+        /// </summary>
+        public static long LongField(SerializedProperty property, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            long d = EditorGUILayout.LongField(property.longValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.longValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering longs.
+        /// </summary>
+        public static long LongField(SerializedProperty property, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            long d = EditorGUILayout.LongField(property.longValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.longValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering longs.
+        /// </summary>
+        public static long LongField(SerializedProperty property, string label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            long d = EditorGUILayout.LongField(label, property.longValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.longValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering longs.
+        /// </summary>
+        public static long LongField(SerializedProperty property, string label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            long d = EditorGUILayout.LongField(label, property.longValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.longValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering longs.
+        /// </summary>
+        public static long LongField(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            long d = EditorGUILayout.LongField(label, property.longValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.longValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field for entering longs.
+        /// </summary>
+        public static long LongField(SerializedProperty property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            long d = EditorGUILayout.LongField(label, property.longValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.longValue = d;
+
+            return d;
+        }
+
+
+        /// <summary>
+        /// Make a text field for entering longs.
         /// </summary>
         public static long LongField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            long i = EditorGUILayout.LongField(p.longValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.longValue = i;
-
-            return i;
+            return LongField(p, options);
         }
 
         /// <summary>
-        /// Make a text field for entering long integer values.
+        /// Make a text field for entering longs.
         /// </summary>
         public static long LongField(SerializedObject serializedObject, string property, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            long i = EditorGUILayout.LongField(p.longValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.longValue = i;
-
-            return i;
+            return LongField(p, style, options);
         }
 
         /// <summary>
-        /// Make a text field for entering long integer values.
+        /// Make a text field for entering longs.
         /// </summary>
         public static long LongField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            long i = EditorGUILayout.LongField(label, p.longValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.longValue = i;
-
-            return i;
+            return LongField(p, label, options);
         }
 
         /// <summary>
-        /// Make a text field for entering long integer values.
+        /// Make a text field for entering longs.
         /// </summary>
         public static long LongField(SerializedObject serializedObject, string property, string label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            long i = EditorGUILayout.LongField(label, p.longValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.longValue = i;
-
-            return i;
+            return LongField(p, label, style, options);
         }
 
         /// <summary>
-        /// Make a text field for entering long integer values.
+        /// Make a text field for entering longs.
         /// </summary>
         public static long LongField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            long i = EditorGUILayout.LongField(label, p.longValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.longValue = i;
-
-            return i;
+            return LongField(p, label, options);
         }
 
         /// <summary>
-        /// Make a text field for entering long integer values.
+        /// Make a text field for entering longs.
         /// </summary>
         public static long LongField(SerializedObject serializedObject, string property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            long i = EditorGUILayout.LongField(label, p.longValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.longValue = i;
-
-            return i;
+            return LongField(p, label, style, options);
         }
 
         #endregion
@@ -1121,17 +1651,101 @@ namespace FK.Editor
         /// <summary>
         /// Make a text field.
         /// </summary>
-        public static string TextField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        public static string TextField(SerializedProperty property, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.TextField(p.stringValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string d = EditorGUILayout.TextField(property.stringValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
+                property.stringValue = d;
 
-            return s;
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field.
+        /// </summary>
+        public static string TextField(SerializedProperty property, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string d = EditorGUILayout.TextField(property.stringValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.stringValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field.
+        /// </summary>
+        public static string TextField(SerializedProperty property, string label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string d = EditorGUILayout.TextField(label, property.stringValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.stringValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field.
+        /// </summary>
+        public static string TextField(SerializedProperty property, string label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string d = EditorGUILayout.TextField(label, property.stringValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.stringValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field.
+        /// </summary>
+        public static string TextField(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string d = EditorGUILayout.TextField(label, property.stringValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.stringValue = d;
+
+            return d;
+        }
+
+        /// <summary>
+        /// Make a text field.
+        /// </summary>
+        public static string TextField(SerializedProperty property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string d = EditorGUILayout.TextField(label, property.stringValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.stringValue = d;
+
+            return d;
+        }
+
+
+        /// <summary>
+        /// Make a text field.
+        /// </summary>
+        public static string TextField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return TextField(p, options);
         }
 
         /// <summary>
@@ -1139,15 +1753,8 @@ namespace FK.Editor
         /// </summary>
         public static string TextField(SerializedObject serializedObject, string property, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.TextField(p.stringValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
-
-            return s;
+            return TextField(p, style, options);
         }
 
         /// <summary>
@@ -1155,15 +1762,8 @@ namespace FK.Editor
         /// </summary>
         public static string TextField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.TextField(label, p.stringValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
-
-            return s;
+            return TextField(p, label, options);
         }
 
         /// <summary>
@@ -1171,15 +1771,8 @@ namespace FK.Editor
         /// </summary>
         public static string TextField(SerializedObject serializedObject, string property, string label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.TextField(label, p.stringValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
-
-            return s;
+            return TextField(p, label, style, options);
         }
 
         /// <summary>
@@ -1187,15 +1780,8 @@ namespace FK.Editor
         /// </summary>
         public static string TextField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.TextField(label, p.stringValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
-
-            return s;
+            return TextField(p, label, options);
         }
 
         /// <summary>
@@ -1203,15 +1789,8 @@ namespace FK.Editor
         /// </summary>
         public static string TextField(SerializedObject serializedObject, string property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.TextField(label, p.stringValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
-
-            return s;
+            return TextField(p, label, style, options);
         }
 
         #endregion
@@ -1222,15 +1801,14 @@ namespace FK.Editor
         /// <summary>
         /// Make a text area.
         /// </summary>
-        public static string TextArea(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        public static string TextArea(SerializedProperty property, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.TextArea(p.stringValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string s = EditorGUILayout.TextArea(property.stringValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
+                property.stringValue = s;
 
             return s;
         }
@@ -1238,17 +1816,35 @@ namespace FK.Editor
         /// <summary>
         /// Make a text area.
         /// </summary>
-        public static string TextArea(SerializedObject serializedObject, string property, GUIStyle style, params GUILayoutOption[] options)
+        public static string TextArea(SerializedProperty property, GUIStyle style, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.TextArea(p.stringValue, style, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string s = EditorGUILayout.TextArea(property.stringValue, style, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
+                property.stringValue = s;
 
             return s;
+        }
+
+
+        /// <summary>
+        /// Make a text area.
+        /// </summary>
+        public static string TextArea(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return TextArea(p, options);
+        }
+
+        /// <summary>
+        /// Make a text area.
+        /// </summary>
+        public static string TextArea(SerializedObject serializedObject, string property, GUIStyle style, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return TextArea(p, style, options);
         }
 
         #endregion
@@ -1259,17 +1855,132 @@ namespace FK.Editor
         /// <summary>
         /// Make an integer popup selection field.
         /// </summary>
-        public static int IntPopup(SerializedObject serializedObject, string property, string[] displayedOptions, int[] optionValues, params GUILayoutOption[] options)
+        public static int IntPopup(SerializedProperty property, string[] displayedOptions, int[] optionValues, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.IntPopup(p.intValue, displayedOptions, optionValues, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.IntPopup(property.intValue, displayedOptions, optionValues, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
+                property.intValue = i;
 
             return i;
+        }
+
+        /// <summary>
+        /// Make an integer popup selection field.
+        /// </summary>
+        public static int IntPopup(SerializedProperty property, string[] displayedOptions, int[] optionValues, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.IntPopup(property.intValue, displayedOptions, optionValues, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = i;
+
+            return i;
+        }
+
+        /// <summary>
+        /// Make an integer popup selection field.
+        /// </summary>
+        public static int IntPopup(SerializedProperty property, GUIContent[] displayedOptions, int[] optionValues, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.IntPopup(property.intValue, displayedOptions, optionValues, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = i;
+
+            return i;
+        }
+
+        /// <summary>
+        /// Make an integer popup selection field.
+        /// </summary>
+        public static int IntPopup(SerializedProperty property, GUIContent[] displayedOptions, int[] optionValues, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.IntPopup(property.intValue, displayedOptions, optionValues, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = i;
+
+            return i;
+        }
+
+        /// <summary>
+        /// Make an integer popup selection field.
+        /// </summary>
+        public static int IntPopup(SerializedProperty property, string label, string[] displayedOptions, int[] optionValues, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.IntPopup(label, property.intValue, displayedOptions, optionValues, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = i;
+
+            return i;
+        }
+
+        /// <summary>
+        /// Make an integer popup selection field.
+        /// </summary>
+        public static int IntPopup(SerializedProperty property, string label, string[] displayedOptions, int[] optionValues, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.IntPopup(label, property.intValue, displayedOptions, optionValues, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = i;
+
+            return i;
+        }
+
+        /// <summary>
+        /// Make an integer popup selection field.
+        /// </summary>
+        public static int IntPopup(SerializedProperty property, GUIContent label, GUIContent[] displayedOptions, int[] optionValues, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.IntPopup(label, property.intValue, displayedOptions, optionValues, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = i;
+
+            return i;
+        }
+
+        /// <summary>
+        /// Make an integer popup selection field.
+        /// </summary>
+        public static int IntPopup(SerializedProperty property, GUIContent label, GUIContent[] displayedOptions, int[] optionValues, GUIStyle style,
+            params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.IntPopup(label, property.intValue, displayedOptions, optionValues, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = i;
+
+            return i;
+        }
+
+
+        /// <summary>
+        /// Make an integer popup selection field.
+        /// </summary>
+        public static int IntPopup(SerializedObject serializedObject, string property, string[] displayedOptions, int[] optionValues, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return IntPopup(p, displayedOptions, optionValues, options);
         }
 
         /// <summary>
@@ -1277,15 +1988,8 @@ namespace FK.Editor
         /// </summary>
         public static int IntPopup(SerializedObject serializedObject, string property, string[] displayedOptions, int[] optionValues, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.IntPopup(p.intValue, displayedOptions, optionValues, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return IntPopup(p, displayedOptions, optionValues, style, options);
         }
 
         /// <summary>
@@ -1293,15 +1997,8 @@ namespace FK.Editor
         /// </summary>
         public static int IntPopup(SerializedObject serializedObject, string property, GUIContent[] displayedOptions, int[] optionValues, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.IntPopup(p.intValue, displayedOptions, optionValues, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return IntPopup(p, displayedOptions, optionValues, options);
         }
 
         /// <summary>
@@ -1309,15 +2006,8 @@ namespace FK.Editor
         /// </summary>
         public static int IntPopup(SerializedObject serializedObject, string property, GUIContent[] displayedOptions, int[] optionValues, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.IntPopup(p.intValue, displayedOptions, optionValues, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return IntPopup(p, displayedOptions, optionValues, style, options);
         }
 
         /// <summary>
@@ -1325,15 +2015,8 @@ namespace FK.Editor
         /// </summary>
         public static int IntPopup(SerializedObject serializedObject, string property, string label, string[] displayedOptions, int[] optionValues, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.IntPopup(label, p.intValue, displayedOptions, optionValues, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return IntPopup(p, label, displayedOptions, optionValues, options);
         }
 
         /// <summary>
@@ -1341,15 +2024,8 @@ namespace FK.Editor
         /// </summary>
         public static int IntPopup(SerializedObject serializedObject, string property, string label, string[] displayedOptions, int[] optionValues, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.IntPopup(label, p.intValue, displayedOptions, optionValues, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return IntPopup(p, label, displayedOptions, optionValues, style, options);
         }
 
         /// <summary>
@@ -1357,15 +2033,8 @@ namespace FK.Editor
         /// </summary>
         public static int IntPopup(SerializedObject serializedObject, string property, GUIContent label, GUIContent[] displayedOptions, int[] optionValues, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.IntPopup(label, p.intValue, displayedOptions, optionValues, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return IntPopup(p, label, displayedOptions, optionValues, options);
         }
 
         /// <summary>
@@ -1374,15 +2043,8 @@ namespace FK.Editor
         public static int IntPopup(SerializedObject serializedObject, string property, GUIContent label, GUIContent[] displayedOptions, int[] optionValues, GUIStyle style,
             params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.IntPopup(label, p.intValue, displayedOptions, optionValues, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return IntPopup(p, label, displayedOptions, optionValues, style, options);
         }
 
         #endregion
@@ -1393,17 +2055,56 @@ namespace FK.Editor
         /// <summary>
         /// Make a slider the user can drag to change an integer value between a min and a max.
         /// </summary>
-        public static int IntSlider(SerializedObject serializedObject, string property, int leftValue, int rightValue, params GUILayoutOption[] options)
+        public static int IntSlider(SerializedProperty property, int leftValue, int rightValue, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.IntSlider(p.intValue, leftValue, rightValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.IntSlider(property.intValue, leftValue, rightValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
+                property.intValue = i;
 
             return i;
+        }
+
+        /// <summary>
+        /// Make a slider the user can drag to change an integer value between a min and a max.
+        /// </summary>
+        public static int IntSlider(SerializedProperty property, string label, int leftValue, int rightValue, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.IntSlider(label, property.intValue, leftValue, rightValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = i;
+
+            return i;
+        }
+
+        /// <summary>
+        /// Make a slider the user can drag to change an integer value between a min and a max.
+        /// </summary>
+        public static int IntSlider(SerializedProperty property, GUIContent label, int leftValue, int rightValue, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.IntSlider(label, property.intValue, leftValue, rightValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = i;
+
+            return i;
+        }
+
+
+        /// <summary>
+        /// Make a slider the user can drag to change an integer value between a min and a max.
+        /// </summary>
+        public static int IntSlider(SerializedObject serializedObject, string property, int leftValue, int rightValue, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return IntSlider(p, leftValue, rightValue, options);
         }
 
         /// <summary>
@@ -1411,15 +2112,8 @@ namespace FK.Editor
         /// </summary>
         public static int IntSlider(SerializedObject serializedObject, string property, string label, int leftValue, int rightValue, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.IntSlider(label, p.intValue, leftValue, rightValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return IntSlider(p, label, leftValue, rightValue, options);
         }
 
         /// <summary>
@@ -1427,15 +2121,8 @@ namespace FK.Editor
         /// </summary>
         public static int IntSlider(SerializedObject serializedObject, string property, GUIContent label, int leftValue, int rightValue, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.IntSlider(label, p.intValue, leftValue, rightValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return IntSlider(p, label, leftValue, rightValue, options);
         }
 
         #endregion
@@ -1446,17 +2133,101 @@ namespace FK.Editor
         /// <summary>
         /// Make a layer selection field.
         /// </summary>
-        public static int LayerField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        public static int LayerField(SerializedProperty property, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.LayerField(p.intValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.LayerField(property.intValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
+                property.intValue = i;
 
             return i;
+        }
+
+        /// <summary>
+        /// Make a layer selection field.
+        /// </summary>
+        public static int LayerField(SerializedProperty property, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.LayerField(property.intValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = i;
+
+            return i;
+        }
+
+        /// <summary>
+        /// Make a layer selection field.
+        /// </summary>
+        public static int LayerField(SerializedProperty property, string label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.LayerField(label, property.intValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = i;
+
+            return i;
+        }
+
+        /// <summary>
+        /// Make a layer selection field.
+        /// </summary>
+        public static int LayerField(SerializedProperty property, string label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.LayerField(label, property.intValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = i;
+
+            return i;
+        }
+
+        /// <summary>
+        /// Make a layer selection field.
+        /// </summary>
+        public static int LayerField(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.LayerField(label, property.intValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = i;
+
+            return i;
+        }
+
+        /// <summary>
+        /// Make a layer selection field.
+        /// </summary>
+        public static int LayerField(SerializedProperty property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.LayerField(label, property.intValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = i;
+
+            return i;
+        }
+
+
+        /// <summary>
+        /// Make a layer selection field.
+        /// </summary>
+        public static int LayerField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return LayerField(p, options);
         }
 
         /// <summary>
@@ -1464,15 +2235,8 @@ namespace FK.Editor
         /// </summary>
         public static int LayerField(SerializedObject serializedObject, string property, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.LayerField(p.intValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return LayerField(p, style, options);
         }
 
         /// <summary>
@@ -1480,15 +2244,8 @@ namespace FK.Editor
         /// </summary>
         public static int LayerField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.LayerField(label, p.intValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return LayerField(p, label, options);
         }
 
         /// <summary>
@@ -1496,15 +2253,8 @@ namespace FK.Editor
         /// </summary>
         public static int LayerField(SerializedObject serializedObject, string property, string label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.LayerField(label, p.intValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return LayerField(p, label, style, options);
         }
 
         /// <summary>
@@ -1512,15 +2262,8 @@ namespace FK.Editor
         /// </summary>
         public static int LayerField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.LayerField(label, p.intValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return LayerField(p, label, options);
         }
 
         /// <summary>
@@ -1528,15 +2271,8 @@ namespace FK.Editor
         /// </summary>
         public static int LayerField(SerializedObject serializedObject, string property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.LayerField(label, p.intValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return LayerField(p, label, style, options);
         }
 
         #endregion
@@ -1547,17 +2283,101 @@ namespace FK.Editor
         /// <summary>
         /// Make a field for masks.
         /// </summary>
-        public static int MaskField(SerializedObject serializedObject, string property, GUIContent label, string[] displayedOptions, GUIStyle style, params GUILayoutOption[] options)
+        public static int MaskField(SerializedProperty property, GUIContent label, string[] displayedOptions, GUIStyle style, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.MaskField(label, p.intValue, displayedOptions, style, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.MaskField(label, property.intValue, displayedOptions, style, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
+                property.intValue = i;
 
             return i;
+        }
+
+        /// <summary>
+        /// Make a field for masks.
+        /// </summary>
+        public static int MaskField(SerializedProperty property, string label, string[] displayedOptions, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.MaskField(label, property.intValue, displayedOptions, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = i;
+
+            return i;
+        }
+
+        /// <summary>
+        /// Make a field for masks.
+        /// </summary>
+        public static int MaskField(SerializedProperty property, GUIContent label, string[] displayedOptions, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.MaskField(label, property.intValue, displayedOptions, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = i;
+
+            return i;
+        }
+
+        /// <summary>
+        /// Make a field for masks.
+        /// </summary>
+        public static int MaskField(SerializedProperty property, string label, string[] displayedOptions, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.MaskField(label, property.intValue, displayedOptions, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = i;
+
+            return i;
+        }
+
+        /// <summary>
+        /// Make a field for masks.
+        /// </summary>
+        public static int MaskField(SerializedProperty property, string[] displayedOptions, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.MaskField(property.intValue, displayedOptions, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = i;
+
+            return i;
+        }
+
+        /// <summary>
+        /// Make a field for masks.
+        /// </summary>
+        public static int MaskField(SerializedProperty property, string[] displayedOptions, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            int i = EditorGUILayout.MaskField(property.intValue, displayedOptions, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.intValue = i;
+
+            return i;
+        }
+
+
+        /// <summary>
+        /// Make a field for masks.
+        /// </summary>
+        public static int MaskField(SerializedObject serializedObject, string property, GUIContent label, string[] displayedOptions, GUIStyle style, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return MaskField(p, label, displayedOptions, style, options);
         }
 
         /// <summary>
@@ -1565,15 +2385,8 @@ namespace FK.Editor
         /// </summary>
         public static int MaskField(SerializedObject serializedObject, string property, string label, string[] displayedOptions, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.MaskField(label, p.intValue, displayedOptions, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return MaskField(p, label, displayedOptions, style, options);
         }
 
         /// <summary>
@@ -1581,15 +2394,8 @@ namespace FK.Editor
         /// </summary>
         public static int MaskField(SerializedObject serializedObject, string property, GUIContent label, string[] displayedOptions, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.MaskField(label, p.intValue, displayedOptions, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return MaskField(p, label, displayedOptions, options);
         }
 
         /// <summary>
@@ -1597,15 +2403,8 @@ namespace FK.Editor
         /// </summary>
         public static int MaskField(SerializedObject serializedObject, string property, string label, string[] displayedOptions, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.MaskField(label, p.intValue, displayedOptions, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return MaskField(p, label, displayedOptions, options);
         }
 
         /// <summary>
@@ -1613,15 +2412,8 @@ namespace FK.Editor
         /// </summary>
         public static int MaskField(SerializedObject serializedObject, string property, string[] displayedOptions, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.MaskField(p.intValue, displayedOptions, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return MaskField(p, displayedOptions, style, options);
         }
 
         /// <summary>
@@ -1629,15 +2421,8 @@ namespace FK.Editor
         /// </summary>
         public static int MaskField(SerializedObject serializedObject, string property, string[] displayedOptions, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            int i = EditorGUILayout.MaskField(p.intValue, displayedOptions, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.intValue = i;
-
-            return i;
+            return MaskField(p, displayedOptions, options);
         }
 
         #endregion
@@ -1646,23 +2431,68 @@ namespace FK.Editor
         #region MinMaxSlider
 
         /// <summary>
-        /// Make a special slider the user can use to specify a range between a min and a max.
+        /// Make a special slider the user can use to specify a range between a propertyMin and a propertyMax.
         /// </summary>
-        public static void MinMaxSlider(SerializedObject serializedObject, string propertyMin, string propertyMax, float minLimit, float maxLimit, params GUILayoutOption[] options)
+        public static void MinMaxSlider(SerializedProperty propertyMin, SerializedProperty propertyMax, float minLimit, float maxLimit, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty min = serializedObject.FindProperty(propertyMin);
-            SerializedProperty max = serializedObject.FindProperty(propertyMax);
-            EditorGUI.showMixedValue = min.hasMultipleDifferentValues || max.hasMultipleDifferentValues;
-            float m = min.floatValue;
-            float ma = max.floatValue;
+            EditorGUI.showMixedValue = propertyMin.hasMultipleDifferentValues || propertyMax.hasMultipleDifferentValues;
+            float m = propertyMin.floatValue;
+            float ma = propertyMax.floatValue;
             EditorGUILayout.MinMaxSlider(ref m, ref ma, minLimit, maxLimit, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
             {
-                min.floatValue = m;
-                max.floatValue = ma;
+                propertyMin.floatValue = m;
+                propertyMax.floatValue = ma;
             }
+        }
+
+        /// <summary>
+        /// Make a special slider the user can use to specify a range between a propertyMin and a propertyMax.
+        /// </summary>
+        public static void MinMaxSlider(SerializedProperty propertyMin, SerializedProperty propertyMax, string label, float minLimit, float maxLimit, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = propertyMin.hasMultipleDifferentValues || propertyMax.hasMultipleDifferentValues;
+            float m = propertyMin.floatValue;
+            float ma = propertyMax.floatValue;
+            EditorGUILayout.MinMaxSlider(label, ref m, ref ma, minLimit, maxLimit, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+            {
+                propertyMin.floatValue = m;
+                propertyMax.floatValue = ma;
+            }
+        }
+
+        /// <summary>
+        /// Make a special slider the user can use to specify a range between a propertyMin and a propertyMax.
+        /// </summary>
+        public static void MinMaxSlider(SerializedProperty propertyMin, SerializedProperty propertyMax, GUIContent label, float minLimit, float maxLimit, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = propertyMin.hasMultipleDifferentValues || propertyMax.hasMultipleDifferentValues;
+            float m = propertyMin.floatValue;
+            float ma = propertyMax.floatValue;
+            EditorGUILayout.MinMaxSlider(label, ref m, ref ma, minLimit, maxLimit, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+            {
+                propertyMin.floatValue = m;
+                propertyMax.floatValue = ma;
+            }
+        }
+
+
+        /// <summary>
+        /// Make a special slider the user can use to specify a range between a min and a max.
+        /// </summary>
+        public static void MinMaxSlider(SerializedObject serializedObject, string propertyMin, string propertyMax, float minLimit, float maxLimit, params GUILayoutOption[] options)
+        {
+            SerializedProperty min = serializedObject.FindProperty(propertyMin);
+            SerializedProperty max = serializedObject.FindProperty(propertyMax);
+            MinMaxSlider(min, max, minLimit, maxLimit, options);
         }
 
         /// <summary>
@@ -1670,19 +2500,9 @@ namespace FK.Editor
         /// </summary>
         public static void MinMaxSlider(SerializedObject serializedObject, string propertyMin, string propertyMax, string label, float minLimit, float maxLimit, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty min = serializedObject.FindProperty(propertyMin);
             SerializedProperty max = serializedObject.FindProperty(propertyMax);
-            EditorGUI.showMixedValue = min.hasMultipleDifferentValues || max.hasMultipleDifferentValues;
-            float m = min.floatValue;
-            float ma = max.floatValue;
-            EditorGUILayout.MinMaxSlider(label, ref m, ref ma, minLimit, maxLimit, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-            {
-                min.floatValue = m;
-                max.floatValue = ma;
-            }
+            MinMaxSlider(min, max, label, minLimit, maxLimit, options);
         }
 
         /// <summary>
@@ -1690,19 +2510,9 @@ namespace FK.Editor
         /// </summary>
         public static void MinMaxSlider(SerializedObject serializedObject, string propertyMin, string propertyMax, GUIContent label, float minLimit, float maxLimit, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty min = serializedObject.FindProperty(propertyMin);
             SerializedProperty max = serializedObject.FindProperty(propertyMax);
-            EditorGUI.showMixedValue = min.hasMultipleDifferentValues || max.hasMultipleDifferentValues;
-            float m = min.floatValue;
-            float ma = max.floatValue;
-            EditorGUILayout.MinMaxSlider(label, ref m, ref ma, minLimit, maxLimit, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-            {
-                min.floatValue = m;
-                max.floatValue = ma;
-            }
+            MinMaxSlider(min, max, label, minLimit, maxLimit, options);
         }
 
         #endregion
@@ -1713,17 +2523,56 @@ namespace FK.Editor
         /// <summary>
         /// Make an X, Y, W & H field for entering a Rect.
         /// </summary>
-        public static Rect RectField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        public static Rect RectField(SerializedProperty property, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Rect r = EditorGUILayout.RectField(p.rectValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Rect r = EditorGUILayout.RectField(property.rectValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.rectValue = r;
+                property.rectValue = r;
 
             return r;
+        }
+
+        /// <summary>
+        /// Make an X, Y, W & H field for entering a Rect.
+        /// </summary>
+        public static Rect RectField(SerializedProperty property, string label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Rect r = EditorGUILayout.RectField(label, property.rectValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.rectValue = r;
+
+            return r;
+        }
+
+        /// <summary>
+        /// Make an X, Y, W & H field for entering a Rect.
+        /// </summary>
+        public static Rect RectField(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Rect r = EditorGUILayout.RectField(label, property.rectValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.rectValue = r;
+
+            return r;
+        }
+
+
+        /// <summary>
+        /// Make an X, Y, W & H field for entering a Rect.
+        /// </summary>
+        public static Rect RectField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return RectField(p, options);
         }
 
         /// <summary>
@@ -1731,15 +2580,8 @@ namespace FK.Editor
         /// </summary>
         public static Rect RectField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Rect r = EditorGUILayout.RectField(label, p.rectValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.rectValue = r;
-
-            return r;
+            return RectField(p, label, options);
         }
 
         /// <summary>
@@ -1747,15 +2589,8 @@ namespace FK.Editor
         /// </summary>
         public static Rect RectField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Rect r = EditorGUILayout.RectField(label, p.rectValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.rectValue = r;
-
-            return r;
+            return RectField(p, label, options);
         }
 
         #endregion
@@ -1766,17 +2601,56 @@ namespace FK.Editor
         /// <summary>
         /// Make an X, Y, W & H field for entering a RectInt.
         /// </summary>
-        public static RectInt RectIntField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        public static RectInt RectIntField(SerializedProperty property, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            RectInt r = EditorGUILayout.RectIntField(p.rectIntValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            RectInt r = EditorGUILayout.RectIntField(property.rectIntValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.rectIntValue = r;
+                property.rectIntValue = r;
 
             return r;
+        }
+
+        /// <summary>
+        /// Make an X, Y, W & H field for entering a RectInt.
+        /// </summary>
+        public static RectInt RectIntField(SerializedProperty property, string label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            RectInt r = EditorGUILayout.RectIntField(label, property.rectIntValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.rectIntValue = r;
+
+            return r;
+        }
+
+        /// <summary>
+        /// Make an X, Y, W & H field for entering a RectInt.
+        /// </summary>
+        public static RectInt RectIntField(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            RectInt r = EditorGUILayout.RectIntField(label, property.rectIntValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.rectIntValue = r;
+
+            return r;
+        }
+
+
+        /// <summary>
+        /// Make an X, Y, W & H field for entering a RectInt.
+        /// </summary>
+        public static RectInt RectIntField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return RectIntField(p, options);
         }
 
         /// <summary>
@@ -1784,15 +2658,8 @@ namespace FK.Editor
         /// </summary>
         public static RectInt RectIntField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            RectInt r = EditorGUILayout.RectIntField(label, p.rectIntValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.rectIntValue = r;
-
-            return r;
+            return RectIntField(p, label, options);
         }
 
         /// <summary>
@@ -1800,15 +2667,8 @@ namespace FK.Editor
         /// </summary>
         public static RectInt RectIntField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            RectInt r = EditorGUILayout.RectIntField(label, p.rectIntValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.rectIntValue = r;
-
-            return r;
+            return RectIntField(p, label, options);
         }
 
         #endregion
@@ -1819,17 +2679,56 @@ namespace FK.Editor
         /// <summary>
         /// Make a slider the user can drag to change a value between a min and a max.
         /// </summary>
-        public static float Slider(SerializedObject serializedObject, string property, float leftValue, float rightValue, params GUILayoutOption[] options)
+        public static float Slider(SerializedProperty property, float leftValue, float rightValue, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            float f = EditorGUILayout.Slider(p.floatValue, leftValue, rightValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            float f = EditorGUILayout.Slider(property.floatValue, leftValue, rightValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.floatValue = f;
+                property.floatValue = f;
 
             return f;
+        }
+
+        /// <summary>
+        /// Make a slider the user can drag to change a value between a min and a max.
+        /// </summary>
+        public static float Slider(SerializedProperty property, string label, float leftValue, float rightValue, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            float f = EditorGUILayout.Slider(label, property.floatValue, leftValue, rightValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.floatValue = f;
+
+            return f;
+        }
+
+        /// <summary>
+        /// Make a slider the user can drag to change a value between a min and a max.
+        /// </summary>
+        public static float Slider(SerializedProperty property, GUIContent label, float leftValue, float rightValue, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            float f = EditorGUILayout.Slider(label, property.floatValue, leftValue, rightValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.floatValue = f;
+
+            return f;
+        }
+
+
+        /// <summary>
+        /// Make a slider the user can drag to change a value between a min and a max.
+        /// </summary>
+        public static float Slider(SerializedObject serializedObject, string property, float leftValue, float rightValue, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return Slider(p, leftValue, rightValue, options);
         }
 
         /// <summary>
@@ -1837,15 +2736,8 @@ namespace FK.Editor
         /// </summary>
         public static float Slider(SerializedObject serializedObject, string property, string label, float leftValue, float rightValue, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            float f = EditorGUILayout.Slider(label, p.floatValue, leftValue, rightValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.floatValue = f;
-
-            return f;
+            return Slider(p, label, leftValue, rightValue, options);
         }
 
         /// <summary>
@@ -1853,15 +2745,8 @@ namespace FK.Editor
         /// </summary>
         public static float Slider(SerializedObject serializedObject, string property, GUIContent label, float leftValue, float rightValue, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            float f = EditorGUILayout.Slider(label, p.floatValue, leftValue, rightValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.floatValue = f;
-
-            return f;
+            return Slider(p, label, leftValue, rightValue, options);
         }
 
         #endregion
@@ -1872,17 +2757,101 @@ namespace FK.Editor
         /// <summary>
         /// Make a tag selection field.
         /// </summary>
-        public static string TagField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        public static string TagField(SerializedProperty property, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.TagField(p.stringValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string s = EditorGUILayout.TagField(property.stringValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
+                property.stringValue = s;
 
             return s;
+        }
+
+        /// <summary>
+        /// Make a tag selection field.
+        /// </summary>
+        public static string TagField(SerializedProperty property, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string s = EditorGUILayout.TagField(property.stringValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.stringValue = s;
+
+            return s;
+        }
+
+        /// <summary>
+        /// Make a tag selection field.
+        /// </summary>
+        public static string TagField(SerializedProperty property, string label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string s = EditorGUILayout.TagField(label, property.stringValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.stringValue = s;
+
+            return s;
+        }
+
+        /// <summary>
+        /// Make a tag selection field.
+        /// </summary>
+        public static string TagField(SerializedProperty property, string label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string s = EditorGUILayout.TagField(label, property.stringValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.stringValue = s;
+
+            return s;
+        }
+
+        /// <summary>
+        /// Make a tag selection field.
+        /// </summary>
+        public static string TagField(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string s = EditorGUILayout.TagField(label, property.stringValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.stringValue = s;
+
+            return s;
+        }
+
+        /// <summary>
+        /// Make a tag selection field.
+        /// </summary>
+        public static string TagField(SerializedProperty property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            string s = EditorGUILayout.TagField(label, property.stringValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.stringValue = s;
+
+            return s;
+        }
+
+
+        /// <summary>
+        /// Make a tag selection field.
+        /// </summary>
+        public static string TagField(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return TagField(p, options);
         }
 
         /// <summary>
@@ -1890,15 +2859,8 @@ namespace FK.Editor
         /// </summary>
         public static string TagField(SerializedObject serializedObject, string property, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.TagField(p.stringValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
-
-            return s;
+            return TagField(p, style, options);
         }
 
         /// <summary>
@@ -1906,15 +2868,8 @@ namespace FK.Editor
         /// </summary>
         public static string TagField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.TagField(label, p.stringValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
-
-            return s;
+            return TagField(p, label, options);
         }
 
         /// <summary>
@@ -1922,15 +2877,8 @@ namespace FK.Editor
         /// </summary>
         public static string TagField(SerializedObject serializedObject, string property, string label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.TagField(label, p.stringValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
-
-            return s;
+            return TagField(p, label, style, options);
         }
 
         /// <summary>
@@ -1938,15 +2886,8 @@ namespace FK.Editor
         /// </summary>
         public static string TagField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.TagField(label, p.stringValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
-
-            return s;
+            return TagField(p, label, options);
         }
 
         /// <summary>
@@ -1954,15 +2895,8 @@ namespace FK.Editor
         /// </summary>
         public static string TagField(SerializedObject serializedObject, string property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            string s = EditorGUILayout.TagField(label, p.stringValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.stringValue = s;
-
-            return s;
+            return TagField(p, label, style, options);
         }
 
         #endregion
@@ -1973,17 +2907,101 @@ namespace FK.Editor
         /// <summary>
         /// Make a toggle.
         /// </summary>
-        public static bool Toggle(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        public static bool Toggle(SerializedProperty property, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            bool b = EditorGUILayout.Toggle(p.boolValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            bool b = EditorGUILayout.Toggle(property.boolValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.boolValue = b;
+                property.boolValue = b;
 
             return b;
+        }
+
+        /// <summary>
+        /// Make a toggle.
+        /// </summary>
+        public static bool Toggle(SerializedProperty property, string label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            bool b = EditorGUILayout.Toggle(label, property.boolValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.boolValue = b;
+
+            return b;
+        }
+
+        /// <summary>
+        /// Make a toggle.
+        /// </summary>
+        public static bool Toggle(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            bool b = EditorGUILayout.Toggle(label, property.boolValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.boolValue = b;
+
+            return b;
+        }
+
+        /// <summary>
+        /// Make a toggle.
+        /// </summary>
+        public static bool Toggle(SerializedProperty property, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            bool b = EditorGUILayout.Toggle(property.boolValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.boolValue = b;
+
+            return b;
+        }
+
+        /// <summary>
+        /// Make a toggle.
+        /// </summary>
+        public static bool Toggle(SerializedProperty property, string label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            bool b = EditorGUILayout.Toggle(label, property.boolValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.boolValue = b;
+
+            return b;
+        }
+
+        /// <summary>
+        /// Make a toggle.
+        /// </summary>
+        public static bool Toggle(SerializedProperty property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            bool b = EditorGUILayout.Toggle(label, property.boolValue, style, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.boolValue = b;
+
+            return b;
+        }
+
+
+        /// <summary>
+        /// Make a toggle.
+        /// </summary>
+        public static bool Toggle(SerializedObject serializedObject, string property, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return Toggle(p, options);
         }
 
         /// <summary>
@@ -1991,15 +3009,8 @@ namespace FK.Editor
         /// </summary>
         public static bool Toggle(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            bool b = EditorGUILayout.Toggle(label, p.boolValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.boolValue = b;
-
-            return b;
+            return Toggle(p, label, options);
         }
 
         /// <summary>
@@ -2007,15 +3018,8 @@ namespace FK.Editor
         /// </summary>
         public static bool Toggle(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            bool b = EditorGUILayout.Toggle(label, p.boolValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.boolValue = b;
-
-            return b;
+            return Toggle(p, label, options);
         }
 
         /// <summary>
@@ -2023,15 +3027,8 @@ namespace FK.Editor
         /// </summary>
         public static bool Toggle(SerializedObject serializedObject, string property, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            bool b = EditorGUILayout.Toggle(p.boolValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.boolValue = b;
-
-            return b;
+            return Toggle(p, style, options);
         }
 
         /// <summary>
@@ -2039,15 +3036,8 @@ namespace FK.Editor
         /// </summary>
         public static bool Toggle(SerializedObject serializedObject, string property, string label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            bool b = EditorGUILayout.Toggle(label, p.boolValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.boolValue = b;
-
-            return b;
+            return Toggle(p, label, style, options);
         }
 
         /// <summary>
@@ -2055,15 +3045,8 @@ namespace FK.Editor
         /// </summary>
         public static bool Toggle(SerializedObject serializedObject, string property, GUIContent label, GUIStyle style, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            bool b = EditorGUILayout.Toggle(label, p.boolValue, style, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.boolValue = b;
-
-            return b;
+            return Toggle(p, label, style, options);
         }
 
         #endregion
@@ -2074,17 +3057,71 @@ namespace FK.Editor
         /// <summary>
         /// Make a toggle field where the toggle is to the left and the label immediately to the right of it.
         /// </summary>
-        public static bool ToggleLeft(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
+        public static bool ToggleLeft(SerializedProperty property, string label, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            bool b = EditorGUILayout.ToggleLeft(label, p.boolValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            bool b = EditorGUILayout.ToggleLeft(label, property.boolValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.boolValue = b;
+                property.boolValue = b;
 
             return b;
+        }
+
+        /// <summary>
+        /// Make a toggle field where the toggle is to the left and the label immediately to the right of it.
+        /// </summary>
+        public static bool ToggleLeft(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            bool b = EditorGUILayout.ToggleLeft(label, property.boolValue, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.boolValue = b;
+
+            return b;
+        }
+
+        /// <summary>
+        /// Make a toggle field where the toggle is to the left and the label immediately to the right of it.
+        /// </summary>
+        public static bool ToggleLeft(SerializedProperty property, string label, GUIStyle labelStyle, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            bool b = EditorGUILayout.ToggleLeft(label, property.boolValue, labelStyle, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.boolValue = b;
+
+            return b;
+        }
+
+        /// <summary>
+        /// Make a toggle field where the toggle is to the left and the label immediately to the right of it.
+        /// </summary>
+        public static bool ToggleLeft(SerializedProperty property, GUIContent label, GUIStyle labelStyle, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            bool b = EditorGUILayout.ToggleLeft(label, property.boolValue, labelStyle, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.boolValue = b;
+
+            return b;
+        }
+
+
+        /// <summary>
+        /// Make a toggle field where the toggle is to the left and the label immediately to the right of it.
+        /// </summary>
+        public static bool ToggleLeft(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return ToggleLeft(p, label, options);
         }
 
         /// <summary>
@@ -2092,15 +3129,8 @@ namespace FK.Editor
         /// </summary>
         public static bool ToggleLeft(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            bool b = EditorGUILayout.ToggleLeft(label, p.boolValue, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.boolValue = b;
-
-            return b;
+            return ToggleLeft(p, label, options);
         }
 
         /// <summary>
@@ -2108,15 +3138,8 @@ namespace FK.Editor
         /// </summary>
         public static bool ToggleLeft(SerializedObject serializedObject, string property, string label, GUIStyle labelStyle, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            bool b = EditorGUILayout.ToggleLeft(label, p.boolValue, labelStyle, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.boolValue = b;
-
-            return b;
+            return ToggleLeft(p, label, labelStyle, options);
         }
 
         /// <summary>
@@ -2124,15 +3147,8 @@ namespace FK.Editor
         /// </summary>
         public static bool ToggleLeft(SerializedObject serializedObject, string property, GUIContent label, GUIStyle labelStyle, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            bool b = EditorGUILayout.ToggleLeft(label, p.boolValue, labelStyle, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.boolValue = b;
-
-            return b;
+            return ToggleLeft(p, label, labelStyle, options);
         }
 
         #endregion
@@ -2143,15 +3159,14 @@ namespace FK.Editor
         /// <summary>
         /// Make an X & Y field for entering a Vector2.
         /// </summary>
-        public static Vector2 Vector2Field(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
+        public static Vector2 Vector2Field(SerializedProperty property, string label, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Vector2 v = EditorGUILayout.Vector2Field(label, p.vector2Value, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Vector2 v = EditorGUILayout.Vector2Field(label, property.vector2Value, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.vector2Value = v;
+                property.vector2Value = v;
 
             return v;
         }
@@ -2159,17 +3174,35 @@ namespace FK.Editor
         /// <summary>
         /// Make an X & Y field for entering a Vector2.
         /// </summary>
-        public static Vector2 Vector2Field(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
+        public static Vector2 Vector2Field(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Vector2 v = EditorGUILayout.Vector2Field(label, p.vector2Value, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Vector2 v = EditorGUILayout.Vector2Field(label, property.vector2Value, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.vector2Value = v;
+                property.vector2Value = v;
 
             return v;
+        }
+
+
+        /// <summary>
+        /// Make an X & Y field for entering a Vector2.
+        /// </summary>
+        public static Vector2 Vector2Field(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return Vector2Field(p, label, options);
+        }
+
+        /// <summary>
+        /// Make an X & Y field for entering a Vector2.
+        /// </summary>
+        public static Vector2 Vector2Field(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return Vector2Field(p, label, options);
         }
 
         #endregion
@@ -2180,15 +3213,14 @@ namespace FK.Editor
         /// <summary>
         /// Make an X & Y field for entering a Vector2Int.
         /// </summary>
-        public static Vector2Int Vector2IntField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
+        public static Vector2Int Vector2IntField(SerializedProperty property, string label, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Vector2Int v = EditorGUILayout.Vector2IntField(label, p.vector2IntValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Vector2Int v = EditorGUILayout.Vector2IntField(label, property.vector2IntValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.vector2IntValue = v;
+                property.vector2IntValue = v;
 
             return v;
         }
@@ -2196,17 +3228,35 @@ namespace FK.Editor
         /// <summary>
         /// Make an X & Y field for entering a Vector2Int.
         /// </summary>
-        public static Vector2Int Vector2IntField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
+        public static Vector2Int Vector2IntField(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Vector2Int v = EditorGUILayout.Vector2IntField(label, p.vector2IntValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Vector2Int v = EditorGUILayout.Vector2IntField(label, property.vector2IntValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.vector2IntValue = v;
+                property.vector2IntValue = v;
 
             return v;
+        }
+
+
+        /// <summary>
+        /// Make an X & Y field for entering a Vector2Int.
+        /// </summary>
+        public static Vector2Int Vector2IntField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return Vector2IntField(p, label, options);
+        }
+
+        /// <summary>
+        /// Make an X & Y field for entering a Vector2Int.
+        /// </summary>
+        public static Vector2Int Vector2IntField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return Vector2IntField(p, label, options);
         }
 
         #endregion
@@ -2217,15 +3267,14 @@ namespace FK.Editor
         /// <summary>
         /// Make an X, Y & Z field for entering a Vector3.
         /// </summary>
-        public static Vector3 Vector3Field(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
+        public static Vector3 Vector3Field(SerializedProperty property, string label, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Vector3 v = EditorGUILayout.Vector3Field(label, p.vector3Value, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Vector3 v = EditorGUILayout.Vector3Field(label, property.vector3Value, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.vector3Value = v;
+                property.vector3Value = v;
 
             return v;
         }
@@ -2233,17 +3282,35 @@ namespace FK.Editor
         /// <summary>
         /// Make an X, Y & Z field for entering a Vector3.
         /// </summary>
-        public static Vector3 Vector3Field(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
+        public static Vector3 Vector3Field(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Vector3 v = EditorGUILayout.Vector3Field(label, p.vector3Value, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Vector3 v = EditorGUILayout.Vector3Field(label, property.vector3Value, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.vector3Value = v;
+                property.vector3Value = v;
 
             return v;
+        }
+
+
+        /// <summary>
+        /// Make an X, Y & Z field for entering a Vector3.
+        /// </summary>
+        public static Vector3 Vector3Field(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return Vector3Field(p, label, options);
+        }
+
+        /// <summary>
+        /// Make an X, Y & Z field for entering a Vector3.
+        /// </summary>
+        public static Vector3 Vector3Field(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return Vector3Field(p, label, options);
         }
 
         #endregion
@@ -2254,15 +3321,14 @@ namespace FK.Editor
         /// <summary>
         /// Make an X, Y & Z field for entering a Vector3Int.
         /// </summary>
-        public static Vector3Int Vector3IntField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
+        public static Vector3Int Vector3IntField(SerializedProperty property, string label, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Vector3Int v = EditorGUILayout.Vector3IntField(label, p.vector3IntValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Vector3Int v = EditorGUILayout.Vector3IntField(label, property.vector3IntValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.vector3IntValue = v;
+                property.vector3IntValue = v;
 
             return v;
         }
@@ -2270,17 +3336,35 @@ namespace FK.Editor
         /// <summary>
         /// Make an X, Y & Z field for entering a Vector3Int.
         /// </summary>
-        public static Vector3Int Vector3IntField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
+        public static Vector3Int Vector3IntField(SerializedProperty property, GUIContent label, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Vector3Int v = EditorGUILayout.Vector3IntField(label, p.vector3IntValue, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Vector3Int v = EditorGUILayout.Vector3IntField(label, property.vector3IntValue, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.vector3IntValue = v;
+                property.vector3IntValue = v;
 
             return v;
+        }
+
+
+        /// <summary>
+        /// Make an X, Y & Z field for entering a Vector3Int.
+        /// </summary>
+        public static Vector3Int Vector3IntField(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return Vector3IntField(p, label, options);
+        }
+
+        /// <summary>
+        /// Make an X, Y & Z field for entering a Vector3Int.
+        /// </summary>
+        public static Vector3Int Vector3IntField(SerializedObject serializedObject, string property, GUIContent label, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return Vector3IntField(p, label, options);
         }
 
         #endregion
@@ -2291,17 +3375,26 @@ namespace FK.Editor
         /// <summary>
         /// Make an X, Y, Z & W field for entering a Vector4.
         /// </summary>
-        public static Vector4 Vector4Field(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
+        public static Vector4 Vector4Field(SerializedProperty property, string label, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            Vector4 v = EditorGUILayout.Vector4Field(label, p.vector4Value, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            Vector4 v = EditorGUILayout.Vector4Field(label, property.vector4Value, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.vector4Value = v;
+                property.vector4Value = v;
 
             return v;
+        }
+
+
+        /// <summary>
+        /// Make an X, Y, Z & W field for entering a Vector4.
+        /// </summary>
+        public static Vector4 Vector4Field(SerializedObject serializedObject, string property, string label, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return Vector4Field(p, label, options);
         }
 
         #endregion
@@ -2312,17 +3405,56 @@ namespace FK.Editor
         /// <summary>
         /// Make a field to receive any object type.
         /// </summary>
-        public static UnityEngine.Object ObjectField(SerializedObject serializedObject, string property, Type objType, bool allowSceneObjects, params GUILayoutOption[] options)
+        public static UnityEngine.Object ObjectField(SerializedProperty property, Type objType, bool allowSceneObjects, params GUILayoutOption[] options)
         {
             EditorGUI.BeginChangeCheck();
-            SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            UnityEngine.Object obj = EditorGUILayout.ObjectField(p.objectReferenceValue, objType, allowSceneObjects, options);
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            UnityEngine.Object obj = EditorGUILayout.ObjectField(property.objectReferenceValue, objType, allowSceneObjects, options);
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
-                p.objectReferenceValue = obj;
+                property.objectReferenceValue = obj;
 
             return obj;
+        }
+
+        /// <summary>
+        /// Make a field to receive any object type.
+        /// </summary>
+        public static UnityEngine.Object ObjectField(SerializedProperty property, string label, Type objType, bool allowSceneObjects, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            UnityEngine.Object obj = EditorGUILayout.ObjectField(label, property.objectReferenceValue, objType, allowSceneObjects, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.objectReferenceValue = obj;
+
+            return obj;
+        }
+
+        /// <summary>
+        /// Make a field to receive any object type.
+        /// </summary>
+        public static UnityEngine.Object ObjectField(SerializedProperty property, GUIContent label, Type objType, bool allowSceneObjects, params GUILayoutOption[] options)
+        {
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+            UnityEngine.Object obj = EditorGUILayout.ObjectField(label, property.objectReferenceValue, objType, allowSceneObjects, options);
+            EditorGUI.showMixedValue = false;
+            if (EditorGUI.EndChangeCheck())
+                property.objectReferenceValue = obj;
+
+            return obj;
+        }
+
+
+        /// <summary>
+        /// Make a field to receive any object type.
+        /// </summary>
+        public static UnityEngine.Object ObjectField(SerializedObject serializedObject, string property, Type objType, bool allowSceneObjects, params GUILayoutOption[] options)
+        {
+            SerializedProperty p = serializedObject.FindProperty(property);
+            return ObjectField(p, objType, allowSceneObjects, options);
         }
 
         /// <summary>
@@ -2330,15 +3462,8 @@ namespace FK.Editor
         /// </summary>
         public static UnityEngine.Object ObjectField(SerializedObject serializedObject, string property, string label, Type objType, bool allowSceneObjects, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            UnityEngine.Object obj = EditorGUILayout.ObjectField(label, p.objectReferenceValue, objType, allowSceneObjects, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.objectReferenceValue = obj;
-
-            return obj;
+            return ObjectField(p, label, objType, allowSceneObjects, options);
         }
 
         /// <summary>
@@ -2346,15 +3471,8 @@ namespace FK.Editor
         /// </summary>
         public static UnityEngine.Object ObjectField(SerializedObject serializedObject, string property, GUIContent label, Type objType, bool allowSceneObjects, params GUILayoutOption[] options)
         {
-            EditorGUI.BeginChangeCheck();
             SerializedProperty p = serializedObject.FindProperty(property);
-            EditorGUI.showMixedValue = p.hasMultipleDifferentValues;
-            UnityEngine.Object obj = EditorGUILayout.ObjectField(label, p.objectReferenceValue, objType, allowSceneObjects, options);
-            EditorGUI.showMixedValue = false;
-            if (EditorGUI.EndChangeCheck())
-                p.objectReferenceValue = obj;
-
-            return obj;
+            return ObjectField(p, label, objType, allowSceneObjects, options);
         }
 
         #endregion
