@@ -2,7 +2,7 @@
 * This Shader is an unlit shader that is only visible inside a Clip Volume and Fades using Dithering towards the Border of the Clip Volume.
 * Backface Culling is turned of so that the object looks solid (from most angles)
 *
-* v2.0 08/2018
+* v2.1 08/2018
 * Written by Fabian Kober
 * fabian-kober@gmx.net
 */
@@ -12,8 +12,6 @@ Shader "Clip Volume/Unlit"
 	{
 	    _Color ("Color", Color) = (1,1,1,1)
 	    _MainTex ("Albedo (RGB)", 2D) = "white" {}
-		_ClipVolumeMin("Min XYZ", Vector) = (0,0,0)	
-		_ClipVolumeMax("Max XYZ", Vector) = (1,1,1)
 		_InsideColor("Inside Color", Color) = (1,1,1,1)
 		
 		[Toggle(FADE_BORDER)]

@@ -4,7 +4,7 @@
 * This Shader is basically a Standard Surface Shader, but with the added effect that it is only visible inside a Clip Volume and Fades using Dithering towards the Border of the Clip Volume.
 * Backface Culling is turned of and the inside is Colored in a Flat, unlit color so that the object looks solid (from most angles)
 *
-* v3.0 08/2018
+* v3.1 08/2018
 * Written by Fabian Kober
 * fabian-kober@gmx.net
 */
@@ -26,8 +26,6 @@ Shader "Clip Volume/Standard" {
 		_EmissionColor("EmissionColor", Color) = (0,0,0,0)
 		[NoScaleOffset]
 		_EmissionMap("Emission (RGB)", 2D) = "white" {}
-		_ClipVolumeMin("Min XYZ", Vector) = (0,0,0)	
-		_ClipVolumeMax("Max XYZ", Vector) = (1,1,1)
 		_InsideColor("Inside Color", Color) = (1,1,1,1)
 		
 		[Toggle(FADE_BORDER)]
