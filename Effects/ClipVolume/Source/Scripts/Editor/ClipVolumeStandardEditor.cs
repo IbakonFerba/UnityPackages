@@ -4,7 +4,7 @@ using FK.Editor;
 /// <summary>
 /// <para>Material Editor for Standard Clip Volume Shader</para>
 ///
-/// v4.0 08/2018
+/// v4.1 08/2018
 /// Written by Fabian Kober
 /// fabian-kober@gmx.net
 /// </summary>
@@ -72,11 +72,5 @@ public class ClipVolumeStandardEditor : ShaderGUI
 
             EditorGUI.indentLevel--;
         }
-
-        EditorGUILayout.Space();
-        EditorGUILayout.TextArea("Clip Volume Bounds", EditorStyles.boldLabel);
-
-        MultiMaterialEditorGUI.Vector3Field(me, "_ClipVolumeMin", "Min");
-        MultiMaterialEditorGUI.Vector3Field(me, "_ClipVolumeMax", "Max");
     }
 }
