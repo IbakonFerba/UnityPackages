@@ -5,7 +5,7 @@ using FK.Editor;
 /// <summary>
 /// <para>Custom Editor for Clip Volumes</para>
 ///
-/// v1.0 08/2018
+/// v1.1 08/2018
 /// Written by Fabian Kober
 /// fabian-kober@gmx.net
 /// </summary>
@@ -24,7 +24,7 @@ public class ClipVolumeEditor : Editor
             UpdateVolumes();
 
         if (GUILayout.Button(new GUIContent("Update",
-            "Click if the Changes you did to the Size did not affect rendering for some reason to Update manually (note that this is purely for convenience in the Editor, as soon as you enter playmode everything will update automatically)"))
+            "Click when you added Objects to the Clip Volume or when the Changes you did to the Size did not affect rendering for some reason to Update manually (note that this is purely for convenience in the Editor, as soon as you enter playmode everything will update automatically)"))
         )
             UpdateVolumes();
         serializedObject.ApplyModifiedProperties();
@@ -36,6 +36,7 @@ public class ClipVolumeEditor : Editor
         foreach (Object t in targets)
         {
             ClipVolume v = t as ClipVolume;
+            v.Init();
             v.UpdateShaderValues();
         }
     }
