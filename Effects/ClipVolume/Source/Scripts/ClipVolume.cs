@@ -5,7 +5,7 @@ using UnityEngine;
 /// <para>This is the Controller Class for Objects with the ClipVolumeShader.
 /// It defines the volume in which all of its child objects with the Clip Volume Shader are rendered</para>
 ///
-/// v3.0 08/2018
+/// v3.1 08/2018
 /// Written by Fabian Kober
 /// fabian-kober@gmx.net
 /// </summary>
@@ -109,7 +109,7 @@ public class ClipVolume : MonoBehaviour
     ///<summary>
     /// Does the Init for this Behaviour
     ///</summary>
-    private void Init()
+    public void Init()
     {
         // get the child renderes
         _renderers = GetComponentsInChildren<Renderer>(true);
@@ -134,10 +134,19 @@ public class ClipVolume : MonoBehaviour
         PropertyBlock.SetVector("_ClipVolumeMin", -_size / 2);
         PropertyBlock.SetVector("_ClipVolumeMax", _size / 2);
 
+        bool updateRends = false;
         // set property block in all child renderers
         foreach (Renderer rend in Renderers)
         {
+            if (rend == null)
+            {
+                updateRends = true;
+                continue;
+            }
             rend.SetPropertyBlock(PropertyBlock);
         }
+        
+        if(updateRends)
+            _renderers = GetComponentsInChildren<Renderer>(true);
     }
 }
