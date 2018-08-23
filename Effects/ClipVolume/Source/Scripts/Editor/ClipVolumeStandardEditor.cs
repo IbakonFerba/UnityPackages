@@ -24,7 +24,7 @@ public class ClipVolumeStandardEditor : ShaderGUI
     protected void ShowGeneralProperties1(MaterialEditor me)
     {
         MultiMaterialEditorGUI.ColorField(me, "_Color", "Color");
-        MultiMaterialEditorGUI.TextureField(me, "_MainTex", "Albedo (RGB)", false);
+        MultiMaterialEditorGUI.TextureField(me, "_MainTex", "Albedo", false);
     }
 
     protected void ShowSurfaceShaderProperties(MaterialEditor me)
