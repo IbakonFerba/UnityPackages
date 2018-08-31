@@ -1,6 +1,10 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace FK.Paths
 {
     /// <summary>
@@ -113,7 +117,9 @@ namespace FK.Paths
                 return;
             foreach (Vector3 point in LinearPoints)
             {
-                Gizmos.DrawSphere(transform.TransformPoint(point), 0.1f);
+                Vector3 p = transform.TransformPoint(point);
+                float size = HandleUtility.GetHandleSize(p) * 0.05f;
+                Gizmos.DrawSphere(p, size);
             }
         }
 #endif
