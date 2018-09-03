@@ -7,7 +7,7 @@ namespace FK.Utility
     /// <summary>
     /// <para>A Timer that can be started, stopped and paused. You can also set it to loop so it restarts automatically when it's time elapses.</para>
     ///
-    /// v1.1 07/2018
+    /// v2.0 09/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -104,11 +104,6 @@ namespace FK.Utility
 
         // ######################## PRIVATE VARS ######################## //
         /// <summary>
-        /// The Monobehaviour to run the Coroutine on
-        /// </summary>
-        private MonoBehaviour _host;
-
-        /// <summary>
         /// The run Coroutine
         /// </summary>
         private Coroutine _runRoutine;
@@ -128,9 +123,9 @@ namespace FK.Utility
         /// <param name="host">MonoBehaviour to run the Timer on</param>
         /// <param name="duration">Duration of the Timer in seconds</param>
         /// <param name="loop">If true, the Timer restarts itself automatically</param>
-        public Timer(MonoBehaviour host, float duration, bool loop = false)
+        public Timer(float duration, bool loop = false)
         {
-            Init(host, duration, CountMode.UP, null, null, loop);
+            Init(duration, CountMode.UP, null, null, loop);
         }
 
         /// <summary>
@@ -140,9 +135,9 @@ namespace FK.Utility
         /// <param name="duration">Duration of the Timer in seconds</param>
         /// <param name="countDirection">Defines whether the Timer counts up or down</param>
         /// <param name="loop">If true, the Timer restarts itself automatically</param>
-        public Timer(MonoBehaviour host, float duration, CountMode countDirection, bool loop = false)
+        public Timer(float duration, CountMode countDirection, bool loop = false)
         {
-            Init(host, duration, countDirection, null, null, loop);
+            Init(duration, countDirection, null, null, loop);
         }
 
         /// <summary>
@@ -152,9 +147,9 @@ namespace FK.Utility
         /// <param name="duration">Duration of the Timer in seconds</param>
         /// <param name="onTimeElapsed">Callback for when the Timer finishes</param>
         /// <param name="loop">If true, the Timer restarts itself automatically</param>
-        public Timer(MonoBehaviour host, float duration, Action onTimeElapsed, bool loop = false)
+        public Timer(float duration, Action onTimeElapsed, bool loop = false)
         {
-            Init(host, duration, CountMode.UP, null, onTimeElapsed, loop);
+            Init(duration, CountMode.UP, null, onTimeElapsed, loop);
         }
 
         /// <summary>
@@ -165,9 +160,9 @@ namespace FK.Utility
         /// <param name="countDirection">Defines whether the Timer counts up or down</param>
         /// <param name="onTimeElapsed">Callback for when the Timer finishes</param>
         /// <param name="loop">If true, the Timer restarts itself automatically</param>
-        public Timer(MonoBehaviour host, float duration, CountMode countDirection, Action onTimeElapsed, bool loop = false)
+        public Timer(float duration, CountMode countDirection, Action onTimeElapsed, bool loop = false)
         {
-            Init(host, duration, countDirection, null, onTimeElapsed, loop);
+            Init(duration, countDirection, null, onTimeElapsed, loop);
         }
 
         /// <summary>
@@ -177,9 +172,9 @@ namespace FK.Utility
         /// <param name="duration">Duration of the Timer in seconds</param>
         /// <param name="onTimerUpdate">Callback for the timer Update</param>
         /// <param name="loop">If true, the Timer restarts itself automatically</param>
-        public Timer(MonoBehaviour host, float duration, Action<float> onTimerUpdate, bool loop = false)
+        public Timer(float duration, Action<float> onTimerUpdate, bool loop = false)
         {
-            Init(host, duration, CountMode.UP, onTimerUpdate, null, loop);
+            Init(duration, CountMode.UP, onTimerUpdate, null, loop);
         }
 
         /// <summary>
@@ -190,9 +185,9 @@ namespace FK.Utility
         /// <param name="countDirection">Defines whether the Timer counts up or down</param>
         /// <param name="onTimerUpdate">Callback for the timer Update</param>
         /// <param name="loop">If true, the Timer restarts itself automatically</param>
-        public Timer(MonoBehaviour host, float duration, CountMode countDirection, Action<float> onTimerUpdate, bool loop = false)
+        public Timer(float duration, CountMode countDirection, Action<float> onTimerUpdate, bool loop = false)
         {
-            Init(host, duration, countDirection, onTimerUpdate, null, loop);
+            Init(duration, countDirection, onTimerUpdate, null, loop);
         }
 
         /// <summary>
@@ -203,9 +198,9 @@ namespace FK.Utility
         /// <param name="onTimerUpdate">Callback for the timer Update</param>
         /// <param name="onTimeElapsed">Callback for when the Timer finishes</param>
         /// <param name="loop">If true, the Timer restarts itself automatically</param>
-        public Timer(MonoBehaviour host, float duration, Action<float> onTimerUpdate, Action onTimeElapsed, bool loop = false)
+        public Timer(float duration, Action<float> onTimerUpdate, Action onTimeElapsed, bool loop = false)
         {
-            Init(host, duration, CountMode.UP, onTimerUpdate, onTimeElapsed, loop);
+            Init(duration, CountMode.UP, onTimerUpdate, onTimeElapsed, loop);
         }
 
         /// <summary>
@@ -217,9 +212,9 @@ namespace FK.Utility
         /// <param name="onTimerUpdate">Callback for the timer Update</param>
         /// <param name="onTimeElapsed">Callback for when the Timer finishes</param>
         /// <param name="loop">If true, the Timer restarts itself automatically</param>
-        public Timer(MonoBehaviour host, float duration, CountMode countDirection, Action<float> onTimerUpdate, Action onTimeElapsed, bool loop = false)
+        public Timer(float duration, CountMode countDirection, Action<float> onTimerUpdate, Action onTimeElapsed, bool loop = false)
         {
-            Init(host, duration, countDirection, onTimerUpdate, onTimeElapsed, loop);
+            Init(duration, countDirection, onTimerUpdate, onTimeElapsed, loop);
         }
 
         #endregion
@@ -233,10 +228,8 @@ namespace FK.Utility
         /// <param name="onTimerUpdate">Callback for the timer Update</param>
         /// <param name="onTimeElapsed">Callback for when the Timer finishes</param>
         /// <param name="loop">If true, the Timer restarts itself automatically</param>
-        private void Init(MonoBehaviour host, float duration, CountMode countDirection, Action<float> onTimerUpdate, Action onTimeElapsed, bool loop)
+        private void Init(float duration, CountMode countDirection, Action<float> onTimerUpdate, Action onTimeElapsed, bool loop)
         {
-            // set values
-            _host = host;
             Duration = duration;
             _elapsedTime = 0.0f;
             Loop = loop;
@@ -263,7 +256,7 @@ namespace FK.Utility
                 return;
             }
 
-            _runRoutine = _host.StartCoroutine(Run());
+            _runRoutine = CoroutineHost.Instance.StartCoroutine(Run());
         }
 
         /// <summary>
@@ -347,7 +340,7 @@ namespace FK.Utility
         /// </summary>
         private void StopTimer()
         {
-            _host.StopCoroutine(_runRoutine);
+            CoroutineHost.Instance.StopCoroutine(_runRoutine);
             _runRoutine = null;
         }
     }
