@@ -32,13 +32,14 @@ namespace FK.Utility
     /// <summary>
     /// <para>Extension Methods for Transform and RectTransform</para>
     /// 
-    /// v1.2 06/2018
+    /// v2.0 09/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
     public static class TransformExtensions
     {
         #region INTERPOLATION
+
         /// <summary>
         /// A container for Position, rotation and scale with a bitmask that indicates which of these values to use
         /// </summary>
@@ -47,6 +48,7 @@ namespace FK.Utility
             public Vector3 position;
             public Quaternion rotation;
             public Vector3 scale;
+
             /// <summary>
             /// A Bitmask for which of the transform values to use. Counted from the lest significant bit, bit 0 is position, bit 1 is rotation and bit 2 is scale
             /// </summary>
@@ -68,8 +70,10 @@ namespace FK.Utility
         {
             //Create neede variables
             Vector3 startPos = space == Space.Self ? trans.localPosition : trans.position;
-            Quaternion startRot = space == Space.Self ? trans.localRotation : trans.rotation; ;
-            Vector3 startScale = trans.localScale; ;
+            Quaternion startRot = space == Space.Self ? trans.localRotation : trans.rotation;
+            ;
+            Vector3 startScale = trans.localScale;
+            ;
 
             // fins out which values we should interpolate
             bool usePos = targetTrans.valuesToUse.GetBitValue(0);
@@ -167,13 +171,12 @@ namespace FK.Utility
         /// Interpolates Position, Rotation and Scale of the given transform to the provided Transform
         /// </summary>
         /// <param name="transform">The Transform to manipulate</param>
-        /// <param name="host">MonoBehaviour to run the Coroutine on</param>
         /// <param name="targetTransform">The Transform to interpolate to</param>
         /// <param name="duration">The amount of time in seconds the interpolation should take</param>
         /// <param name="space">Operate in world or local space</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Transform targetTransform, float duration, Space space, Func<float, float> progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, Transform targetTransform, float duration, Space space, Func<float, float> progressMapping = null)
         {
             InterpolationTransform target = new InterpolationTransform();
             if (space == Space.Self)
@@ -186,25 +189,25 @@ namespace FK.Utility
                 target.position = targetTransform.position;
                 target.rotation = targetTransform.rotation;
             }
+
             target.scale = targetTransform.localScale;
 
             target.valuesToUse = 7; // 00000111
 
-            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
+            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
         }
 
         /// <summary>
         /// Interpolates Position, Rotation and Scale of the given transform to the provided Transform
         /// </summary>
         /// <param name="transform">The Transform to manipulate</param>
-        /// <param name="host">MonoBehaviour to run the Coroutine on</param>
         /// <param name="targetTransform">The Transform to interpolate to</param>
         /// <param name="duration">The amount of time in seconds the interpolation should take</param>
         /// <param name="space">Operate in world or local space</param>
         /// <param name="finished">Delegate function that is called when the interpolation is finished</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Transform targetTransform, float duration, Space space, Action finished, Func<float, float> progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, Transform targetTransform, float duration, Space space, Action finished, Func<float, float> progressMapping = null)
         {
             InterpolationTransform target = new InterpolationTransform();
             if (space == Space.Self)
@@ -217,18 +220,18 @@ namespace FK.Utility
                 target.position = targetTransform.position;
                 target.rotation = targetTransform.rotation;
             }
+
             target.scale = targetTransform.localScale;
 
             target.valuesToUse = 7; // 00000111
 
-            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
+            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
         }
 
         /// <summary>
         /// Interpolates Position, Rotation and Scale of the given transform to the provided Values
         /// </summary>
         /// <param name="transform">The Transform to manipulate</param>
-        /// <param name="host">MonoBehaviour to run the Coroutine on</param>
         /// <param name="position">Position to interpolate to</param>
         /// <param name="rotation">Rotation to interpolate to</param>
         /// <param name="scale">Scale to interpolate to</param>
@@ -236,7 +239,7 @@ namespace FK.Utility
         /// <param name="space">Operate in world or local space</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, Quaternion rotation, Vector3 scale, float duration, Space space, Func<float, float> progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, Vector3 position, Quaternion rotation, Vector3 scale, float duration, Space space, Func<float, float> progressMapping = null)
         {
             InterpolationTransform target = new InterpolationTransform();
 
@@ -246,14 +249,13 @@ namespace FK.Utility
 
             target.valuesToUse = 7; // 00000111
 
-            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
+            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
         }
 
         /// <summary>
         /// Interpolates Position, Rotation and Scale of the given transform to the provided Values
         /// </summary>
         /// <param name="transform">The Transform to manipulate</param>
-        /// <param name="host">MonoBehaviour to run the Coroutine on</param>
         /// <param name="position">Position to interpolate to</param>
         /// <param name="rotation">Rotation to interpolate to</param>
         /// <param name="scale">Scale to interpolate to</param>
@@ -262,7 +264,8 @@ namespace FK.Utility
         /// <param name="finished">Delegate function that is called when the interpolation is finished</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, Quaternion rotation, Vector3 scale, float duration, Space space, Action finished, Func<float, float> progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, Vector3 position, Quaternion rotation, Vector3 scale, float duration, Space space, Action finished,
+            Func<float, float> progressMapping = null)
         {
             InterpolationTransform target = new InterpolationTransform();
 
@@ -272,21 +275,20 @@ namespace FK.Utility
 
             target.valuesToUse = 7; // 00000111
 
-            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
+            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
         }
 
         /// <summary>
         /// Interpolates Position and Rotation of the given transform to the provided Values
         /// </summary>
         /// <param name="transform">The Transform to manipulate</param>
-        /// <param name="host">MonoBehaviour to run the Coroutine on</param>
         /// <param name="position">Position to interpolate to</param>
         /// <param name="rotation">Rotation to interpolate to</param>
         /// <param name="duration">The amount of time in seconds the interpolation should take</param>
         /// <param name="space">Operate in world or local space</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, Quaternion rotation, float duration, Space space, Func<float, float> progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, Vector3 position, Quaternion rotation, float duration, Space space, Func<float, float> progressMapping = null)
         {
             InterpolationTransform target = new InterpolationTransform();
 
@@ -295,14 +297,13 @@ namespace FK.Utility
 
             target.valuesToUse = 3; // 00000011
 
-            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
+            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
         }
 
         /// <summary>
         /// Interpolates Position and Rotation of the given transform to the provided Values
         /// </summary>
         /// <param name="transform">The Transform to manipulate</param>
-        /// <param name="host">MonoBehaviour to run the Coroutine on</param>
         /// <param name="position">Position to interpolate to</param>
         /// <param name="rotation">Rotation to interpolate to</param>
         /// <param name="duration">The amount of time in seconds the interpolation should take</param>
@@ -310,7 +311,7 @@ namespace FK.Utility
         /// <param name="finished">Delegate function that is called when the interpolation is finished</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, Quaternion rotation, float duration, Space space, Action finished, Func<float, float> progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, Vector3 position, Quaternion rotation, float duration, Space space, Action finished, Func<float, float> progressMapping = null)
         {
             InterpolationTransform target = new InterpolationTransform();
 
@@ -319,21 +320,20 @@ namespace FK.Utility
 
             target.valuesToUse = 3; // 00000011
 
-            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
+            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
         }
 
         /// <summary>
         /// Interpolates Position and Scale of the given transform to the provided Values
         /// </summary>
         /// <param name="transform">The Transform to manipulate</param>
-        /// <param name="host">MonoBehaviour to run the Coroutine on</param>
         /// <param name="position">Position to interpolate to</param>
         /// <param name="scale">Scale to interpolate to</param>
         /// <param name="duration">The amount of time in seconds the interpolation should take</param>
         /// <param name="space">Operate in world or local space</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, Vector3 scale, float duration, Space space, Func<float, float> progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, Vector3 position, Vector3 scale, float duration, Space space, Func<float, float> progressMapping = null)
         {
             InterpolationTransform target = new InterpolationTransform();
 
@@ -342,14 +342,13 @@ namespace FK.Utility
 
             target.valuesToUse = 5; // 00000101
 
-            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
+            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
         }
 
         /// <summary>
         /// Interpolates Position and Scale of the given transform to the provided Values
         /// </summary>
         /// <param name="transform">The Transform to manipulate</param>
-        /// <param name="host">MonoBehaviour to run the Coroutine on</param>
         /// <param name="position">Position to interpolate to</param>
         /// <param name="scale">Scale to interpolate to</param>
         /// <param name="duration">The amount of time in seconds the interpolation should take</param>
@@ -357,7 +356,7 @@ namespace FK.Utility
         /// <param name="finished">Delegate function that is called when the interpolation is finished</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, Vector3 scale, float duration, Space space, Action finished, Func<float, float> progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, Vector3 position, Vector3 scale, float duration, Space space, Action finished, Func<float, float> progressMapping = null)
         {
             InterpolationTransform target = new InterpolationTransform();
 
@@ -366,21 +365,20 @@ namespace FK.Utility
 
             target.valuesToUse = 5; // 00000101
 
-            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
+            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
         }
 
         /// <summary>
         /// Interpolates Rotation and Scale of the given transform to the provided Values
         /// </summary>
         /// <param name="transform">The Transform to manipulate</param>
-        /// <param name="host">MonoBehaviour to run the Coroutine on</param>
         /// <param name="rotation">Rotation to interpolate to</param>
         /// <param name="scale">Scale to interpolate to</param>
         /// <param name="duration">The amount of time in seconds the interpolation should take</param>
         /// <param name="space">Operate in world or local space</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Quaternion rotation, Vector3 scale, float duration, Space space, Func<float, float> progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, Quaternion rotation, Vector3 scale, float duration, Space space, Func<float, float> progressMapping = null)
         {
             InterpolationTransform target = new InterpolationTransform();
 
@@ -389,14 +387,13 @@ namespace FK.Utility
 
             target.valuesToUse = 6; // 00000110
 
-            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
+            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
         }
 
         /// <summary>
         /// Interpolates Rotation and Scale of the given transform to the provided Values
         /// </summary>
         /// <param name="transform">The Transform to manipulate</param>
-        /// <param name="host">MonoBehaviour to run the Coroutine on</param>
         /// <param name="rotation">Rotation to interpolate to</param>
         /// <param name="scale">Scale to interpolate to</param>
         /// <param name="duration">The amount of time in seconds the interpolation should take</param>
@@ -404,7 +401,7 @@ namespace FK.Utility
         /// <param name="finished">Delegate function that is called when the interpolation is finished</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Quaternion rotation, Vector3 scale, float duration, Space space, Action finished, Func<float, float> progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, Quaternion rotation, Vector3 scale, float duration, Space space, Action finished, Func<float, float> progressMapping = null)
         {
             InterpolationTransform target = new InterpolationTransform();
 
@@ -413,20 +410,19 @@ namespace FK.Utility
 
             target.valuesToUse = 6; // 00000110
 
-            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
+            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
         }
 
         /// <summary>
         /// Interpolates Positionof the given transform to the provided Position
         /// </summary>
         /// <param name="transform">The Transform to manipulate</param>
-        /// <param name="host">MonoBehaviour to run the Coroutine on</param>
         /// <param name="position">Position to interpolate to</param>
         /// <param name="duration">The amount of time in seconds the interpolation should take</param>
         /// <param name="space">Operate in world or local space</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, float duration, Space space, Func<float, float> progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, Vector3 position, float duration, Space space, Func<float, float> progressMapping = null)
         {
             InterpolationTransform target = new InterpolationTransform();
 
@@ -434,21 +430,20 @@ namespace FK.Utility
 
             target.valuesToUse = 1; // 00000001
 
-            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
+            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
         }
 
         /// <summary>
         /// Interpolates Positionof the given transform to the provided Position
         /// </summary>
         /// <param name="transform">The Transform to manipulate</param>
-        /// <param name="host">MonoBehaviour to run the Coroutine on</param>
         /// <param name="position">Position to interpolate to</param>
         /// <param name="duration">The amount of time in seconds the interpolation should take</param>
         /// <param name="space">Operate in world or local space</param>
         /// <param name="finished">Delegate function that is called when the interpolation is finished</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 position, float duration, Space space, Action finished, Func<float, float> progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, Vector3 position, float duration, Space space, Action finished, Func<float, float> progressMapping = null)
         {
             InterpolationTransform target = new InterpolationTransform();
 
@@ -456,7 +451,7 @@ namespace FK.Utility
 
             target.valuesToUse = 1; // 00000001
 
-            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
+            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
         }
 
 
@@ -464,13 +459,12 @@ namespace FK.Utility
         /// Interpolates Rotation of the given transform to the provided Rotation
         /// </summary>
         /// <param name="transform">The Transform to manipulate</param>
-        /// <param name="host">MonoBehaviour to run the Coroutine on</param>
         /// <param name="rotation">Rotation to interpolate to</param>
         /// <param name="duration">The amount of time in seconds the interpolation should take</param>
         /// <param name="space">Operate in world or local space</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Quaternion rotation, float duration, Space space, Func<float, float> progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, Quaternion rotation, float duration, Space space, Func<float, float> progressMapping = null)
         {
             InterpolationTransform target = new InterpolationTransform();
 
@@ -478,21 +472,20 @@ namespace FK.Utility
 
             target.valuesToUse = 2; // 00000010
 
-            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
+            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
         }
 
         /// <summary>
         /// Interpolates Rotation of the given transform to the provided Rotation
         /// </summary>
         /// <param name="transform">The Transform to manipulate</param>
-        /// <param name="host">MonoBehaviour to run the Coroutine on</param>
         /// <param name="rotation">Rotation to interpolate to</param>
         /// <param name="duration">The amount of time in seconds the interpolation should take</param>
         /// <param name="space">Operate in world or local space</param>
         /// <param name="finished">Delegate function that is called when the interpolation is finished</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Quaternion rotation, float duration, Space space, Action finished, Func<float, float> progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, Quaternion rotation, float duration, Space space, Action finished, Func<float, float> progressMapping = null)
         {
             InterpolationTransform target = new InterpolationTransform();
 
@@ -500,19 +493,18 @@ namespace FK.Utility
 
             target.valuesToUse = 2; // 00000010
 
-            return host.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
+            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
         }
 
         /// <summary>
         /// Interpolates Positionof the given transform to the provided Position
         /// </summary>
         /// <param name="transform">The Transform to manipulate</param>
-        /// <param name="host">MonoBehaviour to run the Coroutine on</param>
         /// <param name="scale">Scale to interpolate to</param>
         /// <param name="duration">The amount of time in seconds the interpolation should take</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 scale, float duration, Func<float, float> progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, Vector3 scale, float duration, Func<float, float> progressMapping = null)
         {
             InterpolationTransform target = new InterpolationTransform();
 
@@ -520,20 +512,19 @@ namespace FK.Utility
 
             target.valuesToUse = 4; // 00000100
 
-            return host.StartCoroutine(InterpolateTransform(transform, target, duration, Space.Self, progressMapping, null));
+            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, Space.Self, progressMapping, null));
         }
 
         /// <summary>
         /// Interpolates Positionof the given transform to the provided Position
         /// </summary>
         /// <param name="transform">The Transform to manipulate</param>
-        /// <param name="host">MonoBehaviour to run the Coroutine on</param>
         /// <param name="scale">Scale to interpolate to</param>
         /// <param name="duration">The amount of time in seconds the interpolation should take</param>
         /// <param name="finished">Delegate function that is called when the interpolation is finished</param>
         /// <param name="progressMapping">A delegate function to map a value between 0 and 1 used as the progress for lerping that returns a new value between 0 and 1</param>
         /// <returns></returns>
-        public static Coroutine Interpolate(this Transform transform, MonoBehaviour host, Vector3 scale, float duration, Action finished, Func<float, float> progressMapping = null)
+        public static Coroutine Interpolate(this Transform transform, Vector3 scale, float duration, Action finished, Func<float, float> progressMapping = null)
         {
             InterpolationTransform target = new InterpolationTransform();
 
@@ -541,12 +532,14 @@ namespace FK.Utility
 
             target.valuesToUse = 4; // 00000100
 
-            return host.StartCoroutine(InterpolateTransform(transform, target, duration, Space.Self, progressMapping, finished));
+            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, Space.Self, progressMapping, finished));
         }
+
         #endregion
 
 
         #region RECT_TRANSFORM
+
         /// <summary>
         /// Sets width and height of a Rect Transform
         /// </summary>
@@ -569,10 +562,12 @@ namespace FK.Utility
             rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, newSizeDelta.x);
             rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, newSizeDelta.y);
         }
+
         #endregion
 
 
         #region CHILDREN
+
         /// <summary>
         /// Finds a Child anywhere in the hierarchy below
         /// </summary>
@@ -596,6 +591,7 @@ namespace FK.Utility
 
             return null;
         }
+
         #endregion
     }
 }
