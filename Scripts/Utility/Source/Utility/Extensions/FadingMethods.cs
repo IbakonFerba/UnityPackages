@@ -8,7 +8,7 @@ namespace FK.Utility.Fading
     /// <summary>
     /// <para>An Assortment of Methods that allow you to easily Fade in and out different kinds of Objects</para>
     ///
-    /// v2.0 09/2028
+    /// v2.1 09/2028
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -129,6 +129,12 @@ namespace FK.Utility.Fading
                 graphic.gameObject.SetActive(true);
 
             Color target = graphic.color;
+            if (fadeIn)
+            {
+                target.a = 0;
+                graphic.color = target;
+            }
+
             target.a = fadeIn ? 1 : 0;
 
             return CoroutineHost.Instance.StartCoroutine(LerpColor(graphic, target, duration, manageActive && !fadeIn, finished, null));
@@ -150,6 +156,12 @@ namespace FK.Utility.Fading
                 graphic.gameObject.SetActive(true);
 
             Color target = graphic.color;
+            if (fadeIn)
+            {
+                target.a = 0;
+                graphic.color = target;
+            }
+
             target.a = fadeIn ? 1 : 0;
 
             return CoroutineHost.Instance.StartCoroutine(LerpColor(graphic, target, duration, manageActive && !fadeIn, finished, progressMapping));
@@ -313,6 +325,12 @@ namespace FK.Utility.Fading
         public static Coroutine Fade(this Material material, bool fadeIn, float duration, Action finished = null)
         {
             Color target = material.color;
+            if (fadeIn)
+            {
+                target.a = 0;
+                material.color = target;
+            }
+
             target.a = fadeIn ? 1 : 0;
 
             return CoroutineHost.Instance.StartCoroutine(LerpColor(material, target, duration, finished, null));
@@ -330,13 +348,18 @@ namespace FK.Utility.Fading
         public static Coroutine Fade(this Material material, bool fadeIn, float duration, Func<float, float> progressMapping, Action finished = null)
         {
             Color target = material.color;
+            if (fadeIn)
+            {
+                target.a = 0;
+                material.color = target;
+            }
+
             target.a = fadeIn ? 1 : 0;
 
             return CoroutineHost.Instance.StartCoroutine(LerpColor(material, target, duration, finished, progressMapping));
         }
 
         #endregion
-
 
         #region RENDERER
 
@@ -401,6 +424,12 @@ namespace FK.Utility.Fading
             for (int i = 0; i < rend.materials.Length; ++i)
             {
                 targets[i] = rend.materials[i].color;
+                if (fadeIn)
+                {
+                    targets[i].a = 0;
+                    rend.materials[i].color = targets[i];
+                }
+
                 targets[i].a = fadeIn ? 1 : 0;
             }
 
@@ -426,6 +455,12 @@ namespace FK.Utility.Fading
             for (int i = 0; i < rend.materials.Length; ++i)
             {
                 targets[i] = rend.materials[i].color;
+                if (fadeIn)
+                {
+                    targets[i].a = 0;
+                    rend.materials[i].color = targets[i];
+                }
+
                 targets[i].a = fadeIn ? 1 : 0;
             }
 
@@ -482,6 +517,12 @@ namespace FK.Utility.Fading
                 sprite.gameObject.SetActive(true);
 
             Color target = sprite.color;
+            if (fadeIn)
+            {
+                target.a = 0;
+                sprite.color = target;
+            }
+
             target.a = fadeIn ? 1 : 0;
 
             return CoroutineHost.Instance.StartCoroutine(LerpColor(sprite, target, duration, manageActive && !fadeIn, finished, null));
@@ -503,6 +544,12 @@ namespace FK.Utility.Fading
                 sprite.gameObject.SetActive(true);
 
             Color target = sprite.color;
+            if (fadeIn)
+            {
+                target.a = 0;
+                sprite.color = target;
+            }
+
             target.a = fadeIn ? 1 : 0;
 
             return CoroutineHost.Instance.StartCoroutine(LerpColor(sprite, target, duration, manageActive && !fadeIn, finished, progressMapping));
@@ -585,6 +632,9 @@ namespace FK.Utility.Fading
             if (manageActive && fadeIn)
                 source.gameObject.SetActive(true);
 
+            if (fadeIn)
+                source.volume = 0;
+
             return CoroutineHost.Instance.StartCoroutine(FadeVolume(source, fadeIn ? 1 : 0, duration, manageActive && !fadeIn, null, finished));
         }
 
@@ -602,7 +652,10 @@ namespace FK.Utility.Fading
         {
             if (manageActive && fadeIn)
                 source.gameObject.SetActive(true);
-
+            
+            if (fadeIn)
+                source.volume = 0;
+            
             return CoroutineHost.Instance.StartCoroutine(FadeVolume(source, fadeIn ? 1 : 0, duration, manageActive && !fadeIn, progressMapping, finished));
         }
 
