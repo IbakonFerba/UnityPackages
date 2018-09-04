@@ -32,7 +32,7 @@ namespace FK.Utility
     /// <summary>
     /// <para>Extension Methods for Transform and RectTransform</para>
     /// 
-    /// v2.0 09/2018
+    /// v2.1 09/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -166,7 +166,25 @@ namespace FK.Utility
                 finished();
         }
 
+        /// <summary>
+        /// Stops all Interpolations on the Transform
+        /// </summary>
+        /// <param name="transform"></param>
+        public static void StopAllInterpolations(this Transform transform)
+        {
+            CoroutineHost.StopAllTrackedCoroutines(transform, "Interpolation");
+        }
 
+        /// <summary>
+        /// Stops the provided Interpolation on the Transform
+        /// </summary>
+        /// <param name="transform"></param>
+        /// <param name="routine"></param>
+        public static void StopInterpolation(this Transform transform, Coroutine routine)
+        {
+            CoroutineHost.StopTrackedCoroutine(routine, "Interpolation");
+        }
+        
         /// <summary>
         /// Interpolates Position, Rotation and Scale of the given transform to the provided Transform
         /// </summary>
@@ -194,7 +212,7 @@ namespace FK.Utility
 
             target.valuesToUse = 7; // 00000111
 
-            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
+            return CoroutineHost.StartTrackedCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null), transform, "Interpolation");
         }
 
         /// <summary>
@@ -225,7 +243,7 @@ namespace FK.Utility
 
             target.valuesToUse = 7; // 00000111
 
-            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
+            return CoroutineHost.StartTrackedCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished), transform, "Interpolation");
         }
 
         /// <summary>
@@ -249,7 +267,7 @@ namespace FK.Utility
 
             target.valuesToUse = 7; // 00000111
 
-            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
+            return CoroutineHost.StartTrackedCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null), transform, "Interpolation");
         }
 
         /// <summary>
@@ -275,7 +293,7 @@ namespace FK.Utility
 
             target.valuesToUse = 7; // 00000111
 
-            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
+            return CoroutineHost.StartTrackedCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished), transform, "Interpolation");
         }
 
         /// <summary>
@@ -297,7 +315,7 @@ namespace FK.Utility
 
             target.valuesToUse = 3; // 00000011
 
-            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
+            return CoroutineHost.StartTrackedCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null), transform, "Interpolation");
         }
 
         /// <summary>
@@ -320,7 +338,7 @@ namespace FK.Utility
 
             target.valuesToUse = 3; // 00000011
 
-            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
+            return CoroutineHost.StartTrackedCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished), transform, "Interpolation");
         }
 
         /// <summary>
@@ -342,7 +360,7 @@ namespace FK.Utility
 
             target.valuesToUse = 5; // 00000101
 
-            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
+            return CoroutineHost.StartTrackedCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null), transform, "Interpolation");
         }
 
         /// <summary>
@@ -365,7 +383,7 @@ namespace FK.Utility
 
             target.valuesToUse = 5; // 00000101
 
-            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
+            return CoroutineHost.StartTrackedCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished), transform, "Interpolation");
         }
 
         /// <summary>
@@ -387,7 +405,7 @@ namespace FK.Utility
 
             target.valuesToUse = 6; // 00000110
 
-            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
+            return CoroutineHost.StartTrackedCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null), transform, "Interpolation");
         }
 
         /// <summary>
@@ -410,7 +428,7 @@ namespace FK.Utility
 
             target.valuesToUse = 6; // 00000110
 
-            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
+            return CoroutineHost.StartTrackedCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished), transform, "Interpolation");
         }
 
         /// <summary>
@@ -430,7 +448,7 @@ namespace FK.Utility
 
             target.valuesToUse = 1; // 00000001
 
-            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
+            return CoroutineHost.StartTrackedCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null), transform, "Interpolation");
         }
 
         /// <summary>
@@ -451,7 +469,7 @@ namespace FK.Utility
 
             target.valuesToUse = 1; // 00000001
 
-            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
+            return CoroutineHost.StartTrackedCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished), transform, "Interpolation");
         }
 
 
@@ -472,7 +490,7 @@ namespace FK.Utility
 
             target.valuesToUse = 2; // 00000010
 
-            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null));
+            return CoroutineHost.StartTrackedCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, null), transform, "Interpolation");
         }
 
         /// <summary>
@@ -493,7 +511,7 @@ namespace FK.Utility
 
             target.valuesToUse = 2; // 00000010
 
-            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished));
+            return CoroutineHost.StartTrackedCoroutine(InterpolateTransform(transform, target, duration, space, progressMapping, finished), transform, "Interpolation");
         }
 
         /// <summary>
@@ -512,7 +530,7 @@ namespace FK.Utility
 
             target.valuesToUse = 4; // 00000100
 
-            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, Space.Self, progressMapping, null));
+            return CoroutineHost.StartTrackedCoroutine(InterpolateTransform(transform, target, duration, Space.Self, progressMapping, null), transform, "Interpolation");
         }
 
         /// <summary>
@@ -532,7 +550,7 @@ namespace FK.Utility
 
             target.valuesToUse = 4; // 00000100
 
-            return CoroutineHost.Instance.StartCoroutine(InterpolateTransform(transform, target, duration, Space.Self, progressMapping, finished));
+            return CoroutineHost.StartTrackedCoroutine(InterpolateTransform(transform, target, duration, Space.Self, progressMapping, finished), transform, "Interpolation");
         }
 
         #endregion

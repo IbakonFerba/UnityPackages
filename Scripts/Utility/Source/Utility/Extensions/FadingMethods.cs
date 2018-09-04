@@ -8,12 +8,22 @@ namespace FK.Utility.Fading
     /// <summary>
     /// <para>An Assortment of Methods that allow you to easily Fade in and out different kinds of Objects</para>
     ///
-    /// v2.1 09/2028
+    /// v2.2 09/2028
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
     public static class FadingMethods
     {
+        /// <summary>
+        /// Stops a Fade on the Object
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void StopFade<T>(this T obj)
+        {
+            CoroutineHost.StopAllTrackedCoroutines(obj, "Fade");
+        }
+        
         #region CANVAS_GROUP
 
         /// <summary>
@@ -58,7 +68,8 @@ namespace FK.Utility.Fading
             if (manageActive && fadeIn)
                 group.gameObject.SetActive(true);
 
-            return CoroutineHost.Instance.StartCoroutine(FadeCanvasGroup(group, fadeIn, duration, manageActive && !fadeIn, finished, null));
+            CoroutineHost.StopTrackedCoroutine(group, "Fade");
+            return CoroutineHost.StartTrackedCoroutine(FadeCanvasGroup(group, fadeIn, duration, manageActive && !fadeIn, finished, null), group, "Fade");
         }
 
         /// <summary>
@@ -76,7 +87,8 @@ namespace FK.Utility.Fading
             if (manageActive && fadeIn)
                 group.gameObject.SetActive(true);
 
-            return CoroutineHost.Instance.StartCoroutine(FadeCanvasGroup(group, fadeIn, duration, manageActive && !fadeIn, finished, progressMapping));
+            CoroutineHost.StopTrackedCoroutine(group, "Fade");
+            return CoroutineHost.StartTrackedCoroutine(FadeCanvasGroup(group, fadeIn, duration, manageActive && !fadeIn, finished, progressMapping), group, "Fade");
         }
 
         #endregion
@@ -137,7 +149,8 @@ namespace FK.Utility.Fading
 
             target.a = fadeIn ? 1 : 0;
 
-            return CoroutineHost.Instance.StartCoroutine(LerpColor(graphic, target, duration, manageActive && !fadeIn, finished, null));
+            CoroutineHost.StopTrackedCoroutine(graphic, "Fade");
+            return CoroutineHost.StartTrackedCoroutine(LerpColor(graphic, target, duration, manageActive && !fadeIn, finished, null), graphic, "Fade");
         }
 
         /// <summary>
@@ -164,7 +177,8 @@ namespace FK.Utility.Fading
 
             target.a = fadeIn ? 1 : 0;
 
-            return CoroutineHost.Instance.StartCoroutine(LerpColor(graphic, target, duration, manageActive && !fadeIn, finished, progressMapping));
+            CoroutineHost.StopTrackedCoroutine(graphic, "Fade");
+            return CoroutineHost.StartTrackedCoroutine(LerpColor(graphic, target, duration, manageActive && !fadeIn, finished, progressMapping), graphic, "Fade");
         }
 
         #endregion
@@ -222,7 +236,8 @@ namespace FK.Utility.Fading
             if (manageActive && fillIn)
                 img.gameObject.SetActive(true);
 
-            return CoroutineHost.Instance.StartCoroutine(FillImage(img, fillIn, duration, img.fillMethod, img.fillClockwise, manageActive && !fillIn, finished, null));
+            CoroutineHost.StopTrackedCoroutine(img, "Fade");
+            return CoroutineHost.StartTrackedCoroutine(FillImage(img, fillIn, duration, img.fillMethod, img.fillClockwise, manageActive && !fillIn, finished, null), img, "Fade");
         }
 
         /// <summary>
@@ -240,7 +255,8 @@ namespace FK.Utility.Fading
             if (manageActive && fillIn)
                 img.gameObject.SetActive(true);
 
-            return CoroutineHost.Instance.StartCoroutine(FillImage(img, fillIn, duration, img.fillMethod, img.fillClockwise, manageActive && !fillIn, finished, progressMapping));
+            CoroutineHost.StopTrackedCoroutine(img, "Fade");
+            return CoroutineHost.StartTrackedCoroutine(FillImage(img, fillIn, duration, img.fillMethod, img.fillClockwise, manageActive && !fillIn, finished, progressMapping), img, "Fade");
         }
 
         /// <summary>
@@ -259,7 +275,8 @@ namespace FK.Utility.Fading
             if (manageActive && fillIn)
                 img.gameObject.SetActive(true);
 
-            return CoroutineHost.Instance.StartCoroutine(FillImage(img, fillIn, duration, method, clockwise, manageActive && !fillIn, finished, null));
+            CoroutineHost.StopTrackedCoroutine(img, "Fade");
+            return CoroutineHost.StartTrackedCoroutine(FillImage(img, fillIn, duration, method, clockwise, manageActive && !fillIn, finished, null), img, "Fade");
         }
 
         /// <summary>
@@ -280,7 +297,8 @@ namespace FK.Utility.Fading
             if (manageActive && fillIn)
                 img.gameObject.SetActive(true);
 
-            return CoroutineHost.Instance.StartCoroutine(FillImage(img, fillIn, duration, method, clockwise, manageActive && !fillIn, finished, progressMapping));
+            CoroutineHost.StopTrackedCoroutine(img, "Fade");
+            return CoroutineHost.StartTrackedCoroutine(FillImage(img, fillIn, duration, method, clockwise, manageActive && !fillIn, finished, progressMapping), img, "Fade");
         }
 
         #endregion
@@ -333,7 +351,8 @@ namespace FK.Utility.Fading
 
             target.a = fadeIn ? 1 : 0;
 
-            return CoroutineHost.Instance.StartCoroutine(LerpColor(material, target, duration, finished, null));
+            CoroutineHost.StopTrackedCoroutine(material, "Fade");
+            return CoroutineHost.StartTrackedCoroutine(LerpColor(material, target, duration, finished, null), material, "Fade");
         }
 
         /// <summary>
@@ -356,7 +375,8 @@ namespace FK.Utility.Fading
 
             target.a = fadeIn ? 1 : 0;
 
-            return CoroutineHost.Instance.StartCoroutine(LerpColor(material, target, duration, finished, progressMapping));
+            CoroutineHost.StopTrackedCoroutine(material, "Fade");
+            return CoroutineHost.StartTrackedCoroutine(LerpColor(material, target, duration, finished, progressMapping), material, "Fade");
         }
 
         #endregion
@@ -433,7 +453,8 @@ namespace FK.Utility.Fading
                 targets[i].a = fadeIn ? 1 : 0;
             }
 
-            return CoroutineHost.Instance.StartCoroutine(LerpColor(rend, targets, duration, manageActive && !fadeIn, finished, null));
+            CoroutineHost.StopTrackedCoroutine(rend, "Fade");
+            return CoroutineHost.StartTrackedCoroutine(LerpColor(rend, targets, duration, manageActive && !fadeIn, finished, null), rend, "Fade");
         }
 
         /// <summary>
@@ -464,7 +485,8 @@ namespace FK.Utility.Fading
                 targets[i].a = fadeIn ? 1 : 0;
             }
 
-            return CoroutineHost.Instance.StartCoroutine(LerpColor(rend, targets, duration, manageActive && !fadeIn, finished, progressMapping));
+            CoroutineHost.StopTrackedCoroutine(rend, "Fade");
+            return CoroutineHost.StartTrackedCoroutine(LerpColor(rend, targets, duration, manageActive && !fadeIn, finished, progressMapping), rend, "Fade");
         }
 
         #endregion
@@ -525,7 +547,8 @@ namespace FK.Utility.Fading
 
             target.a = fadeIn ? 1 : 0;
 
-            return CoroutineHost.Instance.StartCoroutine(LerpColor(sprite, target, duration, manageActive && !fadeIn, finished, null));
+            CoroutineHost.StopTrackedCoroutine(sprite, "Fade");
+            return CoroutineHost.StartTrackedCoroutine(LerpColor(sprite, target, duration, manageActive && !fadeIn, finished, null), sprite, "Fade");
         }
 
         /// <summary>
@@ -552,7 +575,8 @@ namespace FK.Utility.Fading
 
             target.a = fadeIn ? 1 : 0;
 
-            return CoroutineHost.Instance.StartCoroutine(LerpColor(sprite, target, duration, manageActive && !fadeIn, finished, progressMapping));
+            CoroutineHost.StopTrackedCoroutine(sprite, "Fade");
+            return CoroutineHost.StartTrackedCoroutine(LerpColor(sprite, target, duration, manageActive && !fadeIn, finished, progressMapping), sprite, "Fade");
         }
 
         #endregion
@@ -601,7 +625,8 @@ namespace FK.Utility.Fading
         /// <returns></returns>
         public static Coroutine FadeVolume(this AudioSource source, float targetVolume, float duration, Action finished = null)
         {
-            return CoroutineHost.Instance.StartCoroutine(FadeVolume(source, targetVolume, duration, false, null, finished));
+            CoroutineHost.StopTrackedCoroutine(source, "Fade");
+            return CoroutineHost.StartTrackedCoroutine(FadeVolume(source, targetVolume, duration, false, null, finished), source, "Fade");
         }
 
         /// <summary>
@@ -615,7 +640,8 @@ namespace FK.Utility.Fading
         /// <returns></returns>
         public static Coroutine FadeVolume(this AudioSource source, float targetVolume, float duration, Func<float, float> progressMapping, Action finished = null)
         {
-            return CoroutineHost.Instance.StartCoroutine(FadeVolume(source, targetVolume, duration, false, progressMapping, finished));
+            CoroutineHost.StopTrackedCoroutine(source, "Fade");
+            return CoroutineHost.StartTrackedCoroutine(FadeVolume(source, targetVolume, duration, false, progressMapping, finished), source, "Fade");
         }
 
         /// <summary>
@@ -635,7 +661,8 @@ namespace FK.Utility.Fading
             if (fadeIn)
                 source.volume = 0;
 
-            return CoroutineHost.Instance.StartCoroutine(FadeVolume(source, fadeIn ? 1 : 0, duration, manageActive && !fadeIn, null, finished));
+            CoroutineHost.StopTrackedCoroutine(source, "Fade");
+            return CoroutineHost.StartTrackedCoroutine(FadeVolume(source, fadeIn ? 1 : 0, duration, manageActive && !fadeIn, null, finished), source, "Fade");
         }
 
         /// <summary>
@@ -652,11 +679,12 @@ namespace FK.Utility.Fading
         {
             if (manageActive && fadeIn)
                 source.gameObject.SetActive(true);
-            
+
             if (fadeIn)
                 source.volume = 0;
-            
-            return CoroutineHost.Instance.StartCoroutine(FadeVolume(source, fadeIn ? 1 : 0, duration, manageActive && !fadeIn, progressMapping, finished));
+
+            CoroutineHost.StopTrackedCoroutine(source, "Fade");
+            return CoroutineHost.StartTrackedCoroutine(FadeVolume(source, fadeIn ? 1 : 0, duration, manageActive && !fadeIn, progressMapping, finished), source, "Fade");
         }
 
         #endregion

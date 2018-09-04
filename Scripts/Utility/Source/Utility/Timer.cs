@@ -7,7 +7,7 @@ namespace FK.Utility
     /// <summary>
     /// <para>A Timer that can be started, stopped and paused. You can also set it to loop so it restarts automatically when it's time elapses.</para>
     ///
-    /// v2.0 09/2018
+    /// v2.1 09/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -60,11 +60,8 @@ namespace FK.Utility
         /// <summary>
         /// Is the timer currently Running?
         /// </summary>
-        public bool Running
-        {
-            get { return _runRoutine != null; }
-        }
-
+        public bool Running { get; private set; }
+        
         /// <summary>
         /// Is the Timer currently paused?
         /// </summary>
@@ -103,11 +100,6 @@ namespace FK.Utility
         public CountMode CountDirection;
 
         // ######################## PRIVATE VARS ######################## //
-        /// <summary>
-        /// The run Coroutine
-        /// </summary>
-        private Coroutine _runRoutine;
-
         /// <summary>
         /// The current Time of the Timer
         /// </summary>
@@ -256,7 +248,8 @@ namespace FK.Utility
                 return;
             }
 
-            _runRoutine = CoroutineHost.Instance.StartCoroutine(Run());
+            Running = true;
+            CoroutineHost.StartTrackedCoroutine(Run(), this, "Timer");
         }
 
         /// <summary>
@@ -327,7 +320,7 @@ namespace FK.Utility
             _elapsedTime = 0.0f;
             OnTimeElapsed?.Invoke();
 
-            _runRoutine = null;
+            Running = false;
 
             // restart if looping
             if (Loop)
@@ -340,8 +333,8 @@ namespace FK.Utility
         /// </summary>
         private void StopTimer()
         {
-            CoroutineHost.Instance.StopCoroutine(_runRoutine);
-            _runRoutine = null;
+            CoroutineHost.StopTrackedCoroutine(this, "Timer");
+            Running = false;
         }
     }
 }
