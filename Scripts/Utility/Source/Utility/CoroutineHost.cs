@@ -13,7 +13,7 @@ namespace FK.Utility
     /// <para>A Class for Hosting Coroutines. Whenever you need an extra MonoBehaviour to run a Coroutine on, you can use the Instance Property of this Host.</para>
     /// <para>If you use its static functions, you can track corutines to stop them manually. This is mostly intedned for use with the other Functions in this Package</para>
     ///
-    /// v2.0 09/2018
+    /// v2.1 09/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -139,10 +139,10 @@ namespace FK.Utility
             _coroutines[tag].Add(cop);
 
             // start the coroutine
-            Instance.StartCoroutine(Instance.TrackRoutine<T>(routine, cop, tag));
+            Coroutine co = Instance.StartCoroutine(Instance.TrackRoutine<T>(routine, cop, tag));
 
             // return the tracked routine
-            return cop.Routine;
+            return co;
         }
 
         /// <summary>
