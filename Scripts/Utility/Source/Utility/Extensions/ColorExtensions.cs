@@ -9,7 +9,7 @@ namespace FK.Utility
     /// <summary>
     /// <para>Extension Methods Concerning Colors of different types</para>
     ///
-    /// v3.0 09/2018
+    /// v3.1 09/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -71,6 +71,15 @@ namespace FK.Utility
             return CoroutineHost.Instance.StartCoroutine(LerpColor(color, target, duration, returnAction, finished, progressMapping));
         }
 
+        /// <summary>
+        /// Stops the provided Color Lerp
+        /// </summary>
+        /// <param name="routine"></param>
+        public static void StopColorLerp(Coroutine routine)
+        {
+            CoroutineHost.StopTrackedCoroutine(routine, "LerpColor");
+        }
+        
         #region GRAPHIC
 
         /// <summary>
@@ -83,7 +92,8 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine LerpColor(this Graphic graphic, Color target, float duration, Action finished = null)
         {
-            return CoroutineHost.Instance.StartCoroutine(FadingMethods.LerpColor(graphic, target, duration, false, finished, null));
+            CoroutineHost.StopTrackedCoroutine(graphic, "LerpColor");
+            return CoroutineHost.StartTrackedCoroutine(FadingMethods.LerpColor(graphic, target, duration, false, finished, null), graphic, "LerpColor");
         }
 
         /// <summary>
@@ -97,7 +107,8 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine LerpColor(this Graphic graphic, Color target, float duration, Func<float, float> progressMapping, Action finished = null)
         {
-            return CoroutineHost.Instance.StartCoroutine(FadingMethods.LerpColor(graphic, target, duration, false, finished, progressMapping));
+            CoroutineHost.StopTrackedCoroutine(graphic, "LerpColor");
+            return CoroutineHost.StartTrackedCoroutine(FadingMethods.LerpColor(graphic, target, duration, false, finished, progressMapping), graphic, "LerpColor");
         }
 
         #endregion
@@ -114,7 +125,8 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine LerpColor(this SpriteRenderer sprite, Color target, float duration, Action finished = null)
         {
-            return CoroutineHost.Instance.StartCoroutine(FadingMethods.LerpColor(sprite, target, duration, false, finished, null));
+            CoroutineHost.StopTrackedCoroutine(sprite, "LerpColor");
+            return CoroutineHost.StartTrackedCoroutine(FadingMethods.LerpColor(sprite, target, duration, false, finished, null),sprite, "LerpColor");
         }
 
         /// <summary>
@@ -128,7 +140,8 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine LerpColor(this SpriteRenderer sprite, Color target, float duration, Func<float, float> progressMapping, Action finished = null)
         {
-            return CoroutineHost.Instance.StartCoroutine(FadingMethods.LerpColor(sprite, target, duration, false, finished, progressMapping));
+            CoroutineHost.StopTrackedCoroutine(sprite, "LerpColor");
+            return CoroutineHost.StartTrackedCoroutine(FadingMethods.LerpColor(sprite, target, duration, false, finished, progressMapping),sprite, "LerpColor");
         }
 
         #endregion
@@ -145,7 +158,8 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine LerpColor(this Material material, Color target, float duration, Action finished = null)
         {
-            return CoroutineHost.Instance.StartCoroutine(FadingMethods.LerpColor(material, target, duration, finished, null));
+            CoroutineHost.StopTrackedCoroutine(material, "LerpColor");
+            return CoroutineHost.StartTrackedCoroutine(FadingMethods.LerpColor(material, target, duration, finished, null),material, "LerpColor");
         }
 
         /// <summary>
@@ -159,7 +173,8 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine LerpColor(this Material material, Color target, float duration, Func<float, float> progressMapping, Action finished = null)
         {
-            return CoroutineHost.Instance.StartCoroutine(FadingMethods.LerpColor(material, target, duration, finished, progressMapping));
+            CoroutineHost.StopTrackedCoroutine(material, "LerpColor");
+            return CoroutineHost.StartTrackedCoroutine(FadingMethods.LerpColor(material, target, duration, finished, progressMapping),material, "LerpColor");
         }
 
         #endregion
@@ -182,7 +197,8 @@ namespace FK.Utility
                 targets[i] = target;
             }
 
-            return CoroutineHost.Instance.StartCoroutine(FadingMethods.LerpColor(rend, targets, duration, false, finished, null));
+            CoroutineHost.StopTrackedCoroutine(rend, "LerpColor");
+            return CoroutineHost.StartTrackedCoroutine(FadingMethods.LerpColor(rend, targets, duration, false, finished, null),rend, "LerpColor");
         }
 
         /// <summary>
@@ -202,7 +218,8 @@ namespace FK.Utility
                 targets[i] = target;
             }
 
-            return CoroutineHost.Instance.StartCoroutine(FadingMethods.LerpColor(rend, targets, duration, false, finished, progressMapping));
+            CoroutineHost.StopTrackedCoroutine(rend, "LerpColor");
+            return CoroutineHost.StartTrackedCoroutine(FadingMethods.LerpColor(rend, targets, duration, false, finished, progressMapping), rend, "LerpColor");
         }
 
         #endregion
