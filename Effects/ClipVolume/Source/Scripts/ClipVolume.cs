@@ -5,7 +5,7 @@ using UnityEngine;
 /// <para>This is the Controller Class for Objects with the ClipVolumeShader.
 /// It defines the volume in which all of its child objects with the Clip Volume Shader are rendered</para>
 ///
-/// v3.1 08/2018
+/// v3.2 09/2018
 /// Written by Fabian Kober
 /// fabian-kober@gmx.net
 /// </summary>
@@ -27,6 +27,20 @@ public class ClipVolume : MonoBehaviour
     }
 
     /// <summary>
+    /// Pivot of the Volume relative to its size. Everytime you assign to this, all child renderers are updated, so be careful when you call this!
+    /// </summary>
+    public Vector3 Pivot
+    {
+        get { return _pivot; }
+        set
+        {
+            _pivot = value;
+            ClampPivot();
+            UpdateShaderValues();
+        }
+    }
+
+    /// <summary>
     /// This property makes sure a Property Block exists and returns it
     /// </summary>
     private MaterialPropertyBlock PropertyBlock => _propertyBlock ?? (_propertyBlock = new MaterialPropertyBlock());
@@ -41,6 +55,10 @@ public class ClipVolume : MonoBehaviour
     /// The size of the Box Volume
     /// </summary>
     [SerializeField] private Vector3 _size = Vector3.one;
+    /// <summary>
+    /// The pivot of the Box Volume relative to its size
+    /// </summary>
+    [SerializeField] private Vector3 _pivot = new Vector3(0.5f, 0.5f, 0.5f);
 
     /// <summary>
     /// All Renderers that we need to take care of (use Renderers Property to make sure this is initialized)
@@ -70,6 +88,15 @@ public class ClipVolume : MonoBehaviour
             UpdateShaderValues();
     }
 
+    /// <summary>
+    /// Make sure everything updates when animating
+    /// </summary>
+    private void OnDidApplyAnimationProperties()
+    {
+        ClampPivot();
+        UpdateShaderValues();
+    }
+
     #region EDITOR
 
 #if UNITY_EDITOR
@@ -81,7 +108,7 @@ public class ClipVolume : MonoBehaviour
         Vector3 scale = transform.lossyScale;
         Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, scale);
 
-        Gizmos.DrawCube(Vector3.zero, _size);
+        Gizmos.DrawCube(Vector3.zero+Vector3.Scale(new Vector3(0.5f, 0.5f, 0.5f)- _pivot, _size), _size);
     }
 
     /// <summary>
@@ -109,7 +136,7 @@ public class ClipVolume : MonoBehaviour
     ///<summary>
     /// Does the Init for this Behaviour
     ///</summary>
-    public void Init()
+    private void Init()
     {
         // get the child renderes
         _renderers = GetComponentsInChildren<Renderer>(true);
@@ -131,8 +158,8 @@ public class ClipVolume : MonoBehaviour
         // set uniforms in property block
         PropertyBlock.SetVector("_ClipVolumeWorldPos", transform.position);
         PropertyBlock.SetMatrix("_ClipVolumeWorldToLocal", _volumeMatrix);
-        PropertyBlock.SetVector("_ClipVolumeMin", -_size / 2);
-        PropertyBlock.SetVector("_ClipVolumeMax", _size / 2);
+        PropertyBlock.SetVector("_ClipVolumeMin", -Vector3.Scale(_size,_pivot));
+        PropertyBlock.SetVector("_ClipVolumeMax", Vector3.Scale(_size, Vector3.one-_pivot));
 
         bool updateRends = false;
         // set property block in all child renderers
@@ -148,5 +175,16 @@ public class ClipVolume : MonoBehaviour
         
         if(updateRends)
             _renderers = GetComponentsInChildren<Renderer>(true);
+    }
+    
+    // ######################## UTILITY ######################## //
+    /// <summary>
+    /// Clamps the values of the pivot between 0 and 1
+    /// </summary>
+    private void ClampPivot()
+    {
+        _pivot.x = Mathf.Clamp01(_pivot.x);
+        _pivot.y = Mathf.Clamp01(_pivot.y);
+        _pivot.z = Mathf.Clamp01(_pivot.z);
     }
 }
