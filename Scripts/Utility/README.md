@@ -26,3 +26,6 @@ Create Constants by pressing `CTRL+ALT+C` or by navigating to `Tools/Generate Co
 
 ## Turntable
 - A simple script for a Turntable Animation with some things you can define in the Inspector. Just put it on a GameObject and it works
+
+## JSON
+- In the namespace `FK.JSON`, this Package contains a JSONObject that is able to load a .json file and parse it into a usable form in which it can be accessed and edited and that can be reparsed into a string and saved into a file.
