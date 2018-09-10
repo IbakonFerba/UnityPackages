@@ -13,7 +13,7 @@ namespace FK.JSON
     /// <para>It can load a JSON Object from a file via a static function and parse it into a usable form. You can then work with that object, access fields, change them and add new fields.</para>
     /// <para>Furthermore it can create a json string from an existing JSONObject and save that string to a file</para>
     ///
-    /// v1.0 09/2018
+    /// v1.1 09/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -100,6 +100,12 @@ namespace FK.JSON
         public int IntValue => (int) _integerNumber;
         public long LongValue => _integerNumber;
         public bool BoolValue => _bool;
+
+        /// <summary>
+        /// <para>All keys of the JSON Object.</para>
+        /// <para>WARNING: This creates a new Array every time you call it!</para>
+        /// </summary>
+        public string[] Keys => _keys?.ToArray();
 
         public JSONObject this[string key]
         {
