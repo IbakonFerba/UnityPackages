@@ -10,7 +10,7 @@ namespace FK.Paths
     /// <summary>
     /// <para>A Linear Path that has sharp turns between linear segments</para>
     ///
-    /// v1.0 08/2018
+    /// v1.1 09/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -199,6 +199,15 @@ namespace FK.Paths
 
 
         // ######################## UTILITIES ######################## //
+        /// <summary>
+        /// Returns a segment point of the Path. This sets only points that the path is actually passing through (exluding Bezier Control Points for example).
+        /// The Index is continuous (meaning that index 0 is the starting point, index 1 the next Segment point, etc)
+        /// </summary>
+        public override Vector3 GetSegmentPoint(int index)
+        {
+            return GetControlPoint(index);
+        }
+
         /// <summary>
         /// Set any point of the path
         /// </summary>
