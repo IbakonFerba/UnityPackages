@@ -13,7 +13,7 @@ namespace FK.JSON
     /// <para>It can load a JSON Object from a file via a static function and parse it into a usable form. You can then work with that object, access fields, change them and add new fields.</para>
     /// <para>Furthermore it can create a json string from an existing JSONObject and save that string to a file</para>
     ///
-    /// v1.2 09/2018
+    /// v1.4 09/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -281,6 +281,34 @@ namespace FK.JSON
                     _string = string.Empty;
                     break;
             }
+        }
+
+        /// <summary>
+        /// Creates a deep copy of the provided JSON Object
+        /// </summary>
+        /// <param name="template"></param>
+        /// <param name="maxDepth">Set this if you want to stop copying at a specific depth (0 would only copy the outmost object)</param>
+        public JSONObject(JSONObject template, int maxDepth = -2)
+        {
+            ObjectType = template.ObjectType;
+            
+            if(ObjectType == Type.OBJECT && maxDepth != -1)
+            _keys = new List<string>(template.Keys);
+
+            if ((ObjectType == Type.OBJECT || ObjectType == Type.ARRAY) && maxDepth != -1)
+            {
+                _list = new List<JSONObject>();
+                foreach (JSONObject jsonObject in template)
+                {
+                    _list.Add(new JSONObject(jsonObject, maxDepth < -1 ? -2 : maxDepth-1));
+                }
+            }
+
+            _string = template.StringValue;
+            _number = template.DoubleValue;
+            _useInt = template.IsInteger;
+            _integerNumber = template.LongValue;
+            _bool = template.BoolValue;
         }
 
         /// <summary>
@@ -1675,8 +1703,8 @@ namespace FK.JSON
 
             if (HasField(key))
             {
-                _keys.Remove(key);
                 _list.Remove(this[key]);
+                _keys.Remove(key);
                 return;
             }
 
