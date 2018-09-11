@@ -11,7 +11,7 @@ namespace FK.Paths
     /// <para>A Path constructed from cubic bezier splines</para>
     /// <para>This class was created with the help of this tutorial: https://catlikecoding.com/unity/tutorials/curves-and-splines/</para>
     ///
-    /// v1.0 08/2018
+    /// v1.1 09/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -322,6 +322,23 @@ namespace FK.Paths
         }
 
         // ######################## UTILITIES ######################## //
+        /// <summary>
+        /// Returns a segment point of the Path. This sets only points that the path is actually passing through (exluding Bezier Control Points for example).
+        /// The Index is continuous (meaning that index 0 is the starting point, index 1 the next Segment point, etc)
+        /// </summary>
+        public override Vector3 GetSegmentPoint(int index)
+        {
+            // make sure the index exists
+            if (index < 0 || index * 3 > Points.Length - 1)
+            {
+                Debug.LogError($"Point index {index} is out of Bounds!");
+                return Vector3.zero;
+            }
+
+            // get the point
+            return GetControlPoint(index * 3);
+        }
+
         /// <summary>
         /// Set any point of the path (including Bezier Control Points)
         /// </summary>
