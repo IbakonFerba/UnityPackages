@@ -4,7 +4,6 @@ using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 using FK.Utility;
-
 #endif
 
 namespace FK.Utility
@@ -13,7 +12,7 @@ namespace FK.Utility
     /// <para>A Class for Hosting Coroutines. Whenever you need an extra MonoBehaviour to run a Coroutine on, you can use the Instance Property of this Host.</para>
     /// <para>If you use its static functions, you can track corutines to stop them manually. This is mostly intedned for use with the other Functions in this Package</para>
     ///
-    /// v2.1 09/2018
+    /// v2.2 09/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -63,7 +62,6 @@ namespace FK.Utility
                 if (_instance == null)
                 {
                     _instance = new GameObject("<Master_of_Coroutines>", typeof(CoroutineHost)).GetComponent<CoroutineHost>();
-                    _coroutines = new Dictionary<string, List<CoroutineObjectPair>>();
                 }
 
                 return _instance;
@@ -129,6 +127,8 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine StartTrackedCoroutine<T>(IEnumerator routine, T obj, string tag = "Default")
         {
+            if(_coroutines == null)
+                _coroutines = new Dictionary<string, List<CoroutineObjectPair>>();
             // if this tag does not exist yet, create an entry for it
             if (!_coroutines.ContainsKey(tag))
                 _coroutines.Add(tag, new List<CoroutineObjectPair>());
