@@ -1,10 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Collections;
 using System.Globalization;
 using System.Collections.Generic;
+using FK.Utility;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace FK.JSON
 {
@@ -13,7 +16,7 @@ namespace FK.JSON
     /// <para>It can load a JSON Object from a file via a static function and parse it into a usable form. You can then work with that object, access fields, change them and add new fields.</para>
     /// <para>Furthermore it can create a json string from an existing JSONObject and save that string to a file</para>
     ///
-    /// v1.4 09/2018
+    /// v2.0 09/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -57,6 +60,7 @@ namespace FK.JSON
         }
 
         // ######################## PROPERTIES ######################## //
+        public bool FinishedParsing { get; private set; }
         public Type ObjectType { get; private set; }
 
         /// <summary>
@@ -222,6 +226,69 @@ namespace FK.JSON
             }
         }
 
+        #region LOAD_ASYNC
+        /// <summary>
+        /// Loads the file at the specified path and converts it to a JSONObject asynchronously
+        /// </summary>
+        /// <param name="path">The path to the file</param>
+        /// <param name="targetObject">An empty object to recieve the data</param>
+        /// <param name="maxDepth">Set this if you want to stop parsing at a specific depth (0 would only parse the outmost object)</param>
+        /// <returns></returns>
+        public static Coroutine LoadFromFileAsync(string path, JSONObject targetObject, int maxDepth = -2)
+        {
+            // setup url
+#if UNITY_ANDROID && !UNITY_EDITOR
+            string url = $"jar:file://{path}";
+#elif UNITY_IOS && !UNITY_EDITOR
+            string url = $"file://{path}";
+#else
+            string url = $"file:///{path}";
+#endif
+
+            // start asynchronous loading
+#if !UNITY_EDITOR
+            return CoroutineHost.Instance.StartCoroutine(LoadFromFileAsyncCo(url, targetObject, maxDepth));
+#else
+            return CoroutineHost.StartTrackedCoroutine(LoadFromFileAsyncCo(url, targetObject, maxDepth), targetObject, "LoadJSONFile");
+#endif
+        }
+
+        /// <summary>
+        /// Loads a file asynchronously and parses it into a JSON Object
+        /// </summary>
+        /// <param name="url">The url to the file</param>
+        /// <param name="targetObject">An empty object to recieve the data</param>
+        /// <param name="maxDepth">Set this if you want to stop parsing at a specific depth (0 would only parse the outmost object)</param>
+        /// <returns></returns>
+        private static IEnumerator LoadFromFileAsyncCo(string url, JSONObject targetObject, int maxDepth)
+        {
+            using (UnityWebRequest loader = UnityWebRequest.Get(url))
+            {
+                // load the file and wait until it is done
+                yield return loader.SendWebRequest();
+
+                // if loading was successful, continue
+                if (!loader.isHttpError || !loader.isNetworkError)
+                {
+                    // get the text
+                    string dataString = loader.downloadHandler.text;
+                    
+                    //parse in a seperate thread
+                    Thread parseThread = new Thread(() => targetObject.Parse(dataString, maxDepth));
+                    parseThread.Start();
+                    
+                    // wait until parsing is done
+                    yield return new WaitWhile(() => parseThread.ThreadState == ThreadState.Running);
+                }
+                else // notify the dev that something went wrong
+                {
+                    Debug.LogError($"Could not load file at \"{url}\": {loader.error}");
+                }
+            }
+        }
+
+        #endregion
+
         /// <summary>
         /// Saves the JSONObject as a JSON formatted string into a file at the specified path
         /// </summary>
@@ -249,6 +316,17 @@ namespace FK.JSON
             JSONObject obj = new JSONObject();
             obj.Parse(dataString, maxDepth);
             return obj;
+        }
+
+        /// <summary>
+        /// Parses the passed string as a JSON formatted string and creates an Object from it
+        /// </summary>
+        /// <param name="dataString">The JSON formatted string to parse</param>
+        /// <param name="targetObject">An empty object to recieve the data</param>
+        /// <param name="maxDepth">Set this if you want to stop parsing at a specific depth (0 would only parse the outmost object)</param>
+        public static void CreateFromStringAsync(string dataString, JSONObject targetObject, int maxDepth = -2)
+        {
+            targetObject.ParseAsync(dataString, maxDepth);
         }
 
         #region CONSTRUCTOR
@@ -291,16 +369,16 @@ namespace FK.JSON
         public JSONObject(JSONObject template, int maxDepth = -2)
         {
             ObjectType = template.ObjectType;
-            
-            if(ObjectType == Type.OBJECT && maxDepth != -1)
-            _keys = new List<string>(template.Keys);
+
+            if (ObjectType == Type.OBJECT && maxDepth != -1)
+                _keys = new List<string>(template.Keys);
 
             if ((ObjectType == Type.OBJECT || ObjectType == Type.ARRAY) && maxDepth != -1)
             {
                 _list = new List<JSONObject>();
                 foreach (JSONObject jsonObject in template)
                 {
-                    _list.Add(new JSONObject(jsonObject, maxDepth < -1 ? -2 : maxDepth-1));
+                    _list.Add(new JSONObject(jsonObject, maxDepth < -1 ? -2 : maxDepth - 1));
                 }
             }
 
@@ -658,6 +736,19 @@ namespace FK.JSON
                     }
                 }
             }
+
+            FinishedParsing = true;
+        }
+
+        /// <summary>
+        /// Fills the JSONObject by parsing a JSON formatted string asynchronously
+        /// </summary>
+        /// <param name="dataString">The JSON formatted string to parse</param>
+        /// <param name="maxDepth">Set this if you want to stop parsing at a specific depth (0 would only parse the outmost object)</param>
+        public void ParseAsync(string dataString, int maxDepth = -2)
+        {
+            Thread parseThread = new Thread(() => Parse(dataString, maxDepth));
+            parseThread.Start();
         }
 
         /// <summary>
@@ -1689,6 +1780,7 @@ namespace FK.JSON
         #endregion
 
         #region REMOVE
+
         /// <summary>
         /// REmoves the field with the provided key from the Object
         /// </summary>
@@ -1739,8 +1831,8 @@ namespace FK.JSON
         {
             if (ObjectType != Type.OBJECT)
                 return;
-            
-            if(!HasField(oldKey))
+
+            if (!HasField(oldKey))
                 return;
 
             _keys[_keys.IndexOf(oldKey)] = newKey;
@@ -1793,13 +1885,13 @@ namespace FK.JSON
         // ######################## PROPERTIES ######################## //
         object IEnumerator.Current => Current;
         public JSONObject Current => _jsonObj[_position];
-        
+
         // ######################## PRIVATE VARS ######################## //
         private JSONObject _jsonObj;
 
         private int _position = -1;
 
-        
+
         // ######################## INITS ######################## //
         public JSONObjectEnumerator(JSONObject obj)
         {
@@ -1818,7 +1910,5 @@ namespace FK.JSON
         {
             _position = 0;
         }
-
-        
     }
 }
