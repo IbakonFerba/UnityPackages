@@ -16,7 +16,7 @@ namespace FK.JSON
     /// <para>It can load a JSON Object from a file via a static function and parse it into a usable form. You can then work with that object, access fields, change them and add new fields.</para>
     /// <para>Furthermore it can create a json string from an existing JSONObject and save that string to a file</para>
     ///
-    /// v2.1 09/2018
+    /// v2.2 09/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -300,6 +300,12 @@ namespace FK.JSON
             StringBuilder sb = new StringBuilder();
 
             Stringify(sb, 0, true, maxDepth);
+
+            // make sure the directory exists
+            string directory = Path.GetDirectoryName(path);
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+            
             File.WriteAllText(path, sb.ToString());
         }
 
