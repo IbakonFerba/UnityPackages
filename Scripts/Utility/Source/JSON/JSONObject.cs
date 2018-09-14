@@ -16,7 +16,7 @@ namespace FK.JSON
     /// <para>It can load a JSON Object from a file via a static function and parse it into a usable form. You can then work with that object, access fields, change them and add new fields.</para>
     /// <para>Furthermore it can create a json string from an existing JSONObject and save that string to a file</para>
     ///
-    /// v2.0 09/2018
+    /// v2.1 09/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -227,6 +227,7 @@ namespace FK.JSON
         }
 
         #region LOAD_ASYNC
+
         /// <summary>
         /// Loads the file at the specified path and converts it to a JSONObject asynchronously
         /// </summary>
@@ -272,11 +273,11 @@ namespace FK.JSON
                 {
                     // get the text
                     string dataString = loader.downloadHandler.text;
-                    
+
                     //parse in a seperate thread
                     Thread parseThread = new Thread(() => targetObject.Parse(dataString, maxDepth));
                     parseThread.Start();
-                    
+
                     // wait until parsing is done
                     yield return new WaitWhile(() => parseThread.ThreadState == ThreadState.Running);
                 }
@@ -1827,6 +1828,107 @@ namespace FK.JSON
 
         #endregion
 
+        /// <summary>
+        /// Moves the field to a new index. Allows you to restructure a JSON Object
+        /// </summary>
+        /// <param name="key">Key of the field to move</param>
+        /// <param name="newIndex">Target Index of the field</param>
+        public void MoveField(string key, int newIndex)
+        {
+            if (ObjectType != Type.OBJECT)
+            {
+                Debug.LogWarning($"Trying to move field of an Object that is of type {ObjectType.ToString()}");
+                return;
+            }
+
+            if (newIndex < 0 || newIndex >= _list.Count)
+            {
+                Debug.LogWarning($"Invalid new Index {newIndex}!");
+                return;
+            }
+
+            if (!HasField(key))
+            {
+                Debug.LogWarning($"Cannot Move non existend field \"{key}\"");
+                return;
+            }
+
+            int oldIndex = GetIndex(key);
+
+            // do nothing if the field index would not change
+            if (newIndex == oldIndex)
+                return;
+
+            // if the field should move to a lower index, we need to do different things than when it moves to a higher index
+            if (newIndex < oldIndex)
+            {
+                // insert at the new index
+                _list.Insert(newIndex, this[key]);
+                _keys.Insert(newIndex, key);
+
+                // remove at the old index + 1 because the old index is after the point of insertion and got incremented by one
+                _list.RemoveAt(oldIndex + 1);
+                _keys.RemoveAt(oldIndex + 1);
+            }
+            else
+            {
+                // insert after the new index (because after removing the old position everything moves up by one)
+                _list.Insert(newIndex + 1, this[key]);
+                _keys.Insert(newIndex + 1, key);
+
+                // remove at the old index
+                _list.RemoveAt(oldIndex);
+                _keys.RemoveAt(oldIndex);
+            }
+        }
+
+        /// <summary>
+        /// Moves the field to a new index. Allows you to restructure a JSON Object
+        /// </summary>
+        /// <param name="oldIndex">Source Index of the field</param>
+        /// <param name="newIndex">Target Index of the field</param>
+        public void MoveField(int oldIndex, int newIndex)
+        {
+            if (ObjectType != Type.OBJECT && ObjectType != Type.ARRAY)
+            {
+                Debug.LogWarning($"Trying to move field of an Object that is of type {ObjectType.ToString()}");
+                return;
+            }
+
+            if (newIndex < 0 || newIndex >= _list.Count)
+            {
+                Debug.LogWarning($"Invalid new Index {newIndex}!");
+                return;
+            }
+
+            // do nothing if the field index would not change
+            if (newIndex == oldIndex)
+                return;
+
+
+            // if the field should move to a lower index, we need to do different things than when it moves to a higher index
+            if (newIndex < oldIndex)
+            {
+                // insert at the new index
+                _list.Insert(newIndex, _list[oldIndex]);
+                _keys.Insert(newIndex, _keys[oldIndex]);
+
+                // remove at the old index + 1 because the old index is after the point of insertion and got incremented by one
+                _list.RemoveAt(oldIndex + 1);
+                _keys.RemoveAt(oldIndex + 1);
+            }
+            else
+            {
+                // insert after the new index (because after removing the old position everything moves up by one)
+                _list.Insert(newIndex + 1, _list[oldIndex]);
+                _keys.Insert(newIndex + 1, _keys[oldIndex]);
+
+                // remove at the old index
+                _list.RemoveAt(oldIndex);
+                _keys.RemoveAt(oldIndex);
+            }
+        }
+
         public void RenameField(string oldKey, string newKey)
         {
             if (ObjectType != Type.OBJECT)
@@ -1852,6 +1954,16 @@ namespace FK.JSON
                 return null;
 
             return _keys[index];
+        }
+
+        public int GetIndex(string key)
+        {
+            if (ObjectType != Type.OBJECT)
+                return -1;
+
+            if (!HasField(key))
+                return -1;
+            return _keys.IndexOf(key);
         }
 
 
