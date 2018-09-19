@@ -13,7 +13,7 @@ namespace FK.Language
     /// <summary>
     /// <para>The Editor for the Language Manager. This allows the User to edit settings and strings files</para>
     ///
-    /// v1.0 09/2018
+    /// v1.1 09/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -757,7 +757,7 @@ namespace FK.Language
                 EditorGUILayout.ToggleLeft(
                     new GUIContent("Use system language as default",
                         "If set, the Language Manager uses the Language of the System of the user as the default language, if the strings file contains this language"),
-                    LanguageManagerConfig.Instance.UseSystemLanguageAsDefault);
+                    LanguageManagerConfig.Instance.UseSavedLanguage);
 
             string defaultLanguage =
                 EditorGUILayout.TextField(new GUIContent("Default Language", "Language Code of the Language to use as a default or as a fallback if the system language is not supported"),
