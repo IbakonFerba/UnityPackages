@@ -52,6 +52,7 @@ Shader "Magic Light/Transparent Fade" {
 	CustomEditor "MagicLightNoInsideEditor"
 	SubShader {
 		Tags { "RenderType"="Transparent" "Queue"="Transparent" }
+		ZWrite Off
 		CULL back
 		LOD 200
 
