@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// <para>Material Editor for Standard Magic Light Shader</para>
 ///
-/// v1.0 09/2018
+/// v1.1 09/2018
 /// Written by Fabian Kober
 /// fabian-kober@gmx.net
 /// </summary>
@@ -15,6 +15,7 @@ public class MagicLightStandardEditor : ShaderGUI
     public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
     {
         ShowGeneralProperties1(materialEditor);
+        ShowSecondaryColor(materialEditor);
         ShowSurfaceShaderProperties(materialEditor);
         ShowGeneralProperties2(materialEditor);
         ShowInsideColor(materialEditor);
@@ -36,6 +37,14 @@ public class MagicLightStandardEditor : ShaderGUI
     {
         MultiMaterialEditorGUI.ColorField(me, "_Color", "Color");
         MultiMaterialEditorGUI.TextureField(me, "_MainTex", "Albedo", false);
+    }
+
+    protected void ShowSecondaryColor(MaterialEditor me)
+    {
+        EditorGUILayout.Space();
+        MultiMaterialEditorGUI.ColorField(me, "_Color2", "Secondary Color");
+        MultiMaterialEditorGUI.Slider(me, "_Color2Strength", "Secondary Color Strength", 0.0f, 1.0f);
+        EditorGUILayout.Space();
     }
 
     protected void ShowSurfaceShaderProperties(MaterialEditor me)

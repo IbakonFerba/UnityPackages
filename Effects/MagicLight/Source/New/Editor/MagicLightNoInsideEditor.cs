@@ -13,6 +13,7 @@ public class MagicLightNoInsideEditor : MagicLightStandardEditor
 	public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
 	{
 		ShowGeneralProperties1(materialEditor);
+		ShowSecondaryColor(materialEditor);
 		ShowSurfaceShaderProperties(materialEditor);
 		ShowGeneralProperties2(materialEditor);
 		ShowGeneralProperties3(materialEditor, true);
