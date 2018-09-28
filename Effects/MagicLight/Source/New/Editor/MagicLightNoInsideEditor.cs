@@ -12,11 +12,11 @@ public class MagicLightNoInsideEditor : MagicLightStandardEditor
 	// ######################## UNITY EVENT FUNCTIONS ######################## //	
 	public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
 	{
-		ShowGeneralProperties1(materialEditor);
+		ShowColAnMainTex(materialEditor);
 		ShowSecondaryColor(materialEditor);
 		ShowSurfaceShaderProperties(materialEditor);
-		ShowGeneralProperties2(materialEditor);
-		ShowGeneralProperties3(materialEditor, true);
+		ShowTilingAndEffectsHeadline(materialEditor);
+		ShowMagicLightParams(materialEditor, true);
 		ShowAdvancedOptions(materialEditor);
 	}
 }
