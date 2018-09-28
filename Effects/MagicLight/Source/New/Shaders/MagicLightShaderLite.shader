@@ -1,15 +1,16 @@
 
 /*
-* This Shader is basically a Standard Surface Shader, but with the added effect that it is cut away inside the cylinder of the MagicLightsource.
-* Aorund the cutout a hard and a faded border can be rendered. The cutout can also animate
+* This Shader is basically a Standard Surface Shader, but with the added effect that it is cut away inside the cylinder of the MagicLightsource or a specified stencil.
+* Around the cutout two borders can be rendered. The cutout can also animate
 * It can also fade to an unlit secondary color.
 *
-* v1.0 09/2018
+* v2.0 09/2018
 * Written by Fabian Kober
 * fabian-kober@gmx.net
 */
 Shader "Magic Light/Lite" {
 	Properties {
+        // surface shader properties
 		_Color ("Color", Color) = (1,1,1,1)
 		_MainTex ("Albedo (RGBA)", 2D) = "white" {}
 		[NoScaleOffset]
@@ -27,26 +28,36 @@ Shader "Magic Light/Lite" {
 		[NoScaleOffset]
 		_EmissionMap("Emission (RGB)", 2D) = "white" {}
 		
+		// secondary color
 		[Space]
 		_Color2("Secondary Color", Color) = (1,1,1,1)
 		_Color2Strength("Secondary Color Strength", Range(0, 1)) = 0
 		
-		[Space]
-		_BorderMode("Border Mode", Vector) = (0,0,0)
-		_BorderTex("Border Texture (RGBA)", 2D) = "white" {}
-		_BorderColorHard("Hard Border Color", Color) = (1, 1, 1, 1)
-		_BorderThresholdHard("Hard Border Threshold", Float) = 0.01
-		_BorderColor("Border Color", Color) = (1, 1, 1, 1)
-		_BorderThreshold("Border Threshold", Float) = 0.01
-		
-		[Space]
-		_RadiusScaleFactor("Radius Scale Factor", Float) = 1
-		_WobbleSpeed("Wobble Speed", float) = 1
-		_WobbleStrength("Wobble Strength", float) = 1
-		
+		// stencil options
 		[Space]
 		[Toggle]
+		_UseStencil("Use Stencil", Float) = 0
+		_StencilMap("_StencilMap", 2D) = "white" {}
+		
+		// Border
+		[Space]
+		_BorderTex("Border Texture (RGBA)", 2D) = "white" {}
+		_BorderMode("Border Mode", Vector) = (0,0,0)
+		_UseBorderTexture("Use Border Texture", Vector) = (1,1,0)
+		_BorderThresholds("Border Thresholds", Vector) = (0.01, 0.01, 0)
+		_Border1Color("Border 1 Color", Color) = (1, 1, 1, 1)
+		_Border2Color("Border 2 Color", Color) = (1, 1, 1, 1)
+
+        // cutout manipulation
+		[Space]
+		_RadiusScaleFactor("Radius Scale Factor", Float) = 1
+		_WobbleParams("Wobble Parameters (Speed, Strength)", Vector) = (1,1,0)
+		
+		// additional options
+		[Space]
+		[Toggle(USE_MAGICLIGHT)]
 		_UseMagicLight("Use Magic Light", float) = 1
+		[Toggle]
 		_Inverted("Inverted", float) = 0
 	}
 	CustomEditor "MagicLightNoInsideEditor"
@@ -58,6 +69,8 @@ Shader "Magic Light/Lite" {
 		CGPROGRAM
         // Physically based Standard lighting model, and enable shadows on all light types
 		#pragma surface surf Standard vertex:vert fullforwardshadows finalcolor:renderBorderAndSecondColor
+		
+		#pragma multi_compile _ USE_MAGICLIGHT
 
 		// Use shader model 3.0 target, to get nicer looking lighting
 		#pragma target 3.0
@@ -71,14 +84,21 @@ Shader "Magic Light/Lite" {
 		sampler2D _EmissionMap;
 		sampler2D _OcclusionMap;
 		
+		#if USE_MAGICLIGHT
 		sampler2D _BorderTex;
 		float4 _BorderTex_ST;
+		
+		sampler2D _StencilMap;
+		float4 _StencilMap_ST;
+		#endif
 
 		struct Input {
 			float2 uv_MainTex;
+			#if USE_MAGICLIGHT
 			float3 worldPos;
 			float3 localPos;
 			float3 localNormal;	
+			#endif
 			INTERNAL_DATA
 		};
 
@@ -91,29 +111,34 @@ Shader "Magic Light/Lite" {
 		
         // secondary color
 		fixed4 _Color2;
-		float _Color2Strength;
+		half _Color2Strength;
         
+        # if USE_MAGICLIGHT
         // Border values
-        float4 _BorderMode;
-        fixed4 _BorderColor;
-		fixed4 _BorderColorHard;
-		float _BorderThresholdHard;
-		float _BorderThreshold;
+        half4 _BorderMode;
+        half2 _UseBorderTexture;
+        fixed4 _Border1Color;
+		fixed4 _Border2Color;
+		float2 _BorderThresholds;
 
-        // amgic Light values
+        // Magic Light values
         int _Inverted;
         float _UseMagicLight;
 		float4 _MagicLightPos;
 		float4 _MagicLightDir;
 		float _MagicLightRad;
+		
 		float _RadiusScaleFactor;
 		
+		// stencil
+		float _UseStencil;
+		
 		// animation
-		float _WobbleSpeed;
-		float _WobbleStrength;
+		float2 _WobbleParams;
 
         // the out of bounds value of the fragment
-		float outOfBounds;
+		float3 outOfBounds;
+		#endif
 
 		// Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
 		// See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
@@ -125,21 +150,33 @@ Shader "Magic Light/Lite" {
         void vert(inout appdata_full v, out Input data)
         {
             UNITY_INITIALIZE_OUTPUT(Input, data);
+            
+            #if USE_MAGICLIGHT
             data.localPos = v.vertex.xyz;
             data.localNormal = v.normal.xyz;
+            #endif
         }
         
 		void surf (Input IN, inout SurfaceOutputStandard o) {
-		    // clip inside magic light or get out of bounds value
-			outOfBounds=0;
-			if (_UseMagicLight) {
-				outOfBounds = clipOutsideLightCircle(IN.worldPos.xyz, _MagicLightDir.xyz, _MagicLightPos.xyz, _MagicLightRad*_RadiusScaleFactor, _WobbleSpeed, _WobbleStrength, _Time, _Inverted);
+		    #if USE_MAGICLIGHT
+		    // clip inside the magic light parameters and get the out of bounds value
+		    if(_UseStencil) {
+			    outOfBounds = clipStencil(_StencilMap, _StencilMap_ST, IN.worldPos.xyz, _MagicLightDir.xyz, _MagicLightPos.xyz, _WobbleParams, _Time);
+			    
+			    // if the hard border mode is set to Emission, set an emission color
+			    if(_BorderMode.x == 0) {
+				    o.Emission = _Border2Color*outOfBounds.b;
+			    }
+		    } else {
+				outOfBounds.x = clipCircle(IN.worldPos.xyz, _MagicLightDir.xyz, _MagicLightPos.xyz, _MagicLightRad*_RadiusScaleFactor, _WobbleParams, _Time,_Inverted);
 				
 				// if the hard border mode is set to Emission, set an emission color
-				if(outOfBounds <= _BorderThresholdHard && _BorderMode.x == 0) {
-					o.Emission = _BorderColorHard;
-				}
-			}
+			    if(outOfBounds.x <= _BorderThresholds.y && _BorderMode.x == 0) {
+				    o.Emission = _Border2Color;
+			    }
+			}		
+            #endif
+
 
 
 			// Albedo comes from a texture tinted by color
@@ -165,14 +202,18 @@ Shader "Magic Light/Lite" {
         // this function gets passed the final color and can manipulate it
 		void renderBorderAndSecondColor(Input IN, SurfaceOutputStandard o, inout fixed4 color) {
 		    // only work on the first pass
-#ifdef UNITY_PASS_FORWARDBASE
+            #ifdef UNITY_PASS_FORWARDBASE
+            #if USE_MAGICLIGHT
             // draw the border
-			if(_UseMagicLight)
-				color = drawBorder(color, outOfBounds, _BorderTex, _BorderTex_ST, IN.localPos, IN.localNormal, _BorderThreshold, _BorderColor, _BorderThresholdHard, _BorderColorHard, _BorderMode);
+            if(_UseStencil)
+                color = drawBorder(color, outOfBounds, _BorderTex, _BorderTex_ST, IN.localPos, IN.localNormal, _Border1Color, _Border2Color, _UseBorderTexture, _BorderMode);
+            else
+			    color = drawBorder(color, outOfBounds.x, _BorderTex, _BorderTex_ST, IN.localPos, IN.localNormal, _BorderThresholds, _Border1Color, _Border2Color, _UseBorderTexture, _BorderMode);
+			#endif
 			
 			// apply the second color	
 			color = _Color2Strength * _Color2 + (1 - _Color2Strength) * color;
-#endif
+            #endif
 		}
 		ENDCG
 		
