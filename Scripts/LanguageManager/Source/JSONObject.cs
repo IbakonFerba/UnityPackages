@@ -16,7 +16,7 @@ namespace FK.JSON
     /// <para>It can load a JSON Object from a file via a static function and parse it into a usable form. You can then work with that object, access fields, change them and add new fields.</para>
     /// <para>Furthermore it can create a json string from an existing JSONObject and save that string to a file</para>
     ///
-    /// v2.2 09/2018
+    /// v2.4 10/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -305,9 +305,45 @@ namespace FK.JSON
             string directory = Path.GetDirectoryName(path);
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
-            
+
             File.WriteAllText(path, sb.ToString());
         }
+
+        #region SAVE_ASYNC
+
+        /// <summary>
+        /// Saves the JSONObject as a JSON formatted string into a file at the specified path
+        /// </summary>
+        /// <param name="path">The path at which the file should be written (inclusive file name with file ending)</param>
+        /// <param name="maxDepth">Set this if you want to stop parsing at a specific depth (0 would only parse the outmost object)</param>
+        /// <returns></returns>
+        public Coroutine SaveToFileAsync(string path, int maxDepth = -2)
+        {
+            // start asynchronous saving
+#if !UNITY_EDITOR
+            return CoroutineHost.Instance.StartCoroutine(SaveToFielAsyncCo(path, maxDepth));
+#else
+            return CoroutineHost.StartTrackedCoroutine(SaveToFielAsyncCo(path, maxDepth), this, "SaveJSONFile");
+#endif
+        }
+
+        /// <summary>
+        /// Saves the File in a seperate thread and returns once the thread finished
+        /// </summary>
+        /// <param name="path">The path at which the file should be written (inclusive file name with file ending)</param>
+        /// <param name="maxDepth">Set this if you want to stop parsing at a specific depth (0 would only parse the outmost object)</param>
+        /// <returns></returns>
+        private IEnumerator SaveToFielAsyncCo(string path, int maxDepth = -2)
+        {
+            //save in a seperate thread
+            Thread saveThread = new Thread(() => SaveToFile(path, maxDepth));
+            saveThread.Start();
+
+            // wait as long as the thread is running
+            yield return new WaitWhile(() => saveThread.ThreadState == ThreadState.Running);
+        }
+
+        #endregion
 
         #endregion
 
@@ -1251,6 +1287,9 @@ namespace FK.JSON
                         _list = new List<JSONObject>();
                         _list.Add(new JSONObject(BoolValue));
                         break;
+                    case Type.NULL:
+                        _list = new List<JSONObject>();
+                        break;
                 }
 
                 ObjectType = Type.OBJECT;
@@ -1944,6 +1983,17 @@ namespace FK.JSON
                 return;
 
             _keys[_keys.IndexOf(oldKey)] = newKey;
+        }
+
+        public void RenameField(int index, string newKey)
+        {
+            if (ObjectType != Type.OBJECT)
+                return;
+
+            if (index >= _keys.Count)
+                return;
+
+            _keys[index] = newKey;
         }
 
         public bool HasField(string key)

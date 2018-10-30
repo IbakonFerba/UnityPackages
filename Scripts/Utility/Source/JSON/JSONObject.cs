@@ -16,7 +16,7 @@ namespace FK.JSON
     /// <para>It can load a JSON Object from a file via a static function and parse it into a usable form. You can then work with that object, access fields, change them and add new fields.</para>
     /// <para>Furthermore it can create a json string from an existing JSONObject and save that string to a file</para>
     ///
-    /// v2.3 10/2018
+    /// v2.4 10/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -1983,6 +1983,17 @@ namespace FK.JSON
                 return;
 
             _keys[_keys.IndexOf(oldKey)] = newKey;
+        }
+
+        public void RenameField(int index, string newKey)
+        {
+            if (ObjectType != Type.OBJECT)
+                return;
+
+            if (index >= _keys.Count)
+                return;
+
+            _keys[index] = newKey;
         }
 
         public bool HasField(string key)

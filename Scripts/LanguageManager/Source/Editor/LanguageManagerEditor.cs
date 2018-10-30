@@ -13,7 +13,7 @@ namespace FK.Language
     /// <summary>
     /// <para>The Editor for the Language Manager. This allows the User to edit settings and strings files</para>
     ///
-    /// v1.1 09/2018
+    /// v1.2 10/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -742,7 +742,7 @@ namespace FK.Language
                         "If set, the Language Manager will load the strings asynchronously without blocking the Main Thread"),
                     LanguageManagerConfig.Instance.LoadStringsAsync);
 
-            string stringsFileName = EditorGUILayout.TextField(new GUIContent("Strings File Name", "Name of the JSON file containing all strings in the Streaming Assets  (without file ending)"),
+            string stringsFileName = EditorGUILayout.DelayedTextField(new GUIContent("Strings File Name", "Name of the JSON file containing all strings in the Streaming Assets  (without file ending)"),
                 LanguageManagerConfig.Instance.StringsFileName);
 
             EditorGUILayout.Space();
@@ -760,7 +760,7 @@ namespace FK.Language
                     LanguageManagerConfig.Instance.UseSavedLanguage);
 
             string defaultLanguage =
-                EditorGUILayout.TextField(new GUIContent("Default Language", "Language Code of the Language to use as a default or as a fallback if the system language is not supported"),
+                EditorGUILayout.DelayedTextField(new GUIContent("Default Language", "Language Code of the Language to use as a default or as a fallback if the system language is not supported"),
                     LanguageManagerConfig.Instance.DefaultLang);
 
 
@@ -912,13 +912,13 @@ namespace FK.Language
 
                     // language code
                     EditorGUI.BeginChangeCheck();
-                    string langCode = EditorGUILayout.TextField(languages.GetKeyAt(i), BUTTON_WIDTH);
+                    string langCode = EditorGUILayout.DelayedTextField(languages.GetKeyAt(i), BUTTON_WIDTH);
                     if (EditorGUI.EndChangeCheck())
                         RenameLanguage(languages.GetKeyAt(i), langCode);
 
                     // display name
                     EditorGUI.BeginChangeCheck();
-                    string langName = EditorGUILayout.TextField(languages[i].StringValue, BUTTON_WIDTH);
+                    string langName = EditorGUILayout.DelayedTextField(languages[i].StringValue, BUTTON_WIDTH);
                     if (EditorGUI.EndChangeCheck())
                     {
                         languages.SetField(langCode, langName);
@@ -941,8 +941,8 @@ namespace FK.Language
                 GUILayout.Space(SQUARE_BUTTON_WIDTH + GUI.skin.button.margin.horizontal);
 
                 // display fields for a new language
-                _newLangCode = EditorGUILayout.TextField(_newLangCode, BUTTON_WIDTH);
-                _newLangDisplay = EditorGUILayout.TextField(_newLangDisplay, BUTTON_WIDTH);
+                _newLangCode = EditorGUILayout.DelayedTextField(_newLangCode, BUTTON_WIDTH);
+                _newLangDisplay = EditorGUILayout.DelayedTextField(_newLangDisplay, BUTTON_WIDTH);
 
                 // a button to add the new language
                 if (GUILayout.Button("Add Language", BUTTON_WIDTH))
@@ -1084,10 +1084,10 @@ namespace FK.Language
             else
             {
                 EditorGUI.BeginChangeCheck();
-                string category = EditorGUILayout.TextField(_strings.GetKeyAt(categoryIndex), CategoryNameStyle, CELL_WIDTH, GUILayout.Height(20));
+                string category = EditorGUILayout.DelayedTextField(_strings.GetKeyAt(categoryIndex), CategoryNameStyle, CELL_WIDTH, GUILayout.Height(20));
                 if (EditorGUI.EndChangeCheck())
                 {
-                    _strings.RenameField(_strings.GetKeyAt(categoryIndex), category);
+                    _strings.RenameField(categoryIndex, category);
                     _unsavedChanges = true;
                 }
             }
@@ -1183,10 +1183,10 @@ namespace FK.Language
 
             // display field name
             EditorGUI.BeginChangeCheck();
-            string fieldName = EditorGUILayout.TextField(categoryObj.GetKeyAt(fieldIndex), CELL_WIDTH);
+            string fieldName = EditorGUILayout.DelayedTextField(categoryObj.GetKeyAt(fieldIndex), CELL_WIDTH);
             if (EditorGUI.EndChangeCheck())
             {
-                categoryObj.RenameField(categoryObj.GetKeyAt(fieldIndex), fieldName);
+                categoryObj.RenameField(fieldIndex, fieldName);
                 _unsavedChanges = true;
             }
 

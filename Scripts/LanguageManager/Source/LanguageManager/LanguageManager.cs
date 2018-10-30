@@ -14,7 +14,7 @@ namespace FK.Language
     /// <para>This Language Manager works without being present in any scene. Everything concerning it is static.</para>
     /// <para>It loads the strings from a json file in the StreamingAssets folder. You can then set text in different languages either manually or use the language texts that manage language changes automatically</para>
     ///
-    /// v2.0 09/2018
+    /// v2.1 10/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -513,6 +513,60 @@ namespace FK.Language
 
             // set the text
             textField.text = s;
+        }
+
+        #endregion
+
+        #region GET_STRING
+
+        /// <summary>
+        /// Returns the string in the current language
+        /// </summary>
+        /// <param name="name">Name of the text in the strings file</param>
+        /// <param name="category">Category of the text in the strings file</param>
+        /// <returns></returns>
+        /// <exception cref="NullReferenceException"></exception>
+        public static string GetString(string name, string category = DEFAULT_CATEGORY)
+        {
+            // if we have no strings, we cannot continue, throw an exeption so the dev knows this won't work!
+            if (_strings == null)
+                throw new NullReferenceException("Trying to access strings with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
+
+            // get the string
+            string s = _strings[category]?[name]?[CurrentLanguage]?.StringValue;
+
+            // if the string is null, something went wrong, notify the dev with an exeption (I know devs love them)
+            if (s == null)
+                throw new NullReferenceException($"Could not find string \"{name}\" in language \"{CurrentLanguage}\" in category \"{category}\"");
+
+            return s;
+        }
+
+        /// <summary>
+        /// Returns the string in the provided language
+        /// </summary>
+        /// <param name="name">Name of the text in the strings file</param>
+        /// <param name="category">Category of the text in the strings file</param>
+        /// <param name="language">The language to use</param>
+        /// <returns></returns>
+        /// <exception cref="NullReferenceException"></exception>
+        public static string GetString(string name, string category, string language)
+        {
+            // if we have no strings, we cannot continue, throw an exeption so the dev knows this won't work!
+            if (_strings == null)
+                throw new NullReferenceException("Trying to access strings with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
+
+            // make sure the language is lower case
+            string lowerCaseLang = language.ToLower();
+
+            // get the string
+            string s = _strings[category]?[name]?[lowerCaseLang]?.StringValue;
+
+            // if the string is null, something went wrong, notify the dev with an exeption (I know devs love them)
+            if (s == null)
+                throw new NullReferenceException($"Could not find string \"{name}\" in language \"{lowerCaseLang}\" in category \"{category}\"");
+
+            return s;
         }
 
         #endregion
