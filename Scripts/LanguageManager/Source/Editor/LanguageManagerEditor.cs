@@ -13,7 +13,7 @@ namespace FK.Language
     /// <summary>
     /// <para>The Editor for the Language Manager. This allows the User to edit settings and strings files</para>
     ///
-    /// v1.2 10/2018
+    /// v1.3 10/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -379,9 +379,12 @@ namespace FK.Language
         /// </summary>
         private void SaveStrings()
         {
+            // create a copy of the strings because we have to change them a little before saving and we don't want the user to see these changes
+            JSONObject processedStrings = new JSONObject(_strings);
+            
             // first we need to replace any line break with an escaped line break (because json does not allow line breaks, it wouldwork in this case but i want to stay json compatible)
             // for this we need to go through all categories
-            foreach (JSONObject category in _strings)
+            foreach (JSONObject category in processedStrings)
             {
                 // now we need to go through every language string in this category and replace linebreaks with \\n
                 foreach (JSONObject languageString in category)
@@ -401,10 +404,10 @@ namespace FK.Language
 
             // the strings are parsed now, save them into a file
             string path = System.IO.Path.Combine(Application.streamingAssetsPath, LanguageManagerConfig.Instance.StringsFileName + ".json");
-            _strings.SaveToFile(path);
+            processedStrings.SaveToFile(path);
 
-            // load the file to get the strings back in a form that we can show the user
-            LoadStrings();
+            // we just saved, so there can't be any unsaved changes
+            _unsavedChanges = false;
         }
 
         /// <summary>
