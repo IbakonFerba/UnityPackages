@@ -13,7 +13,7 @@ namespace FK.Language
     /// <summary>
     /// <para>The Editor for the Language Manager. This allows the User to edit settings and strings files</para>
     ///
-    /// v1.3 10/2018
+    /// v1.4 10/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -109,7 +109,7 @@ namespace FK.Language
                     // we start at 1 because 0 is not a category but the language lookup
                     for (int i = 1; i < _strings.Count; ++i)
                     {
-                        AnimBool ab = new AnimBool(true);
+                        AnimBool ab = new AnimBool(false);
                         ab.valueChanged.AddListener(Repaint);
                         _showCategory.Add(ab);
                     }
@@ -129,7 +129,7 @@ namespace FK.Language
                 // set up the anim bool
                 if (_showLangs == null)
                 {
-                    _showLangs = new AnimBool(true);
+                    _showLangs = new AnimBool(false);
                     _showLangs.valueChanged.AddListener(Repaint);
                 }
 
