@@ -13,7 +13,7 @@ namespace FK.Language
     /// <summary>
     /// <para>The Editor for the Language Manager. This allows the User to edit settings and strings files</para>
     ///
-    /// v1.4 10/2018
+    /// v1.5 10/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -166,6 +166,11 @@ namespace FK.Language
         /// Width for Buttons
         /// </summary>
         private static readonly GUILayoutOption BUTTON_WIDTH = GUILayout.Width(150);
+
+        /// <summary>
+        /// Initial space in the group of the buttons before the categories and language fields
+        /// </summary>
+        private static readonly float VERTICAL_BUTTONS_INITIAL_SPACE = 3;
 
         #endregion
 
@@ -381,7 +386,7 @@ namespace FK.Language
         {
             // create a copy of the strings because we have to change them a little before saving and we don't want the user to see these changes
             JSONObject processedStrings = new JSONObject(_strings);
-            
+
             // first we need to replace any line break with an escaped line break (because json does not allow line breaks, it wouldwork in this case but i want to stay json compatible)
             // for this we need to go through all categories
             foreach (JSONObject category in processedStrings)
@@ -650,10 +655,37 @@ namespace FK.Language
         }
 
         /// <summary>
+        /// Moves a category to the top or bottom
+        /// </summary>
+        /// <param name="categoryIndex">Current index of the category</param>
+        /// <param name="top">Move to the top? Else it moves to the bottom</param>
+        private void MoveCategory(int categoryIndex, bool top)
+        {
+            // Move the category. Top is index 2 because 0 is the Language Lookup and 1 the default category
+            int newIndex = top ? 2 : _strings.Count - 1; 
+            _strings.MoveField(categoryIndex, top ? 2 : newIndex);
+            
+            // move the anim bool
+            if (newIndex < categoryIndex)
+            {
+                ShowCategory.Insert(newIndex - 1, ShowCategory[categoryIndex - 1]);
+                ShowCategory.RemoveAt(categoryIndex);
+            }
+            else
+            {
+                ShowCategory.Insert(newIndex, ShowCategory[categoryIndex - 1]);
+                ShowCategory.RemoveAt(categoryIndex - 1);
+            }
+            
+            // mark file as dirty
+            _unsavedChanges = true;
+        }
+
+        /// <summary>
         /// Moves a language field up or down
         /// </summary>
         /// <param name="category">Category containing the filed</param>
-        /// <param name="fieldIndex">Current index of the category</param>
+        /// <param name="fieldIndex">Current index of the field</param>
         /// <param name="direction">Amount to move (positive for down, negative for up)</param>
         private void MoveLanguageField(JSONObject category, int fieldIndex, int direction)
         {
@@ -667,6 +699,18 @@ namespace FK.Language
                 category.MoveField(fieldIndex, newIndex);
                 _unsavedChanges = true;
             }
+        }
+
+        /// <summary>
+        /// Moves a language field to the top or bottom
+        /// </summary>
+        /// <param name="category">Category containing the filed</param>
+        /// <param name="fieldIndex">Current index of the field</param>
+        /// <param name="top">Move to the top? Else it moves to the bottom</param>
+        private void MoveLanguageField(JSONObject category, int fieldIndex, bool top)
+        {
+            category.MoveField(fieldIndex, top ? 0 : category.Count-1);
+            _unsavedChanges = true;
         }
 
         /// <summary>
@@ -745,7 +789,8 @@ namespace FK.Language
                         "If set, the Language Manager will load the strings asynchronously without blocking the Main Thread"),
                     LanguageManagerConfig.Instance.LoadStringsAsync);
 
-            string stringsFileName = EditorGUILayout.DelayedTextField(new GUIContent("Strings File Name", "Name of the JSON file containing all strings in the Streaming Assets  (without file ending)"),
+            string stringsFileName = EditorGUILayout.DelayedTextField(
+                new GUIContent("Strings File Name", "Name of the JSON file containing all strings in the Streaming Assets  (without file ending)"),
                 LanguageManagerConfig.Instance.StringsFileName);
 
             EditorGUILayout.Space();
@@ -1011,6 +1056,8 @@ namespace FK.Language
                         {
                             fieldsToRemove.Add(i);
                         }
+                        
+                        EditorGUILayout.Space();
                     }
 
                     // remove requested fields and marke file as dirty
@@ -1066,11 +1113,23 @@ namespace FK.Language
             }
             else
             {
-                if (GUILayout.Button("↓", GUILayout.Width(SQUARE_BUTTON_WIDTH)))
-                    MoveCategory(categoryIndex, 1);
-
-                if (GUILayout.Button("↑", GUILayout.Width(SQUARE_BUTTON_WIDTH)))
+                // display buttons to move the category to the top or bottom
+                EditorGUILayout.BeginVertical(GUILayout.Width(SQUARE_BUTTON_WIDTH));
+                GUILayout.Space(VERTICAL_BUTTONS_INITIAL_SPACE);
+                if (GUILayout.Button(new GUIContent("⇑", "Move to top"), GUILayout.Width(SQUARE_BUTTON_WIDTH)))
+                    MoveCategory(categoryIndex, true);
+                if (GUILayout.Button(new GUIContent("⇓", "Move to bottom"), GUILayout.Width(SQUARE_BUTTON_WIDTH)))
+                    MoveCategory(categoryIndex, false);
+                EditorGUILayout.EndHorizontal();
+            
+                // display buttons to move the category up or down
+                EditorGUILayout.BeginVertical(GUILayout.Width(SQUARE_BUTTON_WIDTH));
+                GUILayout.Space(VERTICAL_BUTTONS_INITIAL_SPACE);
+                if (GUILayout.Button(new GUIContent("↑", "Move up one"), GUILayout.Width(SQUARE_BUTTON_WIDTH)))
                     MoveCategory(categoryIndex, -1);
+                if (GUILayout.Button(new GUIContent("↓", "Move down one"), GUILayout.Width(SQUARE_BUTTON_WIDTH)))
+                    MoveCategory(categoryIndex, 1);
+                EditorGUILayout.EndVertical();
             }
 
             // show a button to extand and retract the category
@@ -1173,12 +1232,25 @@ namespace FK.Language
             bool ret = true;
 
             EditorGUILayout.BeginHorizontal();
-
+            
+            // display buttons to move the field to the top or bottom
+            EditorGUILayout.BeginVertical(GUILayout.Width(SQUARE_BUTTON_WIDTH));
+            GUILayout.Space(VERTICAL_BUTTONS_INITIAL_SPACE);
+            if (GUILayout.Button(new GUIContent("⇑", "Move to top in Category"), GUILayout.Width(SQUARE_BUTTON_WIDTH)))
+                MoveLanguageField(categoryObj, fieldIndex, true);
+            if (GUILayout.Button(new GUIContent("⇓", "Move to bottom in Category"), GUILayout.Width(SQUARE_BUTTON_WIDTH)))
+                MoveLanguageField(categoryObj, fieldIndex, false);
+            EditorGUILayout.EndHorizontal();
+            
             // display buttons to move the field up or down
-            if (GUILayout.Button("↓", GUILayout.Width(SQUARE_BUTTON_WIDTH)))
-                MoveLanguageField(categoryObj, fieldIndex, 1);
-            if (GUILayout.Button("↑", GUILayout.Width(SQUARE_BUTTON_WIDTH)))
+            EditorGUILayout.BeginVertical(GUILayout.Width(SQUARE_BUTTON_WIDTH));
+            GUILayout.Space(VERTICAL_BUTTONS_INITIAL_SPACE);
+            if (GUILayout.Button(new GUIContent("↑", "Move up one"), GUILayout.Width(SQUARE_BUTTON_WIDTH)))
                 MoveLanguageField(categoryObj, fieldIndex, -1);
+            if (GUILayout.Button(new GUIContent("↓", "Move down one"), GUILayout.Width(SQUARE_BUTTON_WIDTH)))
+                MoveLanguageField(categoryObj, fieldIndex, 1);
+            EditorGUILayout.EndVertical();
+            
 
             // delete the field
             if (GUILayout.Button("X", GUILayout.Width(SQUARE_BUTTON_WIDTH)))
