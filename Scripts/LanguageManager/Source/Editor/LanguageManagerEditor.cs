@@ -1,8 +1,10 @@
 ﻿#if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEditor;
+using UnityEditor.VersionControl;
 using UnityEditor.AnimatedValues;
 using UnityEditor.SceneManagement;
 using FK.JSON;
@@ -13,7 +15,7 @@ namespace FK.Language
     /// <summary>
     /// <para>The Editor for the Language Manager. This allows the User to edit settings and strings files</para>
     ///
-    /// v1.5 10/2018
+    /// v1.6 11/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -405,14 +407,34 @@ namespace FK.Language
                         languageString.SetField(languageString.GetKeyAt(i), s);
                     }
                 }
+            }    
+
+            // if version Control is active, check out the file automatically if it is not yet checked out
+            if (Provider.isActive)
+            {
+                // Get the version control asset of the file
+                Asset stringsFile = Provider.GetAssetByPath($"Assets/StreamingAssets/{LanguageManagerConfig.Instance.StringsFileName}.json");
+                
+                // checkout the file if it is not checked out yet and wait until it is checked out
+                if (!Provider.IsOpenForEdit(stringsFile))
+                    Provider.Checkout(stringsFile, CheckoutMode.Asset).Wait();
             }
 
-            // the strings are parsed now, save them into a file
+            // get the absolute path of the file
             string path = System.IO.Path.Combine(Application.streamingAssetsPath, LanguageManagerConfig.Instance.StringsFileName + ".json");
-            processedStrings.SaveToFile(path);
-
-            // we just saved, so there can't be any unsaved changes
-            _unsavedChanges = false;
+            
+            // try to save the file. If the access is denied, display a message to the user
+            try
+            {
+                processedStrings.SaveToFile(path);
+                
+                // we just saved, so there can't be any unsaved changes
+                _unsavedChanges = false;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                EditorUtility.DisplayDialog("Access Denied", $"The file {LanguageManagerConfig.Instance.StringsFileName}.json cannot be accessed, is it write protected?", "Close");
+            }
         }
 
         /// <summary>
