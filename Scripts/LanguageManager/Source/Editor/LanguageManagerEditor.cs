@@ -15,7 +15,7 @@ namespace FK.Language
     /// <summary>
     /// <para>The Editor for the Language Manager. This allows the User to edit settings and strings files</para>
     ///
-    /// v1.6 11/2018
+    /// v1.7 11/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -268,10 +268,10 @@ namespace FK.Language
 
         private void OnLostFocus()
         {
-            // if there are unsaved changes, display a dialog to ask the user if he wants to save
-            if (_unsavedChanges)
-                if (DisplaySaveDialog())
-                    SaveStrings();
+//            // if there are unsaved changes, display a dialog to ask the user if he wants to save
+//            if (_unsavedChanges)
+//                if (DisplaySaveDialog())
+//                    SaveStrings();
 
             IsFocused = false;
         }
@@ -427,14 +427,15 @@ namespace FK.Language
             try
             {
                 processedStrings.SaveToFile(path);
-                
-                // we just saved, so there can't be any unsaved changes
-                _unsavedChanges = false;
             }
             catch (UnauthorizedAccessException)
             {
                 EditorUtility.DisplayDialog("Access Denied", $"The file {LanguageManagerConfig.Instance.StringsFileName}.json cannot be accessed, is it write protected?", "Close");
+                return;
             }
+            
+            // we just saved, so there can't be any unsaved changes
+            _unsavedChanges = false;
         }
 
         /// <summary>
