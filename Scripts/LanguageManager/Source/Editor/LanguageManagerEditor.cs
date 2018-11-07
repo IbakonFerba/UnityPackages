@@ -15,7 +15,7 @@ namespace FK.Language
     /// <summary>
     /// <para>The Editor for the Language Manager. This allows the User to edit settings and strings files</para>
     ///
-    /// v1.7 11/2018
+    /// v1.8 11/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -173,6 +173,11 @@ namespace FK.Language
         /// Initial space in the group of the buttons before the categories and language fields
         /// </summary>
         private static readonly float VERTICAL_BUTTONS_INITIAL_SPACE = 3;
+
+        /// <summary>
+        /// File Path of the Config File
+        /// </summary>
+        private static string CONFIG_FILE_PATH = "Assets/LanguageManager/LanguageManagerConfig.asset";
 
         #endregion
 
@@ -369,7 +374,7 @@ namespace FK.Language
             {
                 // create a new config instance and make it an asset
                 LanguageManagerConfig config = ScriptableObject.CreateInstance<LanguageManagerConfig>();
-                AssetDatabase.CreateAsset(config, "Assets/LanguageManager/LanguageManagerConfig.asset");
+                AssetDatabase.CreateAsset(config, CONFIG_FILE_PATH);
                 Debug.Log("Created Language Manager Config");
 
                 // save a reference to the config
@@ -838,6 +843,17 @@ namespace FK.Language
             // set settings values
             if (EditorGUI.EndChangeCheck())
             {
+                // if version Control is active, check out the file automatically if it is not yet checked out
+                if (Provider.isActive)
+                {
+                    // Get the version control asset of the file
+                    Asset configFile = Provider.GetAssetByPath(CONFIG_FILE_PATH);
+                
+                    // checkout the file if it is not checked out yet and wait until it is checked out
+                    if (!Provider.IsOpenForEdit(configFile))
+                        Provider.Checkout(configFile, CheckoutMode.Asset).Wait();
+                }
+                
                 Undo.RecordObject(LanguageManagerConfig.Instance, "Changed Language Manager settings");
                 LanguageManagerConfig.Instance.LoadStringsAsync = loadAsync;
                 LanguageManagerConfig.Instance.StringsFileName = stringsFileName;
