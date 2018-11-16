@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using FK.JSON;
 using UnityEngine;
 
@@ -13,7 +14,7 @@ namespace FK.Saving
     /// <para>- The persistent data path</para>
     /// <para>- A custom path</para>
     ///
-    /// v1.1 11/2018
+    /// v1.2 11/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -69,7 +70,12 @@ namespace FK.Saving
         public const string CONFIG_FILEENDING_KEY = "FileEnding";
 
         #endregion
-        
+
+        /// <summary>
+        /// Regular expression to match all characters invalid for file names
+        /// </summary>
+        public static readonly Regex INVALID_FILENAME_CHARS = new Regex("[\\\\\\/:*?\"<>|]");
+
         // ######################## PRIVATE VARS ######################## //
         /// <summary>
         /// The save data
@@ -100,7 +106,7 @@ namespace FK.Saving
         /// <summary>
         /// Initializes the Manager on Application load
         /// </summary>
-        [RuntimeInitializeOnLoadMethod]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Init()
         {
             // get the config
@@ -185,7 +191,10 @@ namespace FK.Saving
                 fileName = $"{(overwrite ? _lastNumber : ++_lastNumber).ToString(_config[CONFIG_NUMBERFORMAT_KEY].StringValue)}_{fileName}";
             }
 
-            _data.SaveToFileAsync(Path.Combine(_savePath, $"{fileName}.{_config[CONFIG_FILEENDING_KEY].StringValue}"));
+            fileName = $"{fileName}.{_config[CONFIG_FILEENDING_KEY].StringValue}";
+            Debug.Log($"Saving to File {fileName}");
+
+            _data.SaveToFileAsync(Path.Combine(_savePath, fileName));
         }
 
         /// <summary>
@@ -209,6 +218,17 @@ namespace FK.Saving
             }
 
             return _files;
+        }
+
+        // ######################## UTILITY ######################## //
+        /// <summary>
+        /// Removes all characters invalid for file names from a string and replaces spaces with _
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string MakeFileNameSafe(this string str)
+        {
+            return INVALID_FILENAME_CHARS.Replace(str, "").Replace(' ', '_');
         }
     }
 }
