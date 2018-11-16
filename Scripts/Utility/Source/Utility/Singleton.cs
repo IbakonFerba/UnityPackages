@@ -5,7 +5,7 @@ namespace FK.Utility
     /// <summary>
     /// <para>Base Class for Singleton MonoBehaviours</para>
     /// 
-    /// v1.0 06/2018
+    /// v1.1 11/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -27,7 +27,7 @@ namespace FK.Utility
         }
 
         // ######################## UNITY EVENT FUNCTIONS ######################## //
-        void Awake()
+        protected virtual void Awake()
         {
             if(!IsInitialized)
             {
@@ -46,7 +46,7 @@ namespace FK.Utility
             }
         }
 
-        private void OnDestroy()
+        protected virtual void OnDestroy()
         {
             if(Instance == this)
             {
