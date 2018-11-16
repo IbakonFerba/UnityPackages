@@ -10,7 +10,7 @@ namespace FK.Saving
     /// <summary>
     /// <para>A Window to edit the config of the Save Manager</para>
     ///
-    /// v1.0 11/2018
+    /// v1.1 11/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -36,7 +36,7 @@ namespace FK.Saving
         /// </summary>
         private static string ConfigPath => Path.Combine(Application.streamingAssetsPath, SaveManager.CONFIG_NAME);
 
-        
+
         // ######################## PRIVATE VARS ######################## //
         /// <summary>
         /// Backing for Config
@@ -54,6 +54,14 @@ namespace FK.Saving
                 Config[SaveManager.CONFIG_FOLDER_PATH_KEY].StringValue);
 
             EditorGUILayout.Space();
+            EditorGUI.BeginChangeCheck();
+            string fileEnding = EditorGUILayout.DelayedTextField(new GUIContent("File Ending", "File Ending for the save files"), Config[SaveManager.CONFIG_FILEENDING_KEY].StringValue);
+            if (EditorGUI.EndChangeCheck())
+            {
+                fileEnding = fileEnding.Replace(".", "");
+            }
+
+            EditorGUILayout.Space();
 
             bool autoNumber = EditorGUILayout.ToggleLeft(new GUIContent("Auto Number", "Makes the save manager automatically number the saves so each save has a unique name"),
                 Config[SaveManager.CONFIG_AUTONUMBER_KEY].BoolValue);
@@ -61,13 +69,14 @@ namespace FK.Saving
             {
                 string numberFormat = EditorGUILayout.TextField(new GUIContent("Numberformat"), Config[SaveManager.CONFIG_NUMBERFORMAT_KEY].StringValue);
 
-                Config.SetField(SaveManager.CONFIG_NUMBERFORMAT_KEY, numberFormat);
+                Config[SaveManager.CONFIG_NUMBERFORMAT_KEY].StringValue = numberFormat;
             }
 
             // set data
-            Config.SetField(SaveManager.CONFIG_SAVEMODE_KEY, (int) saveMode);
-            Config.SetField(SaveManager.CONFIG_FOLDER_PATH_KEY, folderPath);
-            Config.SetField(SaveManager.CONFIG_AUTONUMBER_KEY, autoNumber);
+            Config[SaveManager.CONFIG_SAVEMODE_KEY].IntValue = (int) saveMode;
+            Config[SaveManager.CONFIG_FOLDER_PATH_KEY].StringValue = folderPath;
+            Config[SaveManager.CONFIG_FILEENDING_KEY].StringValue = fileEnding;
+            Config[SaveManager.CONFIG_AUTONUMBER_KEY].BoolValue = autoNumber;
 
 
             GUILayout.Space(50);
@@ -94,6 +103,7 @@ namespace FK.Saving
         /// <summary>
         /// Loads and initializes the config
         /// </summary>
+        [InitializeOnLoadMethod]
         private static void InitConfig()
         {
             // make sure streaming assets exists
@@ -112,11 +122,12 @@ namespace FK.Saving
             catch (FileNotFoundException)
             {
                 _config = new JSONObject(JSONObject.Type.OBJECT);
-                
-                _config.AddField(SaveManager.CONFIG_SAVEMODE_KEY, (int) SaveManager.SaveModes.DOCUMENTS);
-                _config.AddField(SaveManager.CONFIG_FOLDER_PATH_KEY, $"My Games/{Application.productName}");
-                _config.AddField(SaveManager.CONFIG_AUTONUMBER_KEY, true);
-                _config.AddField(SaveManager.CONFIG_NUMBERFORMAT_KEY, "00000");
+
+                _config[SaveManager.CONFIG_SAVEMODE_KEY].IntValue = (int) SaveManager.SaveModes.DOCUMENTS;
+                _config[SaveManager.CONFIG_FOLDER_PATH_KEY].StringValue = $"My Games/{Application.productName}";
+                _config[SaveManager.CONFIG_FILEENDING_KEY].StringValue = "jsave";
+                _config[SaveManager.CONFIG_AUTONUMBER_KEY].BoolValue = true;
+                _config[SaveManager.CONFIG_NUMBERFORMAT_KEY].StringValue = "00000";
 
                 _config.SaveToFile(ConfigPath);
             }

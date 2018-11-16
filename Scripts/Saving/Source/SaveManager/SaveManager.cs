@@ -6,14 +6,14 @@ using UnityEngine;
 namespace FK.Saving
 {
     /// <summary>
-    /// <para>A static save manager that can load and save .json files from a specfied location.</para>
+    /// <para>A static save manager that can load and save json formatted files from a specfied location.</para>
     /// <para>Possible Locations are:</para>
     /// <para>- The Streaming Assets Folder</para>
     /// <para>- The Documents Folder</para>
     /// <para>- The persistent data path</para>
     /// <para>- A custom path</para>
     ///
-    /// v1.0 11/2018
+    /// v1.1 11/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -66,6 +66,7 @@ namespace FK.Saving
         public const string CONFIG_FOLDER_PATH_KEY = "FolderPath";
         public const string CONFIG_AUTONUMBER_KEY = "AutoNumber";
         public const string CONFIG_NUMBERFORMAT_KEY = "Numberformat";
+        public const string CONFIG_FILEENDING_KEY = "FileEnding";
 
         #endregion
         
@@ -184,7 +185,7 @@ namespace FK.Saving
                 fileName = $"{(overwrite ? _lastNumber : ++_lastNumber).ToString(_config[CONFIG_NUMBERFORMAT_KEY].StringValue)}_{fileName}";
             }
 
-            _data.SaveToFileAsync(Path.Combine(_savePath, $"{fileName}.json"));
+            _data.SaveToFileAsync(Path.Combine(_savePath, $"{fileName}.{_config[CONFIG_FILEENDING_KEY].StringValue}"));
         }
 
         /// <summary>
@@ -195,7 +196,7 @@ namespace FK.Saving
         {
             // get all .json files
             DirectoryInfo info = new DirectoryInfo(_savePath);
-            FileInfo[] files = info.GetFiles("*.json");
+            FileInfo[] files = info.GetFiles($"*.{_config[CONFIG_FILEENDING_KEY].StringValue}");
 
             // sort them from newest to oldest
             Array.Sort(files, (f1, f2) => f2.CreationTime.CompareTo(f1.CreationTime));
