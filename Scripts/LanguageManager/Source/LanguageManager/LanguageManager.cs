@@ -14,19 +14,12 @@ namespace FK.Language
     /// <para>This Language Manager works without being present in any scene. Everything concerning it is static.</para>
     /// <para>It loads the strings from a json file in the StreamingAssets folder. You can then set text in different languages either manually or use the language texts that manage language changes automatically</para>
     ///
-    /// v2.1 10/2018
+    /// v3.0 11/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
     public static class LanguageManager
     {
-        // ######################## ENUMS & DELEGATES ######################## //
-        /// <summary>
-        /// Delegate for the language change
-        /// </summary>
-        /// <param name="newLanguage"></param>
-        public delegate void LanguageChangedCallback(string newLanguage);
-
         // ######################## PROPERTIES ######################## //
         /// <summary>
         /// If this is false, the strings are not loaded yet. If you want to get strings on the start of the application, you should wait until this is true
@@ -170,17 +163,28 @@ namespace FK.Language
         /// <summary>
         /// This callback is invoked every time the language is changed
         /// </summary>
-        public static LanguageChangedCallback OnLanguageChanged;
+        public static Action<string> OnLanguageChanged;
 
         /// <summary>
         /// The default category that is used to look up a string when no category is provided
         /// </summary>
         public const string DEFAULT_CATEGORY = "default";
 
+        #region KEYS_AND_NAMES
+
         /// <summary>
         /// Key of the Object that contains all available languages
         /// </summary>
         public const string LANGUAGES_KEY = "Languages";
+
+        public const string CONFIG_NAME = "LanguageManagerConfig";
+        public const string CONFIG_LOAD_ASYNC_KEY = "LoadStringsAsync";
+        public const string CONFIG_STRINGS_FILE_NAME_KEY = "StringsFileName";
+        public const string CONFIG_USE_SYSTEM_LANG_DEFAULT_KEY = "UseSystemLanguageAsDefault";
+        public const string CONFIG_DEFAULT_LANG_KEY = "DefaultLanguageCode";
+        public const string CONFIG_USE_SAVED_LANG_KEY = "UseSavedLanguage";
+
+        #endregion
 
         // ######################## PRIVATE VARS ######################## //
         /// <summary>
@@ -197,6 +201,11 @@ namespace FK.Language
         /// The JSON Object containing all strings
         /// </summary>
         private static JSONObject _strings;
+
+        /// <summary>
+        /// All config data
+        /// </summary>
+        private static JSONObject _config;
 
         private static string _currentLanguage;
 
@@ -217,20 +226,39 @@ namespace FK.Language
         [RuntimeInitializeOnLoadMethod]
         private static void Init()
         {
-            // if there is no Language Manager Config, we cannot proceed
-            if (LanguageManagerConfig.Instance == null)
-                throw new NullReferenceException("Could not find a Language Manager Config! This should not happen, open the Language Manager to create one!");
+            _config = new JSONObject();
+#if !UNITY_EDITOR
+            CoroutineHost.Instance.StartCoroutine(InitAsync());
+#else
+            CoroutineHost.StartTrackedCoroutine(InitAsync(), _config, "LanguageManager");
+#endif
+        }
+
+        /// <summary>
+        /// Loads the config async and then loads the strings and initializes everything
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NullReferenceException"></exception>
+        private static IEnumerator InitAsync()
+        {
+            // calculate the path to the config file
+            string configPath = Path.Combine(Application.streamingAssetsPath, CONFIG_NAME + JSON_FILE_EXTENSION);
+
+#if !UNITY_EDITOR
+            yield return CoroutineHost.Instance.StartCoroutine(LoadConfigAsync(configPath));
+#else
+            yield return CoroutineHost.StartTrackedCoroutine(LoadConfigAsync(configPath), _config, "LanguageManager");
+#endif
 
             // get the current language
             // if we have a saved Language in the Player Prefs we load that
-            CurrentLanguage = LanguageManagerConfig.Instance.UseSavedLanguage && PlayerPrefs.HasKey("Lang") ? PlayerPrefs.GetString("Lang") : null;
-
+            CurrentLanguage = _config[CONFIG_USE_SAVED_LANG_KEY].BoolValue && PlayerPrefs.HasKey("Lang") ? PlayerPrefs.GetString("Lang") : null;
 
             // calculate the path to the strings file
-            string path = Path.Combine(Application.streamingAssetsPath, LanguageManagerConfig.Instance.StringsFileName + JSON_FILE_EXTENSION);
+            string path = Path.Combine(Application.streamingAssetsPath, _config[CONFIG_STRINGS_FILE_NAME_KEY].StringValue + JSON_FILE_EXTENSION);
 
             // now we need to load the file either asynchronously or synchronously
-            if (LanguageManagerConfig.Instance.LoadStringsAsync)
+            if (_config[CONFIG_LOAD_ASYNC_KEY].BoolValue)
             {
                 // load the file async
                 _strings = new JSONObject();
@@ -266,6 +294,21 @@ namespace FK.Language
         }
 
         /// <summary>
+        /// Loads the Config file async
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        /// <exception cref="NullReferenceException"></exception>
+        private static IEnumerator LoadConfigAsync(string path)
+        {
+            yield return JSONObject.LoadFromFileAsync(path, _config);
+
+            // if we have no config file, something is wrong!
+            if (_config?.IsNull ?? false)
+                throw new NullReferenceException($"Could not load Language Manager Config!");
+        }
+
+        /// <summary>
         /// Loads the strings asynchronously
         /// </summary>
         /// <param name="path"></param>
@@ -279,7 +322,7 @@ namespace FK.Language
             loadWatch.Start();
 #endif
             // wait for the JSONObject to load
-            yield return JSONObject.LoadFromFileAsync(path, _strings, -2);
+            yield return JSONObject.LoadFromFileAsync(path, _strings);
 
             // if the strings file does not have the Languages Object, we have a problem, abort!
             if (!_strings.HasField(LANGUAGES_KEY))
@@ -314,13 +357,13 @@ namespace FK.Language
             if (string.IsNullOrEmpty(CurrentLanguage) || !_strings[LANGUAGES_KEY].HasField(CurrentLanguage))
             {
                 // if we should use the system language and it is contained in the strings, use that
-                if (LanguageManagerConfig.Instance.UseSystemLanguageAsDefault && _strings[LANGUAGES_KEY].HasField(SystemLanguage))
+                if (_config[CONFIG_USE_SYSTEM_LANG_DEFAULT_KEY].BoolValue && _strings[LANGUAGES_KEY].HasField(SystemLanguage))
                 {
                     CurrentLanguage = SystemLanguage;
                 } // if we could not use the system language, use the default language if it is contained in the strings
-                else if (_strings[LANGUAGES_KEY].HasField(LanguageManagerConfig.Instance.DefaultLang))
+                else if (_strings[LANGUAGES_KEY].HasField(_config[CONFIG_DEFAULT_LANG_KEY].StringValue))
                 {
-                    CurrentLanguage = LanguageManagerConfig.Instance.DefaultLang;
+                    CurrentLanguage = _config[CONFIG_DEFAULT_LANG_KEY].StringValue;
                 }
                 else // we are out of options, just use the first language
                 {

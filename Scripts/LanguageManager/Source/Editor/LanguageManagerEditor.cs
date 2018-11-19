@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEditor;
 using UnityEditor.VersionControl;
 using UnityEditor.AnimatedValues;
@@ -15,7 +14,7 @@ namespace FK.Language
     /// <summary>
     /// <para>The Editor for the Language Manager. This allows the User to edit settings and strings files</para>
     ///
-    /// v1.8 11/2018
+    /// v2.0 11/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -26,6 +25,25 @@ namespace FK.Language
         /// Is the Editor window focused?
         /// </summary>
         public static bool IsFocused { get; private set; }
+        
+        /// <summary>
+        /// path to the Config File
+        /// </summary>
+        private static string ConfigFilePath => System.IO.Path.Combine(Application.streamingAssetsPath, LanguageManager.CONFIG_NAME + ".json");
+
+        /// <summary>
+        /// The Config Data
+        /// </summary>
+        private JSONObject Config
+        {
+            get
+            {
+                if(_config == null)
+                    LoadConfig();
+
+                return _config;
+            }
+        }
 
         /// <summary>
         /// Style for strings text areas with rich text disabled
@@ -174,11 +192,6 @@ namespace FK.Language
         /// </summary>
         private static readonly float VERTICAL_BUTTONS_INITIAL_SPACE = 3;
 
-        /// <summary>
-        /// File Path of the Config File
-        /// </summary>
-        private static string CONFIG_FILE_PATH = "Assets/LanguageManager/LanguageManagerConfig.asset";
-
         #endregion
 
         #region GUI
@@ -232,6 +245,11 @@ namespace FK.Language
         /// All the strings
         /// </summary>
         private JSONObject _strings;
+        
+        /// <summary>
+        /// Backing for Config
+        /// </summary>
+        private static JSONObject _config;
 
         /// <summary>
         /// Language codes of all languages in the strings
@@ -260,6 +278,13 @@ namespace FK.Language
         /// </summary>
         private void OnGUI()
         {
+            // Do nothing if in playmode
+            if (EditorApplication.isPlaying)
+            {
+                EditorGUILayout.HelpBox(new GUIContent("Cannot Edit Strings while in Playmode"));
+                GUI.enabled = false;
+            }
+
             GUILayout.Space(20);
             ShowSettings();
             GUILayout.Space(20);
@@ -284,15 +309,6 @@ namespace FK.Language
 
         // ######################## INITS ######################## //
         /// <summary>
-        /// This method is called when the Editor loads and initializes things that are not tied to the window
-        /// </summary>
-        [InitializeOnLoadMethod]
-        private static void Init()
-        {
-            EditorSceneManager.sceneOpened += OnSceneOpened;
-        }
-
-        /// <summary>
         /// Opens a Language Manager Window
         /// </summary>
         [MenuItem("Window/Language Manager", false, 50)]
@@ -301,7 +317,6 @@ namespace FK.Language
             LanguageManagerEditor window = (LanguageManagerEditor) GetWindow(typeof(LanguageManagerEditor));
             window.titleContent = new GUIContent("Language Manager");
             window.Show();
-            CheckConfig();
             window.ResetValues();
         }
 
@@ -326,59 +341,52 @@ namespace FK.Language
         // ######################## FUNCTIONALITY ######################## //
 
         #region CONFIG_MANAGEMENT
-
-        private static void OnSceneOpened(Scene s, OpenSceneMode mode)
-        {
-            SaveReference(s);
-        }
-
         /// <summary>
-        /// Saves a reference to the Language Manager config in the provided scene so the config is guaranted to make it into a build
+        /// Loads the Config
         /// </summary>
-        /// <param name="s"></param>
-        private static void SaveReference(Scene s)
+        private void LoadConfig()
         {
-            // look for a language manager reference instance in the scene
-            LanguageManagerReferences lmr = FindObjectOfType<LanguageManagerReferences>();
-
-            // if there is no instance, create one at the top of the hierarchy
-            if (lmr == null)
+            try
             {
-                lmr = new GameObject("<Language_Manager_References>", typeof(LanguageManagerReferences)).GetComponent<LanguageManagerReferences>();
-                lmr.transform.SetAsFirstSibling();
-                Debug.Log("Created Reference Container for Language Manager");
+                _config = JSONObject.LoadFromFile(ConfigFilePath);
             }
-
-            // if the instance we found or just created does not have a config reference set yet, try to add it
-            if (lmr.Config == null)
+            catch
             {
-                // if there is no config, warn the user
-                if (LanguageManagerConfig.Instance == null)
+                // if loading failed, create new config
+                _config = new JSONObject(JSONObject.Type.OBJECT);
+
+                _config[LanguageManager.CONFIG_LOAD_ASYNC_KEY].BoolValue = true;
+                _config[LanguageManager.CONFIG_STRINGS_FILE_NAME_KEY].StringValue = "strings";
+                _config[LanguageManager.CONFIG_USE_SYSTEM_LANG_DEFAULT_KEY].BoolValue = true;
+                _config[LanguageManager.CONFIG_DEFAULT_LANG_KEY].StringValue = "en";
+                _config[LanguageManager.CONFIG_USE_SAVED_LANG_KEY].BoolValue = true;
+                
+                // make sure streaming assets exists
+                if (!AssetDatabase.IsValidFolder("Assets/StreamingAssets"))
                 {
-                    Debug.LogWarning("Could not find a Language Manager Config! This should not happen, open the Language Manager to create one!");
-                    return;
-                }
+                    AssetDatabase.CreateFolder("Assets", "StreamingAssets");
 
-                // set the refernce and mark the scene as dirty (we shouldn't have touched it with our dirty hands :P)
-                lmr.Config = LanguageManagerConfig.Instance;
-                EditorSceneManager.MarkSceneDirty(s);
+                    AssetDatabase.Refresh();
+                }
+                
+                _config.SaveToFile(ConfigFilePath);
             }
         }
-
+        
         /// <summary>
-        /// Checks if a config exists and crates one if there is none
+        /// Checks out the config from version control
         /// </summary>
-        private static void CheckConfig()
+        private void CheckoutConfig()
         {
-            if (LanguageManagerConfig.Instance == null)
+            // if version Control is active, check out the file automatically if it is not yet checked out
+            if (Provider.isActive)
             {
-                // create a new config instance and make it an asset
-                LanguageManagerConfig config = ScriptableObject.CreateInstance<LanguageManagerConfig>();
-                AssetDatabase.CreateAsset(config, CONFIG_FILE_PATH);
-                Debug.Log("Created Language Manager Config");
+                // Get the version control asset of the file
+                Asset configFile = Provider.GetAssetByPath($"Assets/StreamingAssets/{LanguageManager.CONFIG_NAME}.json");
 
-                // save a reference to the config
-                SaveReference(EditorSceneManager.GetActiveScene());
+                // checkout the file if it is not checked out yet and wait until it is checked out
+                if (!Provider.IsOpenForEdit(configFile))
+                    Provider.Checkout(configFile, CheckoutMode.Asset).Wait();
             }
         }
 
@@ -418,7 +426,7 @@ namespace FK.Language
             if (Provider.isActive)
             {
                 // Get the version control asset of the file
-                Asset stringsFile = Provider.GetAssetByPath($"Assets/StreamingAssets/{LanguageManagerConfig.Instance.StringsFileName}.json");
+                Asset stringsFile = Provider.GetAssetByPath($"Assets/StreamingAssets/{Config[LanguageManager.CONFIG_STRINGS_FILE_NAME_KEY].StringValue}.json");
                 
                 // checkout the file if it is not checked out yet and wait until it is checked out
                 if (!Provider.IsOpenForEdit(stringsFile))
@@ -426,7 +434,7 @@ namespace FK.Language
             }
 
             // get the absolute path of the file
-            string path = System.IO.Path.Combine(Application.streamingAssetsPath, LanguageManagerConfig.Instance.StringsFileName + ".json");
+            string path = System.IO.Path.Combine(Application.streamingAssetsPath, Config[LanguageManager.CONFIG_STRINGS_FILE_NAME_KEY].StringValue + ".json");
             
             // try to save the file. If the access is denied, display a message to the user
             try
@@ -435,7 +443,7 @@ namespace FK.Language
             }
             catch (UnauthorizedAccessException)
             {
-                EditorUtility.DisplayDialog("Access Denied", $"The file {LanguageManagerConfig.Instance.StringsFileName}.json cannot be accessed, is it write protected?", "Close");
+                EditorUtility.DisplayDialog("Access Denied", $"The file {Config[LanguageManager.CONFIG_STRINGS_FILE_NAME_KEY].StringValue}.json cannot be accessed, is it write protected?", "Close");
                 return;
             }
             
@@ -452,7 +460,7 @@ namespace FK.Language
             _unsavedChanges = false;
 
             // try to load the file
-            string path = System.IO.Path.Combine(Application.streamingAssetsPath, LanguageManagerConfig.Instance.StringsFileName + ".json");
+            string path = System.IO.Path.Combine(Application.streamingAssetsPath, Config[LanguageManager.CONFIG_STRINGS_FILE_NAME_KEY].StringValue + ".json");
             try
             {
                 _strings = JSONObject.LoadFromFile(path);
@@ -464,7 +472,7 @@ namespace FK.Language
 
                 // add the default language
                 JSONObject languages = new JSONObject(JSONObject.Type.OBJECT);
-                languages.AddField(LanguageManagerConfig.Instance.DefaultLang, LanguageManagerConfig.Instance.DefaultLang);
+                languages.AddField(Config[LanguageManager.CONFIG_DEFAULT_LANG_KEY].StringValue, Config[LanguageManager.CONFIG_DEFAULT_LANG_KEY].StringValue);
                 _strings.AddField(LanguageManager.LANGUAGES_KEY, languages);
 
                 // add the default category
@@ -815,11 +823,11 @@ namespace FK.Language
                 EditorGUILayout.ToggleLeft(
                     new GUIContent("Load strings asynchronously",
                         "If set, the Language Manager will load the strings asynchronously without blocking the Main Thread"),
-                    LanguageManagerConfig.Instance.LoadStringsAsync);
+                    Config[LanguageManager.CONFIG_LOAD_ASYNC_KEY].BoolValue);
 
             string stringsFileName = EditorGUILayout.DelayedTextField(
                 new GUIContent("Strings File Name", "Name of the JSON file containing all strings in the Streaming Assets  (without file ending)"),
-                LanguageManagerConfig.Instance.StringsFileName);
+                Config[LanguageManager.CONFIG_STRINGS_FILE_NAME_KEY].StringValue);
 
             EditorGUILayout.Space();
 
@@ -827,45 +835,34 @@ namespace FK.Language
                 EditorGUILayout.ToggleLeft(
                     new GUIContent("Use saved language on Application start",
                         "If set, the Language Manager tries to load the language that was last used from the Player Prefs. If there is none or if the strings file does not contain the language, it will go through the other options after this"),
-                    LanguageManagerConfig.Instance.UseSystemLanguageAsDefault);
+                    Config[LanguageManager.CONFIG_USE_SYSTEM_LANG_DEFAULT_KEY].BoolValue);
 
             bool useSavedLanguage =
                 EditorGUILayout.ToggleLeft(
                     new GUIContent("Use system language as default",
                         "If set, the Language Manager uses the Language of the System of the user as the default language, if the strings file contains this language"),
-                    LanguageManagerConfig.Instance.UseSavedLanguage);
+                    Config[LanguageManager.CONFIG_USE_SAVED_LANG_KEY].BoolValue);
 
             string defaultLanguage =
                 EditorGUILayout.DelayedTextField(new GUIContent("Default Language", "Language Code of the Language to use as a default or as a fallback if the system language is not supported"),
-                    LanguageManagerConfig.Instance.DefaultLang);
+                    Config[LanguageManager.CONFIG_DEFAULT_LANG_KEY].StringValue);
 
 
             // set settings values
             if (EditorGUI.EndChangeCheck())
             {
-                // if version Control is active, check out the file automatically if it is not yet checked out
-                if (Provider.isActive)
-                {
-                    // Get the version control asset of the file
-                    Asset configFile = Provider.GetAssetByPath(CONFIG_FILE_PATH);
+                CheckoutConfig();
                 
-                    // checkout the file if it is not checked out yet and wait until it is checked out
-                    if (!Provider.IsOpenForEdit(configFile))
-                        Provider.Checkout(configFile, CheckoutMode.Asset).Wait();
-                }
-                
-                Undo.RecordObject(LanguageManagerConfig.Instance, "Changed Language Manager settings");
-                LanguageManagerConfig.Instance.LoadStringsAsync = loadAsync;
-                LanguageManagerConfig.Instance.StringsFileName = stringsFileName;
-                LanguageManagerConfig.Instance.UseSystemLanguageAsDefault = useSystemLanguage;
-                LanguageManagerConfig.Instance.UseSavedLanguage = useSavedLanguage;
-                LanguageManagerConfig.Instance.DefaultLang = defaultLanguage;
+                Config[LanguageManager.CONFIG_LOAD_ASYNC_KEY].BoolValue = loadAsync;
+                Config[LanguageManager.CONFIG_STRINGS_FILE_NAME_KEY].StringValue = stringsFileName;
+                Config[LanguageManager.CONFIG_USE_SYSTEM_LANG_DEFAULT_KEY].BoolValue = useSystemLanguage;
+                Config[LanguageManager.CONFIG_DEFAULT_LANG_KEY].StringValue = defaultLanguage;
+                Config[LanguageManager.CONFIG_USE_SAVED_LANG_KEY].BoolValue = useSavedLanguage;
 
                 // delete language key in player prefs so testing is easier
                 PlayerPrefs.DeleteKey("Lang");
 
-                // set config dirty
-                EditorUtility.SetDirty(LanguageManagerConfig.Instance);
+                Config.SaveToFile(ConfigFilePath);
             }
         }
 
