@@ -11,7 +11,7 @@ namespace FK.Editor.NodeEditor
     /// 
     /// <para>This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/ </para>
     /// 
-    /// v2.4 11/2018
+    /// v2.5 11/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -546,8 +546,7 @@ namespace FK.Editor.NodeEditor
                     // If the node has one of the Connection points, we need to delete the connection
                     if (node.InPoints.Search(Connections[i].InPoint) != -1 || node.OutPoints.Search(Connections[i].OutPoint) != -1)
                     {
-                        OnConnectionRemoved?.Invoke(Connections[i]);
-                        Connections.RemoveAt(i);
+                        RemoveConnection(Connections[i]);
                     }
                 }
             }
