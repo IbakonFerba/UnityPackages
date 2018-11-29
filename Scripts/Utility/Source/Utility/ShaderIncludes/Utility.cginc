@@ -17,24 +17,60 @@ int backface(float3 normal, float3 viewDir) {
    return dot(normal, viewDir) < 0;
 }
 
+/*  remaps the provided value to the new range
+*
+*   value - value to remap
+*   lowOrig - lowest value of original range
+*   highOrig - highest value of original range
+*   lowNew - lowest value of new range
+*   highNes - highest value of new range
+*/
+float remapFloat(float value, float lowOrig, float highOrig, float lowNew, float highNew) {
+    return lowNew + (value-lowOrig)*(highNew-lowNew)/(highOrig-lowOrig);
+}
+
+/*  remaps the provided value to the new range
+*
+*   value - value to remap
+*   lowOrig - lowest value of original range
+*   highOrig - highest value of original range
+*   lowNew - lowest value of new range
+*   highNes - highest value of new range
+*/
+half remapHalf(half value, half lowOrig, half highOrig, half lowNew, half highNew) {
+    return lowNew + (value-lowOrig)*(highNew-lowNew)/(highOrig-lowOrig);
+}
+
+/*  remaps the provided value to the new range
+*
+*   value - value to remap
+*   lowOrig - lowest value of original range
+*   highOrig - highest value of original range
+*   lowNew - lowest value of new range
+*   highNes - highest value of new range
+*/
+half remapFixed(fixed value, fixed lowOrig, fixed highOrig, fixed lowNew, fixed highNew) {
+    return lowNew + (value-lowOrig)*(highNew-lowNew)/(highOrig-lowOrig);
+}
+
 /*  returns a color that is the result of a triplanar mapping
 *
 *   texX - The texture that is used for the plane perpendicular to the X axis
 *   texY - The texture that is used for the plane perpendicular to the Y axis
 *   texZ - The texture that is used for the plane perpendicular to the Z axis
-*   localPos - Object Space Position of the fragment
-*   localNormal - Object Space Normal of the fragment
+*   pos - position of the fragment
+*   normal - normal of the fragment
 *   scale - scaling factor for the maps
 */
-fixed4 triplanarTex(sampler2D texX, sampler2D texY, sampler2D texZ, float3 localPos, float3 localNormal, float scale) {
+fixed4 triplanarTex(sampler2D texX, sampler2D texY, sampler2D texZ, float3 pos, float3 normal, float scale) {
     // Blending factor of triplanar mapping
-    half3 bf = normalize(abs(localNormal));
+    half3 bf = normalize(abs(normal));
     bf /= dot(bf, (float3)1);
     
     // Triplanar mapping
-    half2 tx = localPos.yz * scale;
-    half2 ty = localPos.zx * scale;
-    half2 tz = localPos.xy * scale;  
+    half2 tx = pos.yz * scale;
+    half2 ty = pos.zx * scale;
+    half2 tz = pos.xy * scale;  
      
     // Base colors
     half4 cx = tex2D(texX, tx) * bf.x;
@@ -52,19 +88,18 @@ fixed4 triplanarTex(sampler2D texX, sampler2D texY, sampler2D texZ, float3 local
 *   texY_ST - Scale and Translate of texY
 *   texZ - The texture that is used for the plane perpendicular to the Z axis
 *   texZ_ST - Scale and Translate of texZ
-*   localPos - Object Space Position of the fragment
-*   localNormal - Object Space Normal of the fragment
-*   scale - scaling factor for the maps
+*   pos - Position of the fragment
+*   normal - Normal of the fragment
 */
-fixed4 triplanarTex(sampler2D texX, float4 texX_ST, sampler2D texY, float4 texY_ST, sampler2D texZ,float4 texZ_ST, float3 localPos, float3 localNormal) {
+fixed4 triplanarTex(sampler2D texX, float4 texX_ST, sampler2D texY, float4 texY_ST, sampler2D texZ,float4 texZ_ST, float3 pos, float3 normal) {
     // Blending factor of triplanar mapping
-    half3 bf = normalize(abs(localNormal));
+    half3 bf = normalize(abs(normal));
     bf /= dot(bf, (float3)1);
     
     // Triplanar mapping
-    half2 tx = localPos.yz * texX_ST.xy + texX_ST.zw;
-    half2 ty = localPos.zx * texY_ST.xy + texY_ST.zw;
-    half2 tz = localPos.xy * texZ_ST.xy + texZ_ST.zw;  
+    half2 tx = pos.yz * texX_ST.xy + texX_ST.zw;
+    half2 ty = pos.zx * texY_ST.xy + texY_ST.zw;
+    half2 tz = pos.xy * texZ_ST.xy + texZ_ST.zw;  
      
     // Base colors
     half4 cx = tex2D(texX, tx) * bf.x;
@@ -72,6 +107,17 @@ fixed4 triplanarTex(sampler2D texX, float4 texX_ST, sampler2D texY, float4 texY_
     half4 cz = tex2D(texZ, tz) * bf.z;
     
     return cx+cy+cz;
+}
+
+/*  returns a color that is the result of a triplanar mapping
+*
+*   texX - The texture that is used for all planes
+*   tex_ST - Scale and Translate of tex
+*   pos - Position of the fragment
+*   normal - Normal of the fragment
+*/
+fixed4 triplanarTex(sampler2D tex, float4 tex_ST,  float3 pos, float3 normal) {
+    return triplanarTex(tex, tex_ST, tex, tex_ST, tex, tex_ST, pos, normal);
 }
 
 #endif
