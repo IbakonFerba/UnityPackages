@@ -11,7 +11,7 @@ namespace FK.Editor.NodeEditor
     /// 
     /// <para>This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/ </para>
     /// 
-    /// v2.5 11/2018
+    /// v2.6 12/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -74,18 +74,22 @@ namespace FK.Editor.NodeEditor
             {
                 if (_inPointStyle == null)
                 {
-                    _inPointStyle = new GUIStyle();
-                    _inPointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left.png") as Texture2D;
-                    _inPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left on.png") as Texture2D;
+                    _inPointStyle = new GUIStyle();              
                     _inPointStyle.border = new RectOffset(4, 4, 12, 12);
                 }
+
+                if(_inPointStyle.normal.background == null)
+                    _inPointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left.png") as Texture2D;
+                
+                if(_inPointStyle.active.background == null)
+                    _inPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left on.png") as Texture2D;
 
                 return _inPointStyle;
             }
         }
 
         /// <summary>
-        /// Style for an Ouptu
+        /// Style for an Ouput
         /// </summary>
         private GUIStyle OutPointStyle
         {
@@ -94,10 +98,14 @@ namespace FK.Editor.NodeEditor
                 if (_outPointStyle == null)
                 {
                     _outPointStyle = new GUIStyle();
-                    _outPointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right.png") as Texture2D;
-                    _outPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right on.png") as Texture2D;
                     _outPointStyle.border = new RectOffset(4, 4, 12, 12);
                 }
+                
+                if(_outPointStyle.normal.background == null)
+                    _outPointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right.png") as Texture2D;
+                
+                if(_outPointStyle.active.background == null)
+                    _outPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right on.png") as Texture2D;
 
                 return _outPointStyle;
             }
