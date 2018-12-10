@@ -7,11 +7,11 @@ namespace FK.Sequencing
     /// <summary>
     /// <para>Event Queue for things that should happen in Sequence</para>
     ///
-    /// v2.0 12/2018
+    /// v3.0 12/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
-    public static class EventQueue
+    public class EventQueue
     {
         // ######################## STRUCTS & CLASSES ######################## //
         /// <summary>
@@ -35,31 +35,25 @@ namespace FK.Sequencing
         }
 
         // ######################## PROPERTIES ######################## //
-        /// <summary>
-        /// Timer running between queue events
-        /// </summary>
-        private static Timer QueueTimer
-        {
-            get
-            {
-                if (_queueTimer == null)
-                    _queueTimer = new Timer(1f, NextQueueEvent);
-
-                return _queueTimer;
-            }
-        }
+        public bool Running { get; private set; }
+        
 
         // ######################## PRIVATE VARS ######################## //
         /// <summary>
         /// The queue of events
         /// </summary>
-        private static readonly List<QueueEvent> Queue = new List<QueueEvent>();
+        private readonly List<QueueEvent> Queue = new List<QueueEvent>();
 
         /// <summary>
-        /// Backing for QueueTimer
+        /// Timer running between queue events
         /// </summary>
-        private static Timer _queueTimer;
+        private readonly Timer _queueTimer;
 
+        // ######################## INITS ######################## //
+        public EventQueue()
+        {
+            _queueTimer = new Timer(1f, NextQueueEvent);
+        }
 
         // ######################## FUNCTIONALITY ######################## //
         /// <summary>
@@ -67,7 +61,7 @@ namespace FK.Sequencing
         /// </summary>
         /// <param name="action">Delegate for starting the event</param>
         /// <param name="data">Data object derived from EventData containing all the information the event needs</param>
-        public static void AddEvent(Action<EventData> action, EventData data)
+        public void AddEvent(Action<EventData> action, EventData data)
         {
             // create the event and add it to the queue
             QueueEvent evt = new QueueEvent()
@@ -76,32 +70,37 @@ namespace FK.Sequencing
                 Data = data
             };
             Queue.Add(evt);
-
-            // if the queue Timer is not running, the queue is not active, we need to start it
-            if (!QueueTimer.Running)
+            
+            // if the queue is not running we need to start it
+            if (!Running)
                 NextQueueEvent();
         }
 
         /// <summary>
         /// Activates the next Event and keeps the queue running until it is empty
         /// </summary>
-        private static void NextQueueEvent()
+        private void NextQueueEvent()
         {
             // if the queue is empty, stop
             if (Queue.Count <= 0)
+            {
+                Running = false;
                 return;
+            }
+
+            Running = true;
 
             // get the next event and remove it from the queue
             QueueEvent evt = Queue[0];
             Queue.RemoveAt(0);
 
             // set the timer to the duration of the event so it can trigger the next one after this is finished and invoke the event
-            QueueTimer.Duration = evt.Data.Duration;
+            _queueTimer.Duration = evt.Data.Duration;
             evt.Action?.Invoke(evt.Data);
 
             // Start the timer
-            QueueTimer.Reset();
-            QueueTimer.Start();
+            _queueTimer.Reset();
+            _queueTimer.Start();
         }
     }
 }
