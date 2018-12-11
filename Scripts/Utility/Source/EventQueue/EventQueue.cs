@@ -7,7 +7,7 @@ namespace FK.Sequencing
     /// <summary>
     /// <para>Event Queue for things that should happen in Sequence</para>
     ///
-    /// v3.0 12/2018
+    /// v3.1 12/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -36,6 +36,24 @@ namespace FK.Sequencing
 
         // ######################## PROPERTIES ######################## //
         public bool Running { get; private set; }
+
+        /// <summary>
+        /// If true, the Queue starts automatically as soon as there is one event in it
+        /// </summary>
+        public bool PlayAutomatic
+        {
+            get { return _autoplay; }
+            set
+            {
+                _autoplay = value; 
+                Start();
+            }
+        }
+
+        /// <summary>
+        /// Called when the last event of the Queue finished
+        /// </summary>
+        public Action OnQueueFinished;
         
 
         // ######################## PRIVATE VARS ######################## //
@@ -49,9 +67,16 @@ namespace FK.Sequencing
         /// </summary>
         private readonly Timer _queueTimer;
 
+        /// <summary>
+        /// Backing for PlayAutomatic
+        /// </summary>
+        private bool _autoplay;
+
         // ######################## INITS ######################## //
-        public EventQueue()
+        public EventQueue(bool autoplay, Action onQueueFinished = null)
         {
+            OnQueueFinished = onQueueFinished;
+            _autoplay = autoplay;
             _queueTimer = new Timer(1f, NextQueueEvent);
         }
 
@@ -72,8 +97,27 @@ namespace FK.Sequencing
             Queue.Add(evt);
             
             // if the queue is not running we need to start it
+            if (_autoplay && !Running)
+                NextQueueEvent();
+        }
+
+        /// <summary>
+        /// Starts the Queue
+        /// </summary>
+        public void Start()
+        {
             if (!Running)
                 NextQueueEvent();
+        }
+
+        /// <summary>
+        /// Stops the queue after the current event is done
+        /// </summary>
+        /// <param name="onStop"></param>
+        public void StopAfterCurrent(Action onStop)
+        {
+            _queueTimer.OnTimeElapsed = () => Running = false;
+            _queueTimer.OnTimeElapsed += onStop;
         }
 
         /// <summary>
@@ -85,6 +129,7 @@ namespace FK.Sequencing
             if (Queue.Count <= 0)
             {
                 Running = false;
+                OnQueueFinished?.Invoke();
                 return;
             }
 
@@ -96,6 +141,7 @@ namespace FK.Sequencing
 
             // set the timer to the duration of the event so it can trigger the next one after this is finished and invoke the event
             _queueTimer.Duration = evt.Data.Duration;
+            _queueTimer.OnTimeElapsed = NextQueueEvent;
             evt.Action?.Invoke(evt.Data);
 
             // Start the timer
