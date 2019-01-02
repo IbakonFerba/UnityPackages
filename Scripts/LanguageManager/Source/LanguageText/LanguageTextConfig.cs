@@ -5,7 +5,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-
+using FK.Utility;
 #if TEXT_MESH_PRO
 using TMPro;
 #endif
@@ -20,7 +20,7 @@ namespace FK.Language
     /// <summary>
     /// <para>This Component makes a Legacy or TMP Text a Language Dependent Text that automatically loads the correct string and updates if the Language is changed</para>
     ///
-    /// v2.0 01/2019
+    /// v2.1 01/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -62,7 +62,7 @@ namespace FK.Language
 #endif
 
         // ######################## UNITY EVENT FUNCTIONS ######################## //
-        private void Start()
+        private void Awake()
         {
             Init();
         }
@@ -112,7 +112,7 @@ namespace FK.Language
 #endif
                 // register for language changes and set initial text
                 LanguageManager.OnLanguageChanged += UpdateText;
-                StartCoroutine(SetInitialText());
+                CoroutineHost.Instance.StartCoroutine(SetInitialText());
 #if UNITY_EDITOR
             }
             else // if we are in edit mode, set the name of the object and make visible that the text that is displayed now is not the final text
