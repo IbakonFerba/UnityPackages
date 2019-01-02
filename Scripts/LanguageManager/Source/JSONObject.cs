@@ -16,7 +16,7 @@ namespace FK.JSON
     /// <para>It can load a JSON Object from a file via a static function and parse it into a usable form. You can then work with that object, access fields, change them and add new fields.</para>
     /// <para>Furthermore it can create a json string from an existing JSONObject and save that string to a file</para>
     ///
-    /// v2.4 10/2018
+    /// v3.0 11/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -63,6 +63,61 @@ namespace FK.JSON
         public bool FinishedParsing { get; private set; }
         public Type ObjectType { get; private set; }
 
+        public JSONObject this[string key]
+        {
+            get { return GetField(key); }
+            set { SetField(key, value); }
+        }
+
+        public JSONObject this[int index]
+        {
+            get
+            {
+                // if there is a list and it contains this index, return the value
+                if (_list != null && _list.Count > index)
+                    return _list[index];
+
+                throw new IndexOutOfRangeException();
+            }
+            set
+            {
+                // dont add null values
+                if (value == null)
+                    return;
+
+                // make sure the index exist
+                if (index > Count - 1)
+                    throw new IndexOutOfRangeException();
+
+                // if the list exists, set the value
+                if (_list != null)
+                    _list[index] = value;
+            }
+        }
+
+        /// <summary>
+        /// The amount of elements in this Object
+        /// </summary>
+        public int Count
+        {
+            get
+            {
+                if (_list != null)
+                    return _list.Count;
+
+                return -1;
+            }
+        }
+
+
+        /// <summary>
+        /// <para>All keys of the JSON Object.</para>
+        /// <para>WARNING: This creates a new Array every time you call it!</para>
+        /// </summary>
+        public string[] Keys => _keys?.ToArray();
+
+        #region OBJECT_TYPE_BOOLS
+
         /// <summary>
         /// If true, this JSONObject is a proper Object with key-value-pairs
         /// </summary>
@@ -98,64 +153,104 @@ namespace FK.JSON
         /// </summary>
         public bool IsNull => ObjectType == Type.NULL;
 
-        public string StringValue => _string;
-        public float FloatValue => (float) _number;
-        public double DoubleValue => _number;
-        public int IntValue => (int) _integerNumber;
-        public long LongValue => _integerNumber;
-        public bool BoolValue => _bool;
+        #endregion
+
+        #region VALUES
 
         /// <summary>
-        /// <para>All keys of the JSON Object.</para>
-        /// <para>WARNING: This creates a new Array every time you call it!</para>
+        /// Returns the string value of the Object. If you set it, this object will become a string object, even if it wasn't before. If it was an array or an object before, that data is lost!
         /// </summary>
-        public string[] Keys => _keys?.ToArray();
-
-        public JSONObject this[string key]
+        public string StringValue
         {
-            get { return GetField(key); }
-            set { SetField(key, value); }
-        }
-
-        public JSONObject this[int index]
-        {
-            get
-            {
-                // if there is a list and it contains this index, return the value
-                if (_list != null && _list.Count > index)
-                    return _list[index];
-
-                throw new IndexOutOfRangeException();
-            }
+            get { return _string; }
             set
             {
-                // dont add null values
-                if (value == null)
-                    return;
-
-                // make sure the index exitst
-                if (index > Count - 1)
-                    throw new IndexOutOfRangeException();
-
-                // if the list exists, set the value
-                if (_list != null)
-                    _list[index] = value;
+                if (IsObject || IsArray)
+                    ClearObjectLists();
+                ObjectType = Type.STRING;
+                _string = value;
             }
         }
 
         /// <summary>
-        /// The amount of elements in this Object
+        /// Returns the float value of the Object. If you set it, this object will become a float object, even if it wasn't before. If it was an array or an object before, that data is lost!
         /// </summary>
-        public int Count
+        public float FloatValue
         {
-            get
+            get { return (float) _number; }
+            set
             {
-                if (_list != null)
-                    return _list.Count;
-
-                return -1;
+                if (IsObject || IsArray)
+                    ClearObjectLists();
+                ObjectType = Type.NUMBER;
+                _number = value;
             }
         }
+
+        /// <summary>
+        /// Returns the double value of the Object. If you set it, this object will become a double object, even if it wasn't before. If it was an array or an object before, that data is lost!
+        /// </summary>
+        public double DoubleValue
+        {
+            get { return _number; }
+            set
+            {
+                if (IsObject || IsArray)
+                    ClearObjectLists();
+                ObjectType = Type.NUMBER;
+                _number = value;
+            }
+        }
+
+        /// <summary>
+        /// Returns the int value of the Object. If you set it, this object will become a int object, even if it wasn't before. If it was an array or an object before, that data is lost!
+        /// </summary>
+        public int IntValue
+        {
+            get { return (int) _integerNumber; }
+            set
+            {
+                if (IsObject || IsArray)
+                    ClearObjectLists();
+                ObjectType = Type.NUMBER;
+                _useInt = true;
+                _integerNumber = value;
+            }
+        }
+
+        /// <summary>
+        /// Returns the long value of the Object. If you set it, this object will become a long object, even if it wasn't before. If it was an array or an object before, that data is lost!
+        /// </summary>
+        public long LongValue
+        {
+            get { return _integerNumber; }
+            set
+            {
+                if (IsObject || IsArray)
+                    ClearObjectLists();
+                ObjectType = Type.NUMBER;
+                _useInt = true;
+                _integerNumber = value;
+            }
+        }
+
+        /// <summary>
+        /// Returns the bool value of the Object. If you set it, this object will become a bool object, even if it wasn't before. If it was an array or an object before, that data is lost!
+        /// </summary>
+        public bool BoolValue
+        {
+            get { return _bool; }
+            set
+            {
+                if (IsObject || IsArray)
+                    ClearObjectLists();
+                ObjectType = Type.BOOL;
+                _bool = value;
+            }
+        }
+
+        #endregion
+
 
         // ######################## PRIVATE VARS ######################## //
         /// <summary>
@@ -916,11 +1011,125 @@ namespace FK.JSON
         #region GET_FIELD
 
         /// <summary>
-        /// Returns the requested Field as a JSONObject
+        /// Returns the requested Field as a JSONObject. If the field does not exist, it will be added and this object will become of type Object
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
         public JSONObject GetField(string key)
+        {
+            if (!HasField(key))
+                AddField(key, new JSONObject(Type.NULL));
+
+            int i = _keys.IndexOf(key);
+            return _list[i];
+        }
+
+        /// <summary>
+        /// Returns the requested Field as a string. If the field does not exist, it will be added and this object will become of type Object
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public string GetStringField(string key)
+        {
+            if (!HasField(key))
+                AddField(key, new JSONObject(Type.STRING));
+
+            int i = _keys.IndexOf(key);
+            if (!_list[i].IsString)
+                Debug.LogWarning($"Accessing field \"{key}\" of type {_list[i].ObjectType.ToString()} as a String!");
+            return _list[i].StringValue;
+        }
+
+        /// <summary>
+        /// Returns the requested Field as a float. If the field does not exist, it will be added and this object will become of type Object
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public float GetFloatField(string key)
+        {
+            if (!HasField(key))
+                AddField(key, new JSONObject(0.0f));
+
+            int i = _keys.IndexOf(key);
+            if (!_list[i].IsNumber)
+                Debug.LogWarning($"Accessing field \"{key}\" of type {_list[i].ObjectType.ToString()} as a Float!");
+            return _list[i].FloatValue;
+        }
+
+        /// <summary>
+        /// Returns the requested Field as a Double. If the field does not exist, it will be added and this object will become of type Object
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public double GetDoubleField(string key)
+        {
+            if (!HasField(key))
+                AddField(key, new JSONObject(0.0d));
+
+            int i = _keys.IndexOf(key);
+            if (!_list[i].IsNumber)
+                Debug.LogWarning($"Accessing field \"{key}\" of type {_list[i].ObjectType.ToString()} as a Double!");
+            return _list[i].DoubleValue;
+        }
+
+        /// <summary>
+        /// Returns the requested Field as a int. If the field does not exist, it will be added and this object will become of type Object
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public int GetIntField(string key)
+        {
+            if (!HasField(key))
+                AddField(key, new JSONObject(0));
+
+            int i = _keys.IndexOf(key);
+            if (!_list[i].IsInteger)
+                Debug.LogWarning($"Accessing field \"{key}\" of type {_list[i].ObjectType.ToString()} as an Int!");
+            return _list[i].IntValue;
+        }
+
+        /// <summary>
+        /// Returns the requested Field as a long. If the field does not exist, it will be added and this object will become of type Object
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public long GetLongField(string key)
+        {
+            if (!HasField(key))
+                AddField(key, new JSONObject(0L));
+
+            int i = _keys.IndexOf(key);
+            if (!_list[i].IsInteger)
+                Debug.LogWarning($"Accessing field \"{key}\" of type {_list[i].ObjectType.ToString()} as an Int!");
+            return _list[i].LongValue;
+        }
+
+        /// <summary>
+        /// Returns the requested Field as a bool. If the field does not exist, it will be added and this object will become of type Object
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public bool GetBoolField(string key)
+        {
+            if (!HasField(key))
+                AddField(key, new JSONObject(Type.BOOL));
+
+            int i = _keys.IndexOf(key);
+            if (!_list[i].IsBool)
+                Debug.LogWarning($"Accessing field \"{key}\" of type {_list[i].ObjectType.ToString()} as bool!");
+            return _list[i].BoolValue;
+        }
+
+        #endregion
+
+        #region GET_FIELD_SAFE
+
+        /// <summary>
+        /// Returns the requested Field as a JSONObject. If the field does not exist, the object is not changed and null is returned
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public JSONObject GetFieldSafe(string key)
         {
             if (ObjectType != Type.OBJECT)
             {
@@ -938,11 +1147,11 @@ namespace FK.JSON
         }
 
         /// <summary>
-        /// Returns the requested Field as a string
+        /// Returns the requested Field as a string. If the field does not exist, the object is not changed and null is returned
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public string GetStringField(string key)
+        public string GetStringFieldSafe(string key)
         {
             if (ObjectType != Type.OBJECT)
             {
@@ -963,11 +1172,11 @@ namespace FK.JSON
         }
 
         /// <summary>
-        /// Returns the requested Field as a float
+        /// Returns the requested Field as a float. If the field does not exist, the object is not changed and 0 is returned
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public float GetFloatField(string key)
+        public float GetFloatFieldSafe(string key)
         {
             if (ObjectType != Type.OBJECT)
             {
@@ -988,11 +1197,11 @@ namespace FK.JSON
         }
 
         /// <summary>
-        /// Returns the requested Field as a Double
+        /// Returns the requested Field as a Double. If the field does not exist, the object is not changed and 0 is returned
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public double GetDoubleField(string key)
+        public double GetDoubleFieldSafe(string key)
         {
             if (ObjectType != Type.OBJECT)
             {
@@ -1013,11 +1222,11 @@ namespace FK.JSON
         }
 
         /// <summary>
-        /// Returns the requested Field as a int
+        /// Returns the requested Field as a int. If the field does not exist, the object is not changed and 0 is returned
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public int GetIntField(string key)
+        public int GetIntFieldSafe(string key)
         {
             if (ObjectType != Type.OBJECT)
             {
@@ -1038,11 +1247,11 @@ namespace FK.JSON
         }
 
         /// <summary>
-        /// Returns the requested Field as a long
+        /// Returns the requested Field as a long. If the field does not exist, the object is not changed and 0 is returned
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public long GetLongField(string key)
+        public long GetLongFieldSafe(string key)
         {
             if (ObjectType != Type.OBJECT)
             {
@@ -1063,11 +1272,11 @@ namespace FK.JSON
         }
 
         /// <summary>
-        /// Returns the requested Field as a bool
+        /// Returns the requested Field as a bool. If the field does not exist, the object is not changed and false is returned
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public bool GetBoolField(string key)
+        public bool GetBoolFieldSafe(string key)
         {
             if (ObjectType != Type.OBJECT)
             {
@@ -1873,6 +2082,8 @@ namespace FK.JSON
 
         #endregion
 
+        #region FIELD_MANAGEMENT
+
         /// <summary>
         /// Moves the field to a new index. Allows you to restructure a JSON Object
         /// </summary>
@@ -2004,6 +2215,8 @@ namespace FK.JSON
             return _keys.Contains(key);
         }
 
+        #endregion
+
         public string GetKeyAt(int index)
         {
             if (ObjectType != Type.OBJECT)
@@ -2038,6 +2251,12 @@ namespace FK.JSON
         public IEnumerator GetEnumerator()
         {
             return new JSONObjectEnumerator(this);
+        }
+
+        private void ClearObjectLists()
+        {
+            _keys?.Clear();
+            _list?.Clear();
         }
     }
 
