@@ -29,3 +29,6 @@ Create Constants by pressing `CTRL+ALT+C` or by navigating to `Tools/Generate Co
 
 ## JSON
 - In the namespace `FK.JSON`, this Package contains a JSONObject that is able to load a .json file and parse it into a usable form in which it can be accessed and edited and that can be reparsed into a string and saved into a file.
+
+## EventQueue
+- A static Event Queue for things that should happen in Sequence. Events can be added as a delegate along with some data and a duration. The queue will work through them in the order they where added until it is empty

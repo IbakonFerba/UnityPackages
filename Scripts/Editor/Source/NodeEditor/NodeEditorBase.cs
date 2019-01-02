@@ -11,7 +11,7 @@ namespace FK.Editor.NodeEditor
     /// 
     /// <para>This was created using this Tutorial as a base: http://gram.gs/gramlog/creating-node-based-editor-unity/ </para>
     /// 
-    /// v2.2 06/2018
+    /// v2.6 12/2018
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -19,9 +19,112 @@ namespace FK.Editor.NodeEditor
     /// <typeparam name="TNodeData"></typeparam>
     public class NodeEditorBase<TNode, TNodeData> : EditorWindow where TNode : Node<TNode, TNodeData>, new() where TNodeData : NodeDataBase, new()
     {
-        // ######################## DELEGATES ######################## //
-        public delegate void DelOnConnectionMade(Connection<TNode, TNodeData> connection);
-        public delegate void DelOnConnectionRemoved(Connection<TNode, TNodeData> connection);
+        // ######################## PROPERTIES ######################## //
+
+        #region STYLES
+
+        /// <summary>
+        /// Style for an unselected node
+        /// </summary>
+        private GUIStyle NodeStyle
+        {
+            get
+            {
+                if (_nodeStyle == null)
+                    _nodeStyle = new GUIStyle(GUI.skin.box);
+                
+                if (_nodeBackground == null)
+                {
+                    _nodeBackground = EditorUtils.GetBackgroundColor(new Color(0.4f, 0.4f, 0.4f));
+                    _nodeStyle.normal.background = _nodeBackground;
+                }
+
+                return _nodeStyle;
+            }
+        }
+
+        /// <summary>
+        /// Style for a selected node
+        /// </summary>
+        private GUIStyle SelectedNodeStyle
+        {
+            get
+            {
+                if (_selectedNodeStyle == null)
+                {
+                    _selectedNodeStyle = new GUIStyle(GUI.skin.box);
+                }
+
+                if (_selectedNodeBackground == null)
+                {
+                    _selectedNodeBackground = EditorUtils.GetBackgroundColor(new Color(0.4f, 0.5f, 0.6f));
+                    _selectedNodeStyle.normal.background = _selectedNodeBackground;
+                }
+                
+                return _selectedNodeStyle;
+            }
+        }
+
+        /// <summary>
+        /// Style for an Input
+        /// </summary>
+        private GUIStyle InPointStyle
+        {
+            get
+            {
+                if (_inPointStyle == null)
+                {
+                    _inPointStyle = new GUIStyle();              
+                    _inPointStyle.border = new RectOffset(4, 4, 12, 12);
+                }
+
+                if(_inPointStyle.normal.background == null)
+                    _inPointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left.png") as Texture2D;
+                
+                if(_inPointStyle.active.background == null)
+                    _inPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left on.png") as Texture2D;
+
+                return _inPointStyle;
+            }
+        }
+
+        /// <summary>
+        /// Style for an Ouput
+        /// </summary>
+        private GUIStyle OutPointStyle
+        {
+            get
+            {
+                if (_outPointStyle == null)
+                {
+                    _outPointStyle = new GUIStyle();
+                    _outPointStyle.border = new RectOffset(4, 4, 12, 12);
+                }
+                
+                if(_outPointStyle.normal.background == null)
+                    _outPointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right.png") as Texture2D;
+                
+                if(_outPointStyle.active.background == null)
+                    _outPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right on.png") as Texture2D;
+
+                return _outPointStyle;
+            }
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Returns the next ID that can be used
+        /// </summary>
+        public int NextNodeID
+        {
+            get
+            {
+                int nextID = ++Data.LastNodeId;
+                SetDataDirty();
+                return nextID;
+            }
+        }
 
         // ######################## PUBLIC VARS ######################## //
         /// <summary>
@@ -32,24 +135,12 @@ namespace FK.Editor.NodeEditor
         /// <summary>
         /// This Delegate is invoked whenever a connection is made
         /// </summary>
-        public DelOnConnectionMade OnConnectionMade;
+        public System.Action<Connection<TNode, TNodeData>> OnConnectionMade;
+
         /// <summary>
         /// This Delegate is invoked whenever a connection is removed 
         /// </summary>
-        public DelOnConnectionRemoved OnConnectionRemoved;
-
-        /// <summary>
-        /// Returns the next ID that can be used
-        /// </summary>
-        public int NextNodeID
-        {
-            get
-            {
-                int nextID = ++_data.LastNodeId;
-                SetDataDirty();
-                return nextID;
-            }
-        }
+        public System.Action<Connection<TNode, TNodeData>> OnConnectionRemoved;
 
         // ######################## PROTECTED VARS ######################## //
         protected const int DEFAULT_NODE_WIDTH = 200;
@@ -68,7 +159,7 @@ namespace FK.Editor.NodeEditor
         /// <summary>
         /// The Data we are currently editing
         /// </summary>
-        protected NodeEditableObject<TNodeData> _data;
+        protected NodeEditableObject<TNodeData> Data;
 
         // ######################## PRIVATE VARS ######################## //
         /// <summary>
@@ -80,6 +171,7 @@ namespace FK.Editor.NodeEditor
         /// Currently selected In Point
         /// </summary>
         private ConnectionPoint<TNode, TNodeData> _selectedInPoint;
+
         /// <summary>
         /// Currently Selected Out Point
         /// </summary>
@@ -90,18 +182,23 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         private Vector2 _drag;
 
+        #region GUI
+
         /// <summary>
         /// GUI Style for In Points
         /// </summary>
         private GUIStyle _inPointStyle;
+
         /// <summary>
         /// GUI Style for Out Points
         /// </summary>
         private GUIStyle _outPointStyle;
+
         /// <summary>
         /// GUI Style for Nodes that are not selected
         /// </summary>
         private GUIStyle _nodeStyle;
+
         /// <summary>
         /// GUI Style for selected nodes
         /// </summary>
@@ -110,32 +207,24 @@ namespace FK.Editor.NodeEditor
         /// <summary>
         /// Background Color as 1x1 Texture2D
         /// </summary>
-        private Texture2D Background;
+        private Texture2D _background;
 
+        /// <summary>
+        /// Unselected Node Background
+        /// </summary>
+        private Texture2D _nodeBackground;
+
+        /// <summary>
+        /// Selected Node Background
+        /// </summary>
+        private Texture2D _selectedNodeBackground;
+
+        #endregion
 
 
         // ######################## UNITY START & UPDATE ######################## //
         protected virtual void OnEnable()
         {
-            //create GUI Styles
-            _nodeStyle = new GUIStyle();
-            _nodeStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node0.png") as Texture2D;
-            _nodeStyle.border = new RectOffset(12, 12, 12, 12);
-
-            _selectedNodeStyle = new GUIStyle();
-            _selectedNodeStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node0 on.png") as Texture2D;
-            _selectedNodeStyle.border = new RectOffset(12, 12, 12, 12);
-
-            _inPointStyle = new GUIStyle();
-            _inPointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left.png") as Texture2D;
-            _inPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left on.png") as Texture2D;
-            _inPointStyle.border = new RectOffset(4, 4, 12, 12);
-
-            _outPointStyle = new GUIStyle();
-            _outPointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right.png") as Texture2D;
-            _outPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right on.png") as Texture2D;
-            _outPointStyle.border = new RectOffset(4, 4, 12, 12);
-
             CreateBackground();
         }
 
@@ -147,15 +236,15 @@ namespace FK.Editor.NodeEditor
         protected virtual void OnGUI()
         {
             // draw the grid in the background
-            if (Background == null)
+            if (_background == null)
                 CreateBackground();
 
-            GUI.DrawTexture(new Rect(0, 0, position.width, position.height), Background, ScaleMode.StretchToFill);
+            GUI.DrawTexture(new Rect(0, 0, position.width, position.height), _background, ScaleMode.StretchToFill);
             DrawGrid(20, 0.2f, Color.gray);
             DrawGrid(100, 0.4f, Color.gray);
 
             // Do nothing of the following if we have no data
-            if (_data == null)
+            if (Data == null)
                 return;
 
             // draw connections
@@ -169,9 +258,9 @@ namespace FK.Editor.NodeEditor
             ProcessEvents(Event.current);
 
             // save the offset
-            if(_data.EditorOffset != Offset)
+            if (Data.EditorOffset != Offset)
             {
-                _data.EditorOffset = Offset;
+                Data.EditorOffset = Offset;
                 SetDataDirty();
             }
 
@@ -191,13 +280,13 @@ namespace FK.Editor.NodeEditor
             Clear();
 
             // save a reference to the data
-            _data = data;
+            Data = data;
 
             // set offset from Data
             Offset = data.EditorOffset;
 
             // if there are no nodes in the data, let the programmer decide what to do, else load the data
-            if (_data.Nodes == null || _data.Nodes.Count == 0)
+            if (Data.Nodes == null || Data.Nodes.Count == 0)
             {
                 InitEmpty();
                 SetDataDirty();
@@ -214,7 +303,9 @@ namespace FK.Editor.NodeEditor
         /// <summary>
         /// Is called when empty data is loaded
         /// </summary>
-        protected virtual void InitEmpty() { }
+        protected virtual void InitEmpty()
+        {
+        }
 
         /// <summary>
         /// Clears the viewport of the editor by removing all nodes, connections and resetting the offset
@@ -228,59 +319,8 @@ namespace FK.Editor.NodeEditor
         }
 
         // ######################## FUNCTIONALITY ######################## //
-        /// <summary>
-        /// Loads all Nodes an Connections from the data
-        /// </summary>
-        private void LoadData()
-        {
-            // Load Nodes first
-            foreach (NodeDataBase node in _data.Nodes)
-            {
-                // add the node
-                TNode n = new TNode();
-                n.SetUp(this, node.ID, Vector2.zero, node.Width, node.PreferredHeight, node.Inputs.Length, node.Outputs.Length);
-                AddNode(node.PositionInEditor, n);
-            }
 
-            // now load the connections. To do this, we go through all nodes and look at the Inputs of them. 
-            // Each Node that is referenced in an Input must have the node we are looking at as an output, we check that and create the connection between the correct points
-            foreach (TNode node in Nodes)
-            {
-                // look at all Inputs of this node
-                for (int i = 0; i < node.Data.Inputs.Length; ++i)
-                {
-                    // if there are no nodes connected to this input, look ath th next one
-                    if (node.Data.Inputs[i].Connections == null || node.Data.Inputs[i].Connections.Count == 0)
-                        continue;
-
-                    // go through each ID at this Input
-                    foreach (NodeConnectionData connection in node.Data.Inputs[i].Connections)
-                    {
-                        // now look ar all other nodes. If any node matches the ID that is saved at the Current input, these two should have a connection
-                        foreach (TNode otherNode in Nodes)
-                        {
-                            if (otherNode.ID == connection.NodeID)
-                            {
-                                // go through all outputs of the other node
-                                for (int j = 0; j < otherNode.Data.Outputs.Length; ++j)
-                                {
-                                    // if there are no nodes connected to this output, look at th next one
-                                    if (otherNode.Data.Outputs[j].Connections == null || otherNode.Data.Outputs[j].Connections.Count == 0)
-                                        continue;
-
-                                    // of this output contains the node we are currently checking, make the connection
-                                    if (otherNode.Data.Outputs[j].Contains(node.ID, i))
-                                    {
-                                        CreateConnection(node.InPoints[i], otherNode.OutPoints[j]);
-                                    }
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        #region GUI
 
         /// <summary>
         /// Draws all nodes from oldest to newest
@@ -328,6 +368,77 @@ namespace FK.Editor.NodeEditor
             }
         }
 
+        #endregion
+
+        /// <summary>
+        /// Loads all Nodes an Connections from the data
+        /// </summary>
+        private void LoadData()
+        {
+            // Load Nodes first
+            foreach (NodeDataBase node in Data.Nodes)
+            {
+                // add the node
+                TNode n = new TNode();
+                bool[] allowMultipleConnectionsIn = new bool[node.Inputs.Length];
+                for (int i = 0; i < allowMultipleConnectionsIn.Length; ++i)
+                {
+                    allowMultipleConnectionsIn[i] = node.Inputs[i].AllowMultipleConnections;
+                }
+
+                bool[] allowMultipleConnectionsOut = new bool[node.Outputs.Length];
+                for (int i = 0; i < allowMultipleConnectionsOut.Length; ++i)
+                {
+                    allowMultipleConnectionsOut[i] = node.Outputs[i].AllowMultipleConnections;
+                }
+
+                n.SetUp(this, node.ID, Vector2.zero, node.Width, node.PreferredHeight, node.Inputs.Length, allowMultipleConnectionsIn, node.Outputs.Length, allowMultipleConnectionsOut,
+                    node.Deletable);
+                AddNode(node.PositionInEditor, n);
+            }
+
+            // now load the connections. To do this, we go through all nodes and look at the Inputs of them. 
+            // Each Node that is referenced in an Input must have the node we are looking at as an output, we check that and create the connection between the correct points
+            foreach (TNode node in Nodes)
+            {
+                // look at all Inputs of this node
+                for (int i = 0; i < node.Data.Inputs.Length; ++i)
+                {
+                    // if there are no nodes connected to this input, look ath th next one
+                    if (node.Data.Inputs[i].Connections == null || node.Data.Inputs[i].Connections.Count == 0)
+                        continue;
+
+                    // go through each ID at this Input
+                    foreach (NodeConnectionData connection in node.Data.Inputs[i].Connections)
+                    {
+                        // now look ar all other nodes. If any node matches the ID that is saved at the Current input, these two should have a connection
+                        foreach (TNode otherNode in Nodes)
+                        {
+                            if (otherNode.ID == connection.NodeID)
+                            {
+                                // go through all outputs of the other node
+                                for (int j = 0; j < otherNode.Data.Outputs.Length; ++j)
+                                {
+                                    // if there are no nodes connected to this output, look at th next one
+                                    if (otherNode.Data.Outputs[j].Connections == null || otherNode.Data.Outputs[j].Connections.Count == 0)
+                                        continue;
+
+                                    // of this output contains the node we are currently checking, make the connection
+                                    if (otherNode.Data.Outputs[j].Contains(node.ID, i))
+                                    {
+                                        CreateConnection(node.InPoints[i], otherNode.OutPoints[j]);
+                                    }
+                                }
+
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
         /// <summary>
         /// Passes an event on to Nodes and processes it
         /// </summary>
@@ -355,6 +466,7 @@ namespace FK.Editor.NodeEditor
                     {
                         ClearConnectionSelection();
                     }
+
                     break;
 
                 case EventType.MouseDrag:
@@ -363,6 +475,7 @@ namespace FK.Editor.NodeEditor
                     {
                         OnDrag(e.delta);
                     }
+
                     break;
             }
         }
@@ -380,7 +493,7 @@ namespace FK.Editor.NodeEditor
             // pass the event to all nodes
             for (int i = Nodes.Count - 1; i >= 0; --i)
             {
-                GUI.changed = Nodes[i].ProcessEvents(e) ? true : GUI.changed;
+                GUI.changed = Nodes[i].ProcessEvents(e) || GUI.changed;
             }
         }
 
@@ -418,10 +531,11 @@ namespace FK.Editor.NodeEditor
             TNode node = template.Clone() as TNode;
 
             // initialize the node and add it to the list
-            node.Init(mousePosition, _nodeStyle, _selectedNodeStyle, _inPointStyle, _outPointStyle, OnClickInPoint, OnClickOutPoint, RemoveNode);
+            node.Init(mousePosition, NodeStyle, SelectedNodeStyle, InPointStyle, OutPointStyle, OnClickInPoint, OnClickOutPoint, RemoveNode);
             Nodes.Add(node);
 
             SetDataDirty();
+            Repaint();
             return node;
         }
 
@@ -440,7 +554,7 @@ namespace FK.Editor.NodeEditor
                     // If the node has one of the Connection points, we need to delete the connection
                     if (node.InPoints.Search(Connections[i].InPoint) != -1 || node.OutPoints.Search(Connections[i].OutPoint) != -1)
                     {
-                        Connections.RemoveAt(i);
+                        RemoveConnection(Connections[i]);
                     }
                 }
             }
@@ -534,21 +648,25 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         protected void CreateConnection()
         {
+            if ((!_selectedInPoint.AllowMultipleConnections && _selectedInPoint.Connections > 0) || (!_selectedOutPoint.AllowMultipleConnections && _selectedOutPoint.Connections > 0))
+                return;
+
             if (Connections == null)
                 Connections = new List<Connection<TNode, TNodeData>>();
 
 
-            foreach(Connection<TNode, TNodeData> conection in Connections)
+            foreach (Connection<TNode, TNodeData> conection in Connections)
             {
                 if (conection.InPoint == _selectedInPoint && conection.OutPoint == _selectedOutPoint)
                     return;
             }
 
+            ++_selectedInPoint.Connections;
+            ++_selectedOutPoint.Connections;
             Connection<TNode, TNodeData> con = new Connection<TNode, TNodeData>(_selectedInPoint, _selectedOutPoint, RemoveConnection);
             Connections.Add(con);
 
-            if (OnConnectionMade != null)
-                OnConnectionMade(con);
+            OnConnectionMade?.Invoke(con);
         }
 
         /// <summary>
@@ -576,10 +694,26 @@ namespace FK.Editor.NodeEditor
 
         private void RemoveConnection(Connection<TNode, TNodeData> connection)
         {
-            if (OnConnectionRemoved != null)
-                OnConnectionRemoved(connection);
+            OnConnectionRemoved?.Invoke(connection);
 
+            --connection.InPoint.Connections;
+            --connection.OutPoint.Connections;
             Connections.Remove(connection);
+        }
+
+        /// <summary>
+        /// Removes all connections to the provided point
+        /// </summary>
+        /// <param name="point"></param>
+        public void RemoveConnectionsFromPoint(ConnectionPoint<TNode, TNodeData> point)
+        {
+            for (int i = Connections.Count - 1; i >= 0; --i)
+            {
+                if (Connections[i].InPoint == point || Connections[i].OutPoint == point)
+                {
+                    RemoveConnection(Connections[i]);
+                }
+            }
         }
 
         private void ClearConnectionSelection()
@@ -594,7 +728,7 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         public void SetDataDirty()
         {
-            EditorUtility.SetDirty(_data);
+            EditorUtility.SetDirty(Data);
         }
 
         /// <summary>
@@ -605,7 +739,7 @@ namespace FK.Editor.NodeEditor
         public TNodeData AddNodeToData(TNodeData node)
         {
             SetDataDirty();
-            return _data.AddNode(node) as TNodeData;
+            return Data.AddNode(node) as TNodeData;
         }
 
         /// <summary>
@@ -615,7 +749,7 @@ namespace FK.Editor.NodeEditor
         /// <returns></returns>
         public TNodeData GetNodeFromData(int ID)
         {
-            return _data.GetNode(ID) as TNodeData;
+            return Data.GetNode(ID) as TNodeData;
         }
 
         /// <summary>
@@ -625,7 +759,7 @@ namespace FK.Editor.NodeEditor
         public void DeleteNodeFromData(TNodeData node)
         {
             SetDataDirty();
-            _data.DeleteNode(node);
+            Data.DeleteNode(node);
         }
 
 
@@ -637,7 +771,7 @@ namespace FK.Editor.NodeEditor
         /// <param name="template">Template Node</param>
         protected void AddNodeType(string displayName, TNode template)
         {
-            _contextMenuEntries.Add("New " + displayName, position => AddNode((Vector2)position, template));
+            _contextMenuEntries.Add("New " + displayName, position => AddNode((Vector2) position, template));
         }
 
         /// <summary>
@@ -691,25 +825,26 @@ namespace FK.Editor.NodeEditor
         {
             Vector2 startTangent = Vector2.zero;
             Vector2 endTangent = Vector2.zero;
-            if(fromInPoint)
+            if (fromInPoint)
             {
                 startTangent = start + Vector2.left * 100f;
                 endTangent = end - Vector2.left * 100f;
-            } else
+            }
+            else
             {
                 startTangent = start - Vector2.left * 100f;
                 endTangent = end + Vector2.left * 100f;
             }
 
             Handles.DrawBezier(
-                    start,
-                    end,
-                    startTangent,
-                    endTangent,
-                    Color.white,
-                    null,
-                    2f
-                );
+                start,
+                end,
+                startTangent,
+                endTangent,
+                Color.white,
+                null,
+                2f
+            );
 
             GUI.changed = true;
         }
@@ -719,9 +854,9 @@ namespace FK.Editor.NodeEditor
         /// </summary>
         private void CreateBackground()
         {
-            Background = new Texture2D(1, 1);
-            Background.SetPixel(1, 1, new Color(51f / 255, 51f / 255, 51f / 255, 1));
-            Background.Apply();
+            _background = new Texture2D(1, 1);
+            _background.SetPixel(1, 1, new Color(51f / 255, 51f / 255, 51f / 255, 1));
+            _background.Apply();
         }
     }
 }
