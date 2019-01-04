@@ -7,7 +7,7 @@ namespace FK.Sequencing
     /// <summary>
     /// <para>Event Queue for things that should happen in Sequence</para>
     ///
-    /// v3.1 12/2018
+    /// v3.2 01/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -45,8 +45,10 @@ namespace FK.Sequencing
             get { return _autoplay; }
             set
             {
-                _autoplay = value; 
-                Start();
+                _autoplay = value;
+
+                if (_autoplay)
+                    Start();
             }
         }
 
@@ -54,7 +56,7 @@ namespace FK.Sequencing
         /// Called when the last event of the Queue finished
         /// </summary>
         public Action OnQueueFinished;
-        
+
 
         // ######################## PRIVATE VARS ######################## //
         /// <summary>
@@ -95,7 +97,7 @@ namespace FK.Sequencing
                 Data = data
             };
             Queue.Add(evt);
-            
+
             // if the queue is not running we need to start it
             if (_autoplay && !Running)
                 NextQueueEvent();
@@ -114,10 +116,12 @@ namespace FK.Sequencing
         /// Stops the queue after the current event is done
         /// </summary>
         /// <param name="onStop"></param>
-        public void StopAfterCurrent(Action onStop)
+        public void StopAfterCurrent(Action onStop = null)
         {
             _queueTimer.OnTimeElapsed = () => Running = false;
-            _queueTimer.OnTimeElapsed += onStop;
+
+            if (onStop != null)
+                _queueTimer.OnTimeElapsed += onStop;
         }
 
         /// <summary>
