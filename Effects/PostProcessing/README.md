@@ -4,3 +4,6 @@ This is a place where I upload all my post processing Effects. Ideally, they are
 # Packages
 ## Retrorize Post Processing
 This package contains a post processing effect that gives your game a retro look by quantizing the colors and reducing the resolution.
+
+## Glitch Post Processing
+This package contains a post processing effect that creates a glitchy screen tearing effect
