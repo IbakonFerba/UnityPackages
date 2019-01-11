@@ -14,7 +14,7 @@ namespace FK.Language
     /// <para>This Language Manager works without being present in any scene. Everything concerning it is static.</para>
     /// <para>It loads the strings from a json file in the StreamingAssets folder. You can then set text in different languages either manually or use the language texts that manage language changes automatically</para>
     ///
-    /// v3.0 11/2018
+    /// v3.1 01/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -395,6 +395,9 @@ namespace FK.Language
                             s = s.Replace(ESCAPED_LINE_BREAKS[j], "\n");
                         }
 
+                        // replace escaped escape characters and Quotation marks
+                        s = s.Replace("\\\"", "\"").Replace("\\\\", "\\");
+                        
                         languageString.SetField(languageString.GetKeyAt(i), s);
                     }
                 }
