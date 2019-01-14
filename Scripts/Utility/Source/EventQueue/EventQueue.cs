@@ -7,7 +7,7 @@ namespace FK.Sequencing
     /// <summary>
     /// <para>Event Queue for things that should happen in Sequence</para>
     ///
-    /// v3.2 01/2019
+    /// v3.3 01/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -74,6 +74,11 @@ namespace FK.Sequencing
         /// </summary>
         private bool _autoplay;
 
+        /// <summary>
+        /// Is the Queue stopping after the current element?
+        /// </summary>
+        private bool _willStopAfterCurrent;
+
         // ######################## INITS ######################## //
         public EventQueue(bool autoplay, Action onQueueFinished = null)
         {
@@ -108,8 +113,15 @@ namespace FK.Sequencing
         /// </summary>
         public void Start()
         {
-            if (!Running)
+            if (Running && _willStopAfterCurrent)
+            {
+                _queueTimer.OnTimeElapsed -= SetRunningFalse;
+                _queueTimer.OnTimeElapsed += NextQueueEvent;
+                _willStopAfterCurrent = false;
+            } else if (!Running)
+            {
                 NextQueueEvent();
+            }
         }
 
         /// <summary>
@@ -118,7 +130,8 @@ namespace FK.Sequencing
         /// <param name="onStop"></param>
         public void StopAfterCurrent(Action onStop = null)
         {
-            _queueTimer.OnTimeElapsed = () => Running = false;
+            _willStopAfterCurrent = true;
+            _queueTimer.OnTimeElapsed = SetRunningFalse;
 
             if (onStop != null)
                 _queueTimer.OnTimeElapsed += onStop;
@@ -152,5 +165,12 @@ namespace FK.Sequencing
             _queueTimer.Reset();
             _queueTimer.Start();
         }
-    }
+        
+        // ######################## UTILITY ######################## //
+        private void SetRunningFalse()
+        {
+            Running = false;
+            _willStopAfterCurrent = false;
+        }
+    }  
 }
