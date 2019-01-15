@@ -14,7 +14,7 @@ namespace FK.Saving
     /// <para>- The persistent data path</para>
     /// <para>- A custom path</para>
     ///
-    /// v1.3 01/2019
+    /// v1.4 01/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -51,7 +51,7 @@ namespace FK.Saving
         /// <summary>
         /// Is any Data loaded?
         /// </summary>
-        public static bool HasData => !_data?.IsNull ?? false;
+        public static bool HasData => (!_data?.IsNull ?? false) && (_data?.FinishedParsing ?? false);
 
         /// <summary>
         /// The Data
@@ -181,7 +181,7 @@ namespace FK.Saving
         public static Coroutine LoadFile(string name)
         {
             _data = new JSONObject(JSONObject.Type.NULL);
-            return JSONObject.LoadFromFileAsync(Path.Combine(_savePath, _files[0]), _data);
+            return JSONObject.LoadFromFileAsync(Path.Combine(_savePath, name), _data);
         }
 
         /// <summary>
