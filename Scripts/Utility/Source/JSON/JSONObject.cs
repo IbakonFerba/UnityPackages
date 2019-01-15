@@ -16,7 +16,7 @@ namespace FK.JSON
     /// <para>It can load a JSON Object from a file via a static function and parse it into a usable form. You can then work with that object, access fields, change them and add new fields.</para>
     /// <para>Furthermore it can create a json string from an existing JSONObject and save that string to a file</para>
     ///
-    /// v3.0 11/2018
+    /// v3.1 01/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -60,7 +60,7 @@ namespace FK.JSON
         }
 
         // ######################## PROPERTIES ######################## //
-        public bool FinishedParsing { get; private set; }
+        public bool FinishedParsing { get; private set; } = true;
         public Type ObjectType { get; private set; }
 
         public JSONObject this[string key]
@@ -332,6 +332,8 @@ namespace FK.JSON
         /// <returns></returns>
         public static Coroutine LoadFromFileAsync(string path, JSONObject targetObject, int maxDepth = -2)
         {
+            targetObject.FinishedParsing = false;
+            
             // setup url
 #if UNITY_ANDROID && !UNITY_EDITOR
             string url = $"jar:file://{path}";
@@ -700,10 +702,13 @@ namespace FK.JSON
         /// <param name="maxDepth">Set this if you want to stop parsing at a specific depth (0 would only parse the outmost object)</param>
         public void Parse(string dataString, int maxDepth = -2)
         {
+            FinishedParsing = false;
+            
             // if the provided string is null or empty, this is a NULL Object
             if (string.IsNullOrEmpty(dataString))
             {
                 ObjectType = Type.NULL;
+                FinishedParsing = true;
                 return;
             }
 
@@ -779,6 +784,7 @@ namespace FK.JSON
                             Debug.LogWarning($"Improper JSON Formatting: {dataString}");
                         }
 
+                        FinishedParsing = true;
                         return;
                 }
 
