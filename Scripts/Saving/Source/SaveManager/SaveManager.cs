@@ -14,7 +14,7 @@ namespace FK.Saving
     /// <para>- The persistent data path</para>
     /// <para>- A custom path</para>
     ///
-    /// v1.2 11/2018
+    /// v1.3 01/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -57,6 +57,11 @@ namespace FK.Saving
         /// The Data
         /// </summary>
         public static JSONObject Data => _data;
+
+        /// <summary>
+        /// File Ending of the Savefiles with dot
+        /// </summary>
+        public static string FileEnding => $".{_config[CONFIG_FILEENDING_KEY].StringValue}";
 
         // ######################## PUBLIC VARS ######################## //
 
