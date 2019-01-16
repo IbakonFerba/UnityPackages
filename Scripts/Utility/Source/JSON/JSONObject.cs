@@ -16,7 +16,7 @@ namespace FK.JSON
     /// <para>It can load a JSON Object from a file via a static function and parse it into a usable form. You can then work with that object, access fields, change them and add new fields.</para>
     /// <para>Furthermore it can create a json string from an existing JSONObject and save that string to a file</para>
     ///
-    /// v3.1 01/2019
+    /// v3.2 01/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -177,12 +177,18 @@ namespace FK.JSON
         /// </summary>
         public float FloatValue
         {
-            get { return (float) _number; }
+            get
+            {
+                if (_useInt)
+                    return _integerNumber;
+                return (float) _number;
+            }
             set
             {
                 if (IsObject || IsArray)
                     ClearObjectLists();
                 ObjectType = Type.NUMBER;
+                _useInt = false;
                 _number = value;
             }
         }
@@ -192,12 +198,18 @@ namespace FK.JSON
         /// </summary>
         public double DoubleValue
         {
-            get { return _number; }
+            get
+            {
+                if (_useInt)
+                    return _integerNumber;
+                return _number;
+            }
             set
             {
                 if (IsObject || IsArray)
                     ClearObjectLists();
                 ObjectType = Type.NUMBER;
+                _useInt = false;
                 _number = value;
             }
         }
