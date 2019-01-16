@@ -1,12 +1,20 @@
 /*
 *   This include file contains useful functions that might be used in several shaders
 *   
-*   v1.2 08/2018
+*   v1.3 01/2019
 *   Written by Fabian Kober
 *   fabian-kober@gmx.net
 */
 #ifndef UTILITY_CGINC
 #define UTILITY_CGINC
+
+/*  returns a pseudo random value based on the value that is passed in (the same value always produces the same result)
+*
+*   value - value to sample the function at
+*/
+float random(float value) {
+    return frac(sin(value)*1000000.0);
+}
 
 /*  returns 0 if the fragment is not on a backface and 1 if it is
 *   

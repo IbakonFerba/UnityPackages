@@ -7,7 +7,7 @@ namespace FK.Sequencing
     /// <summary>
     /// <para>Event Queue for things that should happen in Sequence</para>
     ///
-    /// v3.3 01/2019
+    /// v3.5 01/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -62,7 +62,7 @@ namespace FK.Sequencing
         /// <summary>
         /// The queue of events
         /// </summary>
-        private readonly List<QueueEvent> Queue = new List<QueueEvent>();
+        private readonly List<QueueEvent> _queue = new List<QueueEvent>();
 
         /// <summary>
         /// Timer running between queue events
@@ -101,7 +101,7 @@ namespace FK.Sequencing
                 Action = action,
                 Data = data
             };
-            Queue.Add(evt);
+            _queue.Add(evt);
 
             // if the queue is not running we need to start it
             if (_autoplay && !Running)
@@ -115,7 +115,7 @@ namespace FK.Sequencing
         {
             if (Running && _willStopAfterCurrent)
             {
-                _queueTimer.OnTimeElapsed -= SetRunningFalse;
+                _queueTimer.OnTimeElapsed = null;
                 _queueTimer.OnTimeElapsed += NextQueueEvent;
                 _willStopAfterCurrent = false;
             } else if (!Running)
@@ -138,12 +138,22 @@ namespace FK.Sequencing
         }
 
         /// <summary>
+        /// Stops the Queue immediately
+        /// </summary>
+        public void StopImmediately()
+        {
+            SetRunningFalse();
+            _queueTimer.OnTimeElapsed = null;
+            _queueTimer.Reset();
+        }
+
+        /// <summary>
         /// Activates the next Event and keeps the queue running until it is empty
         /// </summary>
         private void NextQueueEvent()
         {
             // if the queue is empty, stop
-            if (Queue.Count <= 0)
+            if (_queue.Count <= 0)
             {
                 Running = false;
                 OnQueueFinished?.Invoke();
@@ -153,8 +163,8 @@ namespace FK.Sequencing
             Running = true;
 
             // get the next event and remove it from the queue
-            QueueEvent evt = Queue[0];
-            Queue.RemoveAt(0);
+            QueueEvent evt = _queue[0];
+            _queue.RemoveAt(0);
 
             // set the timer to the duration of the event so it can trigger the next one after this is finished and invoke the event
             _queueTimer.Duration = evt.Data.Duration;
@@ -164,6 +174,14 @@ namespace FK.Sequencing
             // Start the timer
             _queueTimer.Reset();
             _queueTimer.Start();
+        }
+
+        /// <summary>
+        /// Removes allo events from the queue
+        /// </summary>
+        public void Clear()
+        {
+            _queue.Clear();
         }
         
         // ######################## UTILITY ######################## //
