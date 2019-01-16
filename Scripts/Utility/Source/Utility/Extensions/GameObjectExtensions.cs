@@ -8,7 +8,7 @@ namespace FK.Utility
     /// <summary>
     /// <para>Extension Methods for GameObject</para>
     /// 
-    /// v1.0 06/2018
+    /// v1.1 01/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -85,12 +85,12 @@ namespace FK.Utility
             while (progress < 1)
             {
                 // map progress
-                float mappedProgress = progressMapping != null ? Mathf.Clamp01(progressMapping(progress)) : progress;
+                float mappedProgress = progressMapping?.Invoke(progress) ?? progress;
 
                 // interpolate position if needed
                 if (usePos)
                 {
-                    Vector3 lerpedPos = Vector3.Lerp(startPos, targetTrans.position, mappedProgress);
+                    Vector3 lerpedPos = Vector3.LerpUnclamped(startPos, targetTrans.position, mappedProgress);
 
                     if (space == Space.Self)
                     {
@@ -106,7 +106,7 @@ namespace FK.Utility
                 // interpolate rotation if needed
                 if (useRot)
                 {
-                    Quaternion lerpedRot = Quaternion.Lerp(startRot, targetTrans.rotation, mappedProgress);
+                    Quaternion lerpedRot = Quaternion.LerpUnclamped(startRot, targetTrans.rotation, mappedProgress);
 
                     if (space == Space.Self)
                     {
@@ -122,7 +122,7 @@ namespace FK.Utility
                 // interpolate scale if needed
                 if (useScale)
                 {
-                    Vector3 lerpedScale = Vector3.Lerp(startScale, targetTrans.scale, mappedProgress);
+                    Vector3 lerpedScale = Vector3.LerpUnclamped(startScale, targetTrans.scale, mappedProgress);
 
                     trans.localScale = lerpedScale;
                 }

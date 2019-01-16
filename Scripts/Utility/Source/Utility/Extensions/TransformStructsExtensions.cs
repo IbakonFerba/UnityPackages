@@ -7,7 +7,7 @@ namespace FK.Utility
     /// <summary>
     /// <para>Extension Methods for Vector and Quaternion</para>
     ///
-    /// v2.0 09/2018
+    /// v2.1 01/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -30,8 +30,8 @@ namespace FK.Utility
             float progress = 0;
             while (progress < 1)
             {
-                float mappedProgress = progressMapping != null ? Mathf.Clamp01(progressMapping(progress)) : progress;
-                returnAction(Vector2.Lerp(start, target, mappedProgress));
+                float mappedProgress = progressMapping?.Invoke(progress) ?? progress;
+                returnAction(Vector2.LerpUnclamped(start, target, mappedProgress));
                 yield return null;
                 progress += Time.deltaTime / duration;
             }
@@ -55,8 +55,8 @@ namespace FK.Utility
             float progress = 0;
             while (progress < 1)
             {
-                float mappedProgress = progressMapping != null ? Mathf.Clamp01(progressMapping(progress)) : progress;
-                returnAction(Vector3.Lerp(start, target, mappedProgress));
+                float mappedProgress = progressMapping?.Invoke(progress) ?? progress;
+                returnAction(Vector3.LerpUnclamped(start, target, mappedProgress));
                 yield return null;
                 progress += Time.deltaTime / duration;
             }
@@ -80,8 +80,8 @@ namespace FK.Utility
             float progress = 0;
             while (progress < 1)
             {
-                float mappedProgress = progressMapping != null ? Mathf.Clamp01(progressMapping(progress)) : progress;
-                returnAction(Vector4.Lerp(start, target, mappedProgress));
+                float mappedProgress = progressMapping?.Invoke(progress) ?? progress;
+                returnAction(Vector4.LerpUnclamped(start, target, mappedProgress));
                 yield return null;
                 progress += Time.deltaTime / duration;
             }

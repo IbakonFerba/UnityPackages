@@ -8,7 +8,7 @@ namespace FK.Utility.Fading
     /// <summary>
     /// <para>An Assortment of Methods that allow you to easily Fade in and out different kinds of Objects</para>
     ///
-    /// v2.3 01/2019
+    /// v2.4 01/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -103,7 +103,7 @@ namespace FK.Utility.Fading
             while (progress < 1)
             {
                 float mappedProgress = progressMapping?.Invoke(progress) ?? progress;
-                graphic.color = Color.Lerp(start, target, mappedProgress);
+                graphic.color = Color.LerpUnclamped(start, target, mappedProgress);
                 yield return null;
                 progress += Time.deltaTime / duration;
             }
@@ -322,7 +322,7 @@ namespace FK.Utility.Fading
             while (progress < 1)
             {
                 float mappedProgress = progressMapping?.Invoke(progress) ?? progress;
-                material.color = Color.Lerp(start, target, mappedProgress);
+                material.color = Color.LerpUnclamped(start, target, mappedProgress);
                 yield return null;
                 progress += Time.deltaTime / duration;
             }
@@ -414,7 +414,7 @@ namespace FK.Utility.Fading
                 float mappedProgress = progressMapping?.Invoke(progress) ?? progress;
                 for (int i = 0; i < rend.materials.Length; ++i)
                 {
-                    rend.materials[i].color = Color.Lerp(start[i], targets[i], mappedProgress);
+                    rend.materials[i].color = Color.LerpUnclamped(start[i], targets[i], mappedProgress);
                 }
 
                 yield return null;
@@ -522,7 +522,7 @@ namespace FK.Utility.Fading
             while (progress < 1)
             {
                 float mappedProgress = progressMapping?.Invoke(progress) ?? progress;
-                sprite.color = Color.Lerp(start, target, mappedProgress);
+                sprite.color = Color.LerpUnclamped(start, target, mappedProgress);
                 yield return null;
                 progress += Time.deltaTime / duration;
             }
@@ -618,7 +618,7 @@ namespace FK.Utility.Fading
             while (progress < 1)
             {
                 float mappedProgress = progressMapping?.Invoke(progress) ?? progress;
-                source.volume = Mathf.Lerp(startVolume, clampedTargetVolume, mappedProgress);
+                source.volume = Mathf.LerpUnclamped(startVolume, clampedTargetVolume, mappedProgress);
                 yield return null;
                 progress += Time.deltaTime / duration;
             }

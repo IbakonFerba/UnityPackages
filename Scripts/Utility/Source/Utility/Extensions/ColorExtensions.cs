@@ -9,7 +9,7 @@ namespace FK.Utility
     /// <summary>
     /// <para>Extension Methods Concerning Colors of different types</para>
     ///
-    /// v3.1 09/2018
+    /// v3.2 01/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -30,8 +30,8 @@ namespace FK.Utility
             float progress = 0;
             while (progress < 1)
             {
-                float mappedProgress = progressMapping != null ? Mathf.Clamp01(progressMapping(progress)) : progress;
-                returnAction(Color.Lerp(start, target, mappedProgress));
+                float mappedProgress = progressMapping?.Invoke(progress) ?? progress;
+                returnAction(Color.LerpUnclamped(start, target, mappedProgress));
                 yield return null;
                 progress += Time.deltaTime / duration;
             }
