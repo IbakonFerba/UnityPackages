@@ -14,7 +14,7 @@ namespace FK.Saving
     /// <para>- The persistent data path</para>
     /// <para>- A custom path</para>
     ///
-    /// v1.4 01/2019
+    /// v1.5 01/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -182,6 +182,14 @@ namespace FK.Saving
         {
             _data = new JSONObject(JSONObject.Type.NULL);
             return JSONObject.LoadFromFileAsync(Path.Combine(_savePath, name), _data);
+        }
+        
+        /// <summary>
+        /// Creates a new Savefile
+        /// </summary>
+        public static void LoadEmptyFile()
+        {
+            _data = new JSONObject(JSONObject.Type.OBJECT);
         }
 
         /// <summary>

@@ -5,7 +5,7 @@ namespace FK.Utility
     /// <summary>
     /// <para>Base Class for Singleton MonoBehaviours</para>
     /// 
-    /// v1.1 11/2018
+    /// v1.2 01/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -29,18 +29,13 @@ namespace FK.Utility
         // ######################## UNITY EVENT FUNCTIONS ######################## //
         protected virtual void Awake()
         {
-            if(!IsInitialized)
+            if (!IsInitialized)
             {
-                Instance = (T)this;
-            } else if(Instance != this)
+                Instance = (T) this;
+            }
+            else if (Instance != this)
             {
-                if(Application.isEditor)
-                {
-                    DestroyImmediate(this);
-                } else
-                {
-                    Destroy(this);
-                }
+                Destroy(this);
 
                 Debug.LogWarningFormat("Tried to Instantiate second instance of Singleton {0}. Additional Instance was destroyed.", typeof(T).Name);
             }
@@ -48,7 +43,7 @@ namespace FK.Utility
 
         protected virtual void OnDestroy()
         {
-            if(Instance == this)
+            if (Instance == this)
             {
                 Instance = null;
             }

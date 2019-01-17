@@ -14,7 +14,7 @@ namespace FK.Language
     /// <summary>
     /// <para>The Editor for the Language Manager. This allows the User to edit settings and strings files</para>
     ///
-    /// v2.1 01/2019
+    /// v2.2 01/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -836,17 +836,18 @@ namespace FK.Language
 
             EditorGUILayout.Space();
 
-            bool useSystemLanguage =
+            bool useSavedLanguage =
                 EditorGUILayout.ToggleLeft(
                     new GUIContent("Use saved language on Application start",
                         "If set, the Language Manager tries to load the language that was last used from the Player Prefs. If there is none or if the strings file does not contain the language, it will go through the other options after this"),
-                    Config[LanguageManager.CONFIG_USE_SYSTEM_LANG_DEFAULT_KEY].BoolValue);
+                    Config[LanguageManager.CONFIG_USE_SAVED_LANG_KEY].BoolValue);
 
-            bool useSavedLanguage =
+   
+            bool useSystemLanguage =
                 EditorGUILayout.ToggleLeft(
                     new GUIContent("Use system language as default",
                         "If set, the Language Manager uses the Language of the System of the user as the default language, if the strings file contains this language"),
-                    Config[LanguageManager.CONFIG_USE_SAVED_LANG_KEY].BoolValue);
+                    Config[LanguageManager.CONFIG_USE_SYSTEM_LANG_DEFAULT_KEY].BoolValue);
 
             string defaultLanguage =
                 EditorGUILayout.DelayedTextField(new GUIContent("Default Language", "Language Code of the Language to use as a default or as a fallback if the system language is not supported"),
@@ -866,6 +867,7 @@ namespace FK.Language
 
                 // delete language key in player prefs so testing is easier
                 PlayerPrefs.DeleteKey("Lang");
+                Debug.Log(Config.ToString());
 
                 Config.SaveToFile(ConfigFilePath);
             }

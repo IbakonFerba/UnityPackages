@@ -62,6 +62,7 @@ namespace FK.Utility
                 if (_instance == null)
                 {
                     _instance = new GameObject("<Master_of_Coroutines>", typeof(CoroutineHost)).GetComponent<CoroutineHost>();
+                    DontDestroyOnLoad(_instance);
                 }
 
                 return _instance;
@@ -95,14 +96,7 @@ namespace FK.Utility
             }
             else if (Instance != this)
             {
-                if (Application.isEditor)
-                {
-                    DestroyImmediate(this);
-                }
-                else
-                {
-                    Destroy(this);
-                }
+                Destroy(this);
 
                 Debug.LogWarning("Tried to Instantiate second instance of Coroutine Host. Additional Instance was destroyed.");
             }
