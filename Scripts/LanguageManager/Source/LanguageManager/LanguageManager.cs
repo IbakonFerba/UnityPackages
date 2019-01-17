@@ -14,7 +14,7 @@ namespace FK.Language
     /// <para>This Language Manager works without being present in any scene. Everything concerning it is static.</para>
     /// <para>It loads the strings from a json file in the StreamingAssets folder. You can then set text in different languages either manually or use the language texts that manage language changes automatically</para>
     ///
-    /// v3.1 01/2019
+    /// v3.2 01/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -48,7 +48,7 @@ namespace FK.Language
             {
                 if (_langs == null)
                 {
-                    if (_strings != null)
+                    if (_strings != null && Initialized)
                         _langs = _strings[LANGUAGES_KEY].Keys;
                     else
                         Debug.LogWarning("Trying to access Languages with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
@@ -411,6 +411,9 @@ namespace FK.Language
         /// <param name="language">The Language Code of the desired Language</param>
         public static void SetLanguage(string language)
         {
+            if (_strings == null || !Initialized)
+                throw new NullReferenceException("Trying to set language with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
+
             // make sure we are lower case
             string lowerCaseLang = language.ToLower();
 
@@ -443,7 +446,7 @@ namespace FK.Language
                 return;
 
             // if we have no strings, we cannot continue, throw an exeption so the dev knows this won't work!
-            if (_strings == null)
+            if (_strings == null || !Initialized)
                 throw new NullReferenceException("Trying to access strings with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
 
             // get the string
@@ -475,7 +478,7 @@ namespace FK.Language
                 return;
 
             // if we have no strings, we cannot continue, throw an exeption so the dev knows this won't work!
-            if (_strings == null)
+            if (_strings == null|| !Initialized)
                 throw new NullReferenceException("Trying to access strings with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
 
             // make sure the language is lower case
@@ -509,7 +512,7 @@ namespace FK.Language
                 return;
 
             // if we have no strings, we cannot continue, throw an exeption so the dev knows this won't work!
-            if (_strings == null)
+            if (_strings == null || !Initialized)
                 throw new NullReferenceException("Trying to access strings with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
 
             // get the string
@@ -541,7 +544,7 @@ namespace FK.Language
                 return;
 
             // if we have no strings, we cannot continue, throw an exeption so the dev knows this won't work!
-            if (_strings == null)
+            if (_strings == null || !Initialized)
                 throw new NullReferenceException("Trying to access strings with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
 
             // make sure the language is lower case
@@ -575,7 +578,7 @@ namespace FK.Language
         public static string GetString(string name, string category = DEFAULT_CATEGORY)
         {
             // if we have no strings, we cannot continue, throw an exeption so the dev knows this won't work!
-            if (_strings == null)
+            if (_strings == null || !Initialized)
                 throw new NullReferenceException("Trying to access strings with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
 
             // get the string
@@ -599,7 +602,7 @@ namespace FK.Language
         public static string GetString(string name, string category, string language)
         {
             // if we have no strings, we cannot continue, throw an exeption so the dev knows this won't work!
-            if (_strings == null)
+            if (_strings == null || !Initialized)
                 throw new NullReferenceException("Trying to access strings with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
 
             // make sure the language is lower case
@@ -627,7 +630,7 @@ namespace FK.Language
         public static string GetLanguageDisplayName(string languageCode)
         {
             // if strings is null, we cannot continue
-            if (_strings == null)
+            if (_strings == null || !Initialized)
             {
                 Debug.LogWarning("Trying to access Languages with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
                 return null;
