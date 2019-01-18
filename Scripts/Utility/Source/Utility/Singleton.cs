@@ -35,7 +35,7 @@ namespace FK.Utility
             }
             else if (Instance != this)
             {
-                Destroy(this);
+                Destroy(this.gameObject);
 
                 Debug.LogWarningFormat("Tried to Instantiate second instance of Singleton {0}. Additional Instance was destroyed.", typeof(T).Name);
             }

@@ -252,7 +252,7 @@ namespace FK.Language
 
             // get the current language
             // if we have a saved Language in the Player Prefs we load that
-            CurrentLanguage = _config[CONFIG_USE_SAVED_LANG_KEY].BoolValue && PlayerPrefs.HasKey("Lang") ? PlayerPrefs.GetString("Lang") : null;
+            CurrentLanguage = (_config[CONFIG_USE_SAVED_LANG_KEY].BoolValue && PlayerPrefs.HasKey("Lang")) ? PlayerPrefs.GetString("Lang") : null;
 
             // calculate the path to the strings file
             string path = Path.Combine(Application.streamingAssetsPath, _config[CONFIG_STRINGS_FILE_NAME_KEY].StringValue + JSON_FILE_EXTENSION);
