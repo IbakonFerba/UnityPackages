@@ -12,7 +12,7 @@ namespace FK.Utility
     /// <para>A Class for Hosting Coroutines. Whenever you need an extra MonoBehaviour to run a Coroutine on, you can use the Instance Property of this Host.</para>
     /// <para>If you use its static functions, you can track corutines to stop them manually. This is mostly intedned for use with the other Functions in this Package</para>
     ///
-    /// v2.2 09/2018
+    /// v2.3 02/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -227,6 +227,25 @@ namespace FK.Utility
             }
 
             toRemove = null;
+        }
+
+        /// <summary>
+        /// Stops all tracked coroutines with the provided tag on all objects
+        /// </summary>
+        /// <param name="tag"></param>
+        public static void StopAllTrackedCoroutines(string tag)
+        {
+            // if there are no coroutines with the provided tag, do nothing
+            if (!_coroutines.ContainsKey(tag) || _coroutines[tag].Count == 0)
+                return;
+            
+            // go through all tracked coroutines with this tag and find the proper one
+            foreach (CoroutineObjectPair pair in _coroutines[tag])
+            {
+                Instance.StopCoroutine(pair.Routine);
+            }
+
+            _coroutines.Remove(tag);
         }
 
         // ######################## COROUTINES ######################## //

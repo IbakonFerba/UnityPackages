@@ -7,13 +7,15 @@ namespace FK.Utility
     /// <summary>
     /// <para>Extension Methods for Vector and Quaternion</para>
     ///
-    /// v2.1 01/2019
+    /// v2.2 02/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
     public static class TransformStructsExtensions
     {
         #region VECTOR
+
+        public const string LERP_VECTOR_COROUTINE_TAG = "LerpVector";
 
         /// <summary>
         /// Lerps one Vector2 to another
@@ -90,6 +92,11 @@ namespace FK.Utility
             finished?.Invoke();
         }
 
+        public static void StopAllVectorLerps()
+        {
+            CoroutineHost.StopAllTrackedCoroutines(LERP_VECTOR_COROUTINE_TAG);
+        }
+        
         /// <summary>
         /// Lerps one Vector2 to another
         /// </summary>
@@ -101,7 +108,7 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Lerp(this Vector2 vector, Vector2 target, float duration, Action<Vector2> returnAction, Action finished = null)
         {
-            return CoroutineHost.Instance.StartCoroutine(LerpVector(vector, target, duration, returnAction, finished, null));
+            return CoroutineHost.StartTrackedCoroutine(LerpVector(vector, target, duration, returnAction, finished, null), vector, LERP_VECTOR_COROUTINE_TAG);
         }
 
         /// <summary>
@@ -116,7 +123,7 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Lerp(this Vector2 vector, Vector2 target, float duration, Action<Vector2> returnAction, Func<float, float> progressMapping, Action finished = null)
         {
-            return CoroutineHost.Instance.StartCoroutine(LerpVector(vector, target, duration, returnAction, finished, progressMapping));
+            return CoroutineHost.StartTrackedCoroutine(LerpVector(vector, target, duration, returnAction, finished, progressMapping), vector, LERP_VECTOR_COROUTINE_TAG);
         }
 
         /// <summary>
@@ -130,7 +137,7 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Lerp(this Vector3 vector, Vector3 target, float duration, Action<Vector3> returnAction, Action finished = null)
         {
-            return CoroutineHost.Instance.StartCoroutine(LerpVector(vector, target, duration, returnAction, finished, null));
+            return CoroutineHost.StartTrackedCoroutine(LerpVector(vector, target, duration, returnAction, finished, null), vector, LERP_VECTOR_COROUTINE_TAG);
         }
 
         /// <summary>
@@ -145,7 +152,7 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Lerp(this Vector3 vector, Vector3 target, float duration, Action<Vector3> returnAction, Func<float, float> progressMapping, Action finished = null)
         {
-            return CoroutineHost.Instance.StartCoroutine(LerpVector(vector, target, duration, returnAction, finished, progressMapping));
+            return CoroutineHost.StartTrackedCoroutine(LerpVector(vector, target, duration, returnAction, finished, progressMapping), vector, LERP_VECTOR_COROUTINE_TAG);
         }
 
         /// <summary>
@@ -159,7 +166,7 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Lerp(this Vector4 vector, Vector4 target, float duration, Action<Vector4> returnAction, Action finished = null)
         {
-            return CoroutineHost.Instance.StartCoroutine(LerpVector(vector, target, duration, returnAction, finished, null));
+            return CoroutineHost.StartTrackedCoroutine(LerpVector(vector, target, duration, returnAction, finished, null), vector, LERP_VECTOR_COROUTINE_TAG);
         }
 
         /// <summary>
@@ -174,7 +181,7 @@ namespace FK.Utility
         /// <returns></returns>
         public static Coroutine Lerp(this Vector4 vector, Vector4 target, float duration, Action<Vector4> returnAction, Func<float, float> progressMapping, Action finished = null)
         {
-            return CoroutineHost.Instance.StartCoroutine(LerpVector(vector, target, duration, returnAction, finished, progressMapping));
+            return CoroutineHost.StartTrackedCoroutine(LerpVector(vector, target, duration, returnAction, finished, progressMapping), vector, LERP_VECTOR_COROUTINE_TAG);
         }
 
         #endregion
