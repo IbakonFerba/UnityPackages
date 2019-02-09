@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// <para>An Agent that can follow a Path</para>
 ///
-/// v1.0 09/2018
+/// v1.1 02/2019
 /// Written by Fabian Kober
 /// fabian-kober@gmx.net
 /// </summary>
@@ -40,7 +40,7 @@ public class PathAgent : MonoBehaviour
     /// <summary>
     /// Smoothing of the Facing direction. This might be needed when using a small presampling resolution on a path
     /// </summary>
-    [Tooltip("Smoothing of the Facing direction. This might be needed when using a small presampling resolution on a path")] [Range(0, 1)]
+    [Tooltip("Smoothing of the Facing direction. This might be needed when using a small presampling resolution on a path")]
     public float FacingSmoothingFactor = 0f;
 
     // ######################## PRIVATE VARS ######################## //
@@ -53,6 +53,8 @@ public class PathAgent : MonoBehaviour
     /// Total path length
     /// </summary>
     private float _pathLength;
+
+    private Vector3 _smoothingVel;
 
     // ######################## UNITY EVENT FUNCTIONS ######################## //
     private void Start()
@@ -89,7 +91,7 @@ public class PathAgent : MonoBehaviour
 
         // set facing direction
         if (FaceDirection)
-            transform.forward = Vector3.Lerp(transform.forward, TargetPath.GetUniformDirection(_pathProgress % 1), 1 - FacingSmoothingFactor);
+            transform.forward = Vector3.SmoothDamp(transform.forward, TargetPath.GetUniformDirection(_pathProgress % 1), ref _smoothingVel, FacingSmoothingFactor);
 
         // update progress
         _pathProgress += Time.deltaTime * (Speed / _pathLength);
