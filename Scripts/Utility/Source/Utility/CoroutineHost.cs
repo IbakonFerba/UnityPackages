@@ -12,7 +12,7 @@ namespace FK.Utility
     /// <para>A Class for Hosting Coroutines. Whenever you need an extra MonoBehaviour to run a Coroutine on, you can use the Instance Property of this Host.</para>
     /// <para>If you use its static functions, you can track corutines to stop them manually. This is mostly intedned for use with the other Functions in this Package</para>
     ///
-    /// v2.3 02/2019
+    /// v2.4 02/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -69,12 +69,10 @@ namespace FK.Utility
             }
         }
 
-#if UNITY_EDITOR
         /// <summary>
         /// Public access for the Coroutines for Debug purposes
         /// </summary>
         public static Dictionary<string, List<CoroutineObjectPair>> Coroutines => _coroutines;
-#endif
 
         // ######################## PRIVATE VARS ######################## //
         /// <summary>
