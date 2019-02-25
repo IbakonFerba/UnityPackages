@@ -1,4 +1,5 @@
 ﻿// comment this line out if you don't have TextMeshPro in your Project
+
 #define TEXT_MESH_PRO
 
 
@@ -9,13 +10,12 @@ using FK.Utility;
 #if TEXT_MESH_PRO
 using TMPro;
 #endif
-
 #if UNITY_EDITOR
 using UnityEditor;
 
 #endif
 
-namespace FK.Language
+namespace FK.JLoc
 {
     /// <summary>
     /// <para>This Component makes a Legacy or TMP Text a Language Dependent Text that automatically loads the correct string and updates if the Language is changed</para>
@@ -29,14 +29,16 @@ namespace FK.Language
     {
         // ######################## PUBLIC VARS ######################## //
         /// <summary>
-        /// Name of the text in the strings file
-        /// </summary>
-        public string Name = "default";
-
-        /// <summary>
         /// Category of the text in the strings file
         /// </summary>
         public string Category = LanguageManager.DEFAULT_CATEGORY;
+
+        /// <summary>
+        /// Name of the text in the strings file
+        /// </summary>
+        public string Field = "default";
+
+        [Space] public bool UpdateOnFileLoad = true;
 
         // ######################## PRIVATE VARS ######################## //
         /// <summary>
@@ -62,7 +64,7 @@ namespace FK.Language
 #endif
 
         // ######################## UNITY EVENT FUNCTIONS ######################## //
-        private void Awake()
+        private void Start()
         {
             Init();
         }
@@ -71,8 +73,16 @@ namespace FK.Language
         {
 #if UNITY_EDITOR
             if (EditorApplication.isPlaying)
+            {
 #endif
                 LanguageManager.OnLanguageChanged -= UpdateText;
+
+                if (UpdateOnFileLoad)
+                    LanguageManager.OnStringFileLoaded += UpdateText;
+
+#if UNITY_EDITOR
+            }
+#endif
         }
 
 
@@ -112,13 +122,17 @@ namespace FK.Language
 #endif
                 // register for language changes and set initial text
                 LanguageManager.OnLanguageChanged += UpdateText;
+
+                if (UpdateOnFileLoad)
+                    LanguageManager.OnStringFileLoaded += UpdateText;
+
                 CoroutineHost.Instance.StartCoroutine(SetInitialText());
 #if UNITY_EDITOR
             }
             else // if we are in edit mode, set the name of the object and make visible that the text that is displayed now is not the final text
             {
-                if (!string.IsNullOrEmpty(Name))
-                    gameObject.name = Name;
+                if (!string.IsNullOrEmpty(Field))
+                    gameObject.name = Field;
 
                 if (_useLegacy)
                 {
@@ -211,11 +225,16 @@ namespace FK.Language
         private void UpdateText(string newLanguage)
         {
             if (_useLegacy)
-                LanguageManager.SetText(_text, Name, Category);
+                LanguageManager.SetText(_text, Field, Category);
 #if TEXT_MESH_PRO
             else
-                LanguageManager.SetText(_tmpText, Name, Category);
+                LanguageManager.SetText(_tmpText, Field, Category);
 #endif
+        }
+
+        private void UpdateText()
+        {
+            UpdateText(null);
         }
 
         // ######################## COROUTINES ######################## //
@@ -225,7 +244,7 @@ namespace FK.Language
         /// <returns></returns>
         private IEnumerator SetInitialText()
         {
-            yield return new WaitUntil(() => LanguageManager.Initialized);
+            yield return new WaitUntil(() => LanguageManager.HasStrings && !LanguageManager.CurrentlyLoadingStrings);
             UpdateText(LanguageManager.CurrentLanguage);
         }
     }

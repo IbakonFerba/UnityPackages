@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace FK.Language
+namespace FK.JLoc
 {
     /// <summary>
     /// <para>A window that displays a rich text formatted string intended for the Language Manager Editor</para>

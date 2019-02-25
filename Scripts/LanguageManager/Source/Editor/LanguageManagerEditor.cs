@@ -9,12 +9,12 @@ using UnityEditor.SceneManagement;
 using FK.JSON;
 using FK.Editor;
 
-namespace FK.Language
+namespace FK.JLoc
 {
     /// <summary>
-    /// <para>The Editor for the Language Manager. This allows the User to edit settings and strings files</para>
+    /// <para>The Editor for the Language Manager and strings files. This allows the User to edit settings and strings files</para>
     ///
-    /// v2.2 01/2019
+    /// v3.0 02/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -25,7 +25,7 @@ namespace FK.Language
         /// Is the Editor window focused?
         /// </summary>
         public static bool IsFocused { get; private set; }
-        
+
         /// <summary>
         /// path to the Config File
         /// </summary>
@@ -38,7 +38,7 @@ namespace FK.Language
         {
             get
             {
-                if(_config == null)
+                if (_config == null)
                     LoadConfig();
 
                 return _config;
@@ -73,8 +73,6 @@ namespace FK.Language
                 {
                     _categoryNameStyle = new GUIStyle(EditorStyles.textField);
                     _categoryNameStyle.fontSize = 12;
-                    _categoryNameStyle.normal.textColor = Color.white;
-                    _categoryNameStyle.focused.textColor = Color.white;
                 }
 
                 return _categoryNameStyle;
@@ -90,7 +88,7 @@ namespace FK.Language
             {
                 if (_categoryStyle == null)
                 {
-                    _categoryStyle = new GUIStyle();
+                    _categoryStyle = new GUIStyle(EditorStyles.helpBox);
                     _categoryStyle.normal.background = _categoryBackground;
                 }
 
@@ -115,6 +113,21 @@ namespace FK.Language
             }
         }
 
+        private GUIStyle FileButtonStyle
+        {
+            get
+            {
+                _fileButtonStyle = null;
+                if (_fileButtonStyle == null)
+                {
+                    _fileButtonStyle = new GUIStyle(GUI.skin.button);
+                    _fileButtonStyle.alignment = TextAnchor.MiddleLeft;
+                }
+
+                return _fileButtonStyle;
+            }
+        }
+
         /// <summary>
         /// Anim Bools for Categories
         /// </summary>
@@ -126,8 +139,7 @@ namespace FK.Language
                 if (_showCategory == null)
                 {
                     _showCategory = new List<AnimBool>();
-                    // we start at 1 because 0 is not a category but the language lookup
-                    for (int i = 1; i < _strings.Count; ++i)
+                    for (int i = 0; i < _strings.Count; ++i)
                     {
                         AnimBool ab = new AnimBool(false);
                         ab.valueChanged.AddListener(Repaint);
@@ -222,6 +234,8 @@ namespace FK.Language
         /// </summary>
         private GUIStyle _grayedOutButtonStyle;
 
+        private GUIStyle _fileButtonStyle;
+
 
         /// <summary>
         /// AnimBools for all categorie fade groups
@@ -245,7 +259,7 @@ namespace FK.Language
         /// All the strings
         /// </summary>
         private JSONObject _strings;
-        
+
         /// <summary>
         /// Backing for Config
         /// </summary>
@@ -254,7 +268,7 @@ namespace FK.Language
         /// <summary>
         /// Language codes of all languages in the strings
         /// </summary>
-        private string[] _langs;
+        private List<string> _langs;
 
 
         /// <summary>
@@ -271,6 +285,16 @@ namespace FK.Language
         /// Are there any changes to the strings that are not saved yet?
         /// </summary>
         private bool _unsavedChanges;
+
+        /// <summary>
+        /// Absolute path of the currently edited strings file
+        /// </summary>
+        private string _currentlyEditingFilePath;
+
+        /// <summary>
+        /// Path of the currently edited strings file relative to the Streaming Assets folder
+        /// </summary>
+        private string _currentlyEditingStreamingAssetsFilePath;
 
         // ######################## UNITY EVENT FUNCTIONS ######################## //
         /// <summary>
@@ -298,11 +322,6 @@ namespace FK.Language
 
         private void OnLostFocus()
         {
-//            // if there are unsaved changes, display a dialog to ask the user if he wants to save
-//            if (_unsavedChanges)
-//                if (DisplaySaveDialog())
-//                    SaveStrings();
-
             IsFocused = false;
         }
 
@@ -311,11 +330,11 @@ namespace FK.Language
         /// <summary>
         /// Opens a Language Manager Window
         /// </summary>
-        [MenuItem("Window/Language Manager", false, 50)]
+        [MenuItem("Window/JLoc Editor", false, 50)]
         public static void OpenLanguageManager()
         {
             LanguageManagerEditor window = (LanguageManagerEditor) GetWindow(typeof(LanguageManagerEditor));
-            window.titleContent = new GUIContent("Language Manager");
+            window.titleContent = new GUIContent("JLoc Editor");
             window.Show();
             window.ResetValues();
         }
@@ -341,6 +360,7 @@ namespace FK.Language
         // ######################## FUNCTIONALITY ######################## //
 
         #region CONFIG_MANAGEMENT
+
         /// <summary>
         /// Loads the Config
         /// </summary>
@@ -355,12 +375,15 @@ namespace FK.Language
                 // if loading failed, create new config
                 _config = new JSONObject(JSONObject.Type.OBJECT);
 
-                _config[LanguageManager.CONFIG_LOAD_ASYNC_KEY].BoolValue = true;
-                _config[LanguageManager.CONFIG_STRINGS_FILE_NAME_KEY].StringValue = "strings";
                 _config[LanguageManager.CONFIG_USE_SYSTEM_LANG_DEFAULT_KEY].BoolValue = true;
                 _config[LanguageManager.CONFIG_DEFAULT_LANG_KEY].StringValue = "en";
                 _config[LanguageManager.CONFIG_USE_SAVED_LANG_KEY].BoolValue = true;
-                
+
+                // add the default language
+                JSONObject languages = new JSONObject(JSONObject.Type.OBJECT);
+                languages.AddField(_config[LanguageManager.CONFIG_DEFAULT_LANG_KEY].StringValue, _config[LanguageManager.CONFIG_DEFAULT_LANG_KEY].StringValue);
+                _config.AddField(LanguageManager.LANGUAGES_KEY, languages);
+
                 // make sure streaming assets exists
                 if (!AssetDatabase.IsValidFolder("Assets/StreamingAssets"))
                 {
@@ -368,11 +391,11 @@ namespace FK.Language
 
                     AssetDatabase.Refresh();
                 }
-                
+
                 _config.SaveToFile(ConfigFilePath);
             }
         }
-        
+
         /// <summary>
         /// Checks out the config from version control
         /// </summary>
@@ -412,10 +435,10 @@ namespace FK.Language
                     for (int i = 0; i < languageString.Count; ++i)
                     {
                         string s = languageString[i].StringValue;
-                        
+
                         // rescape escape characters and quotation marks
                         s = s.Replace("\\", "\\\\").Replace("\"", "\\\"");
-                        
+
                         for (int j = 0; j < LINE_BREAKS.Length; ++j)
                         {
                             s = s.Replace(LINE_BREAKS[j], "\\n");
@@ -425,33 +448,30 @@ namespace FK.Language
                         languageString.SetField(languageString.GetKeyAt(i), s);
                     }
                 }
-            }    
+            }
 
             // if version Control is active, check out the file automatically if it is not yet checked out
             if (Provider.isActive)
             {
                 // Get the version control asset of the file
-                Asset stringsFile = Provider.GetAssetByPath($"Assets/StreamingAssets/{Config[LanguageManager.CONFIG_STRINGS_FILE_NAME_KEY].StringValue}.json");
-                
+                Asset stringsFile = Provider.GetAssetByPath($"Assets/StreamingAssets/{_currentlyEditingStreamingAssetsFilePath}");
+
                 // checkout the file if it is not checked out yet and wait until it is checked out
                 if (!Provider.IsOpenForEdit(stringsFile))
                     Provider.Checkout(stringsFile, CheckoutMode.Asset).Wait();
             }
 
-            // get the absolute path of the file
-            string path = System.IO.Path.Combine(Application.streamingAssetsPath, Config[LanguageManager.CONFIG_STRINGS_FILE_NAME_KEY].StringValue + ".json");
-            
             // try to save the file. If the access is denied, display a message to the user
             try
             {
-                processedStrings.SaveToFile(path);
+                processedStrings.SaveToFile(_currentlyEditingFilePath);
             }
             catch (UnauthorizedAccessException)
             {
-                EditorUtility.DisplayDialog("Access Denied", $"The file {Config[LanguageManager.CONFIG_STRINGS_FILE_NAME_KEY].StringValue}.json cannot be accessed, is it write protected?", "Close");
+                EditorUtility.DisplayDialog("Access Denied", $"The file {_currentlyEditingFilePath} cannot be accessed, is it write protected?", "Close");
                 return;
             }
-            
+
             // we just saved, so there can't be any unsaved changes
             _unsavedChanges = false;
         }
@@ -465,20 +485,42 @@ namespace FK.Language
             _unsavedChanges = false;
 
             // try to load the file
-            string path = System.IO.Path.Combine(Application.streamingAssetsPath, Config[LanguageManager.CONFIG_STRINGS_FILE_NAME_KEY].StringValue + ".json");
             try
             {
-                _strings = JSONObject.LoadFromFile(path);
+                _strings = JSONObject.LoadFromFile(_currentlyEditingFilePath);
+
+                // make sure the file contains the languages that are set and only the ones that are set
+                foreach (JSONObject category in _strings)
+                {
+                    foreach (JSONObject field in category)
+                    {
+                        for (int i = field.Count - 1; i >= 0; --i)
+                        {
+                            if (!_config[LanguageManager.LANGUAGES_KEY].HasField(field.GetKeyAt(i)))
+                            {
+                                field.RemoveAt(i);
+                                _unsavedChanges = true;
+                            }
+                        }
+
+                        if (field.Count == _config[LanguageManager.LANGUAGES_KEY].Count)
+                            continue;
+
+                        for (int i = 0; i < _langs.Count; ++i)
+                        {
+                            if (!field.HasField(_config[LanguageManager.LANGUAGES_KEY].GetKeyAt(i)))
+                            {
+                                field.AddField(_config[LanguageManager.LANGUAGES_KEY].GetKeyAt(i), PLACEHOLDER_STRING);
+                                _unsavedChanges = true;
+                            }
+                        }
+                    }
+                }
             }
             catch
             {
                 // if loading failed, create new strings
                 _strings = new JSONObject(JSONObject.Type.OBJECT);
-
-                // add the default language
-                JSONObject languages = new JSONObject(JSONObject.Type.OBJECT);
-                languages.AddField(Config[LanguageManager.CONFIG_DEFAULT_LANG_KEY].StringValue, Config[LanguageManager.CONFIG_DEFAULT_LANG_KEY].StringValue);
-                _strings.AddField(LanguageManager.LANGUAGES_KEY, languages);
 
                 // add the default category
                 AddCategory(LanguageManager.DEFAULT_CATEGORY);
@@ -489,6 +531,9 @@ namespace FK.Language
 
             // reset the editor
             ResetValues();
+
+            if (_unsavedChanges)
+                SaveStrings();
         }
 
         #endregion
@@ -496,9 +541,9 @@ namespace FK.Language
         #region GENERATE_STRINGS
 
         /// <summary>
-        /// Generates new strings by looking at all language texts in all scenes. This is additive, if there is a string file already, it won't override it but add to it
+        /// Generates new strings by looking at all language texts in all scenes or just the open scene. This is additive, if there is a string file already, it won't override it but add to it
         /// </summary>
-        private void GenerateStrings()
+        private void GenerateStrings(bool onlyOpenScene)
         {
             // if there are unsaved changes, ask the user if he wants to save them, then load the existing strings (this will create new strings if there are now existing strings)
             if (_unsavedChanges)
@@ -513,36 +558,52 @@ namespace FK.Language
                 LoadStrings();
             }
 
-            // get all asset paths
-            string[] paths = AssetDatabase.GetAllAssetPaths();
-
-            // save the path of the current scene and save the current scene
-            string startScenePath = EditorSceneManager.GetActiveScene().path;
-            EditorSceneManager.SaveOpenScenes();
-
-            // go through all paths and find the scenes
-            foreach (string path in paths)
+            // look at the open scene or at all scenes to generate the file
+            if (onlyOpenScene)
             {
-                // if the path does not end with .unity, this is not a scene, look at the next path
-                if (!path.EndsWith(".unity"))
-                    continue;
-
-                // we found a scene! now we need to open it and find all language text configs in it
-                EditorSceneManager.OpenScene(path);
-                LanguageTextConfig[] ltcs = FindObjectsOfType<LanguageTextConfig>();
-
-                // iterate through all language text configs and check if they already have a representation in the strings file
-                foreach (LanguageTextConfig ltc in ltcs)
-                {
-                    CheckField(ltc.Category, ltc.Name);
-                }
+                GenerateStringsForOpenScene();
             }
+            else
+            {
+                // get all asset paths
+                string[] paths = AssetDatabase.GetAllAssetPaths();
 
-            // now re open the scene we came from
-            EditorSceneManager.OpenScene(startScenePath);
+                // save the path of the current scene and save the current scene
+                string startScenePath = EditorSceneManager.GetActiveScene().path;
+                EditorSceneManager.SaveOpenScenes();
+
+                // go through all paths and find the scenes
+                foreach (string path in paths)
+                {
+                    // if the path does not end with .unity, this is not a scene, look at the next path
+                    if (!path.EndsWith(".unity"))
+                        continue;
+
+                    // we found a scene! now we need to open it and find all language text configs in it
+                    EditorSceneManager.OpenScene(path);
+                  GenerateStringsForOpenScene();
+                }
+
+                // now re open the scene we came from
+                EditorSceneManager.OpenScene(startScenePath);
+            }
 
             // reset the editor
             ResetValues();
+        }
+
+        /// <summary>
+        /// Generates the fields for the currently open scene
+        /// </summary>
+        private void GenerateStringsForOpenScene()
+        {
+            LanguageTextConfig[] ltcs = FindObjectsOfType<LanguageTextConfig>();
+
+            // iterate through all language text configs and check if they already have a representation in the strings file
+            foreach (LanguageTextConfig ltc in ltcs)
+            {
+                CheckField(ltc.Category, ltc.Field);
+            }
         }
 
         /// <summary>
@@ -565,9 +626,9 @@ namespace FK.Language
             {
                 // create the new field and add strings for each language
                 JSONObject newField = new JSONObject(JSONObject.Type.OBJECT);
-                for (int i = 0; i < _strings[LanguageManager.LANGUAGES_KEY].Count; ++i)
+                for (int i = 0; i < Config[LanguageManager.LANGUAGES_KEY].Count; ++i)
                 {
-                    newField.AddField(_strings[LanguageManager.LANGUAGES_KEY].GetKeyAt(i), PLACEHOLDER_STRING);
+                    newField.AddField(Config[LanguageManager.LANGUAGES_KEY].GetKeyAt(i), PLACEHOLDER_STRING);
                 }
 
                 // add the new field and mark the file as dirty
@@ -585,14 +646,18 @@ namespace FK.Language
         /// </summary>
         private void AddLanguage()
         {
-            // reset our local represnetation of the laanguages
+            EditorGUI.FocusTextInControl(null);
+            // reset our local representation of the laanguages
             _langs = null;
 
             // add the language in the languaes lookup
-            _strings[LanguageManager.LANGUAGES_KEY].AddField(_newLangCode, _newLangDisplay);
+            Config[LanguageManager.LANGUAGES_KEY].AddField(_newLangCode, _newLangDisplay);
 
-            // go through all categories (0 is the languages lookup, so start at 1) and add the new language to every field
-            for (int c = 1; c < _strings.Count; ++c)
+            if (_strings == null)
+                return;
+
+            // go through all categories and add the new language to every field
+            for (int c = 0; c < _strings.Count; ++c)
             {
                 JSONObject category = _strings[c];
                 foreach (JSONObject languageString in category)
@@ -601,7 +666,7 @@ namespace FK.Language
                 }
             }
 
-            // mark as dirty
+            // mark file as dirty
             _unsavedChanges = true;
         }
 
@@ -613,7 +678,7 @@ namespace FK.Language
         {
             // create the field and add all languages
             JSONObject field = new JSONObject(JSONObject.Type.OBJECT);
-            for (int i = 0; i < _langs.Length; ++i)
+            for (int i = 0; i < _langs.Count; ++i)
             {
                 field.AddField(_langs[i], PLACEHOLDER_STRING);
             }
@@ -671,9 +736,9 @@ namespace FK.Language
             // calculate the new index
             int newIndex = categoryIndex + direction;
 
-            // check if the new index is valid. We cant move further up than 2 because 1 is the default category that should always stay at the top and 0 is the Language Lookup.
+            // check if the new index is valid. We cant move further up than 1 because 0 is the default category that should always stay at the top.
             // Of course we cant move farther down than the max number of categories
-            if (newIndex > 1 && newIndex < _strings.Count)
+            if (newIndex > 0 && newIndex < _strings.Count)
             {
                 // move the category
                 _strings.MoveField(categoryIndex, newIndex);
@@ -702,10 +767,10 @@ namespace FK.Language
         /// <param name="top">Move to the top? Else it moves to the bottom</param>
         private void MoveCategory(int categoryIndex, bool top)
         {
-            // Move the category. Top is index 2 because 0 is the Language Lookup and 1 the default category
-            int newIndex = top ? 2 : _strings.Count - 1; 
-            _strings.MoveField(categoryIndex, top ? 2 : newIndex);
-            
+            // Move the category. Top is index 2 because 0 is the default category
+            int newIndex = top ? 1 : _strings.Count - 1;
+            _strings.MoveField(categoryIndex, newIndex);
+
             // move the anim bool
             if (newIndex < categoryIndex)
             {
@@ -717,7 +782,7 @@ namespace FK.Language
                 ShowCategory.Insert(newIndex, ShowCategory[categoryIndex - 1]);
                 ShowCategory.RemoveAt(categoryIndex - 1);
             }
-            
+
             // mark file as dirty
             _unsavedChanges = true;
         }
@@ -750,7 +815,7 @@ namespace FK.Language
         /// <param name="top">Move to the top? Else it moves to the bottom</param>
         private void MoveLanguageField(JSONObject category, int fieldIndex, bool top)
         {
-            category.MoveField(fieldIndex, top ? 0 : category.Count-1);
+            category.MoveField(fieldIndex, top ? 0 : category.Count - 1);
             _unsavedChanges = true;
         }
 
@@ -764,8 +829,13 @@ namespace FK.Language
             // reset our local representation of the languages
             _langs = null;
 
+            Config[LanguageManager.LANGUAGES_KEY].RenameField(oldCode, newCode);
+
+            if (_strings == null)
+                return;
+
             // go through all categories
-            for (int c = 1; c < _strings.Count; ++c)
+            for (int c = 0; c < _strings.Count; ++c)
             {
                 JSONObject category = _strings[c];
 
@@ -776,8 +846,7 @@ namespace FK.Language
                 }
             }
 
-            // rename the language in the lookup and mark file as dirty
-            _strings[LanguageManager.LANGUAGES_KEY].RenameField(oldCode, newCode);
+            // mark file as dirty
             _unsavedChanges = true;
         }
 
@@ -790,8 +859,13 @@ namespace FK.Language
             // reset our local representation of the languages
             _langs = null;
 
+            Config[LanguageManager.LANGUAGES_KEY].RemoveField(lang);
+
+            if (_strings == null)
+                return;
+
             // go through all categories
-            for (int c = 1; c < _strings.Count; ++c)
+            for (int c = 0; c < _strings.Count; ++c)
             {
                 JSONObject category = _strings[c];
 
@@ -802,8 +876,7 @@ namespace FK.Language
                 }
             }
 
-            // remove the language from the lookup and mark file as dirty
-            _strings[LanguageManager.LANGUAGES_KEY].RemoveField(lang);
+            // mark file as dirty
             _unsavedChanges = true;
         }
 
@@ -820,21 +893,12 @@ namespace FK.Language
         private void ShowSettings()
         {
             // Headline
-            EditorGUILayout.LabelField("Settings", EditorStyles.whiteLargeLabel, GUILayout.Height(20));
+            EditorGUILayout.LabelField("Settings", EditorStyles.boldLabel);
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
             // draw settings
             EditorGUI.BeginChangeCheck();
-            bool loadAsync =
-                EditorGUILayout.ToggleLeft(
-                    new GUIContent("Load strings asynchronously",
-                        "If set, the Language Manager will load the strings asynchronously without blocking the Main Thread"),
-                    Config[LanguageManager.CONFIG_LOAD_ASYNC_KEY].BoolValue);
 
-            string stringsFileName = EditorGUILayout.DelayedTextField(
-                new GUIContent("Strings File Name", "Name of the JSON file containing all strings in the Streaming Assets  (without file ending)"),
-                Config[LanguageManager.CONFIG_STRINGS_FILE_NAME_KEY].StringValue);
-
-            EditorGUILayout.Space();
 
             bool useSavedLanguage =
                 EditorGUILayout.ToggleLeft(
@@ -842,7 +906,7 @@ namespace FK.Language
                         "If set, the Language Manager tries to load the language that was last used from the Player Prefs. If there is none or if the strings file does not contain the language, it will go through the other options after this"),
                     Config[LanguageManager.CONFIG_USE_SAVED_LANG_KEY].BoolValue);
 
-   
+
             bool useSystemLanguage =
                 EditorGUILayout.ToggleLeft(
                     new GUIContent("Use system language as default",
@@ -853,21 +917,25 @@ namespace FK.Language
                 EditorGUILayout.DelayedTextField(new GUIContent("Default Language", "Language Code of the Language to use as a default or as a fallback if the system language is not supported"),
                     Config[LanguageManager.CONFIG_DEFAULT_LANG_KEY].StringValue);
 
+            EditorGUILayout.EndVertical();
+            GUILayout.Space(20);
+
+            ShowLanguages();
+            if (_langs == null || _langs.Count == 0)
+                _langs = new List<string>(Config[LanguageManager.LANGUAGES_KEY].Keys);
+
 
             // set settings values
             if (EditorGUI.EndChangeCheck())
             {
                 CheckoutConfig();
-                
-                Config[LanguageManager.CONFIG_LOAD_ASYNC_KEY].BoolValue = loadAsync;
-                Config[LanguageManager.CONFIG_STRINGS_FILE_NAME_KEY].StringValue = stringsFileName;
+
                 Config[LanguageManager.CONFIG_USE_SYSTEM_LANG_DEFAULT_KEY].BoolValue = useSystemLanguage;
                 Config[LanguageManager.CONFIG_DEFAULT_LANG_KEY].StringValue = defaultLanguage;
                 Config[LanguageManager.CONFIG_USE_SAVED_LANG_KEY].BoolValue = useSavedLanguage;
 
                 // delete language key in player prefs so testing is easier
                 PlayerPrefs.DeleteKey("Lang");
-                Debug.Log(Config.ToString());
 
                 Config.SaveToFile(ConfigFilePath);
             }
@@ -878,24 +946,26 @@ namespace FK.Language
         /// </summary>
         private void ShowStringsEditor()
         {
+            EditorGUILayout.LabelField("Strings", EditorStyles.boldLabel);
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             ShowActionButtons();
 
             // don't continue if no strings are loaded
             if (_strings == null)
+            {
+                EditorGUILayout.EndVertical();
                 return;
+            }
 
             GUILayout.Space(20);
 
-            ShowLanguages();
-            if (_langs == null || _langs.Length == 0)
-                _langs = _strings[LanguageManager.LANGUAGES_KEY].Keys;
-
-            GUILayout.Space(20);
 
             // display all the categories in a scroll view
             _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos);
             ShowCategories();
             EditorGUILayout.EndScrollView();
+            EditorGUILayout.EndVertical();
         }
 
         /// <summary>
@@ -903,22 +973,47 @@ namespace FK.Language
         /// </summary>
         private void ShowActionButtons()
         {
-            // generate strings
-            if (GUILayout.Button(
-                new GUIContent("Generate Strings",
-                    "Looks at all Language Texts in all scenes of this Project and generates fields for them in the strings file. If no file exists, it creates a new one"), BUTTON_WIDTH))
-                GenerateStrings();
-
-
-            EditorGUILayout.Space();
-
-
+            // button for opening a string file
             EditorGUILayout.BeginHorizontal();
-            // If pressed, this button opens a Text Preview window that displays formatted version of the text currently edited
-            if (GUILayout.Button(new GUIContent("Text Preview", "Opens a window that shows a rich text formatted version of the string currently edited as it will appear in the language texts"),
-                BUTTON_WIDTH))
-                TextPreviewWindow.OpenTextPreviewWindow();
+            if (GUILayout.Button(new GUIContent(string.IsNullOrEmpty(_currentlyEditingFilePath) ? "Select a file to edit" : _currentlyEditingFilePath, "The currently edited strings file"),
+                FileButtonStyle))
+            {
+                string path = EditorUtility.OpenFilePanel("Select a strings file to edit", Application.streamingAssetsPath, "json");
 
+                if (!string.IsNullOrEmpty(path))
+                {
+                    if (CheckPath(path))
+                    {
+                        _currentlyEditingFilePath = path;
+                        _currentlyEditingStreamingAssetsFilePath = _currentlyEditingFilePath.Remove(0, Application.streamingAssetsPath.Length);
+                        LoadStrings();
+                    }
+                }
+            }
+
+            // button for creating a new string file
+            if (GUILayout.Button(new GUIContent("New Strings File", "Create a new Strings file"), BUTTON_WIDTH))
+            {
+                string path = EditorUtility.SaveFilePanel("Create a new Strings file", Application.streamingAssetsPath, "strings", "json");
+
+                if (!string.IsNullOrEmpty(path))
+                {
+                    if (CheckPath(path))
+                    {
+                        _currentlyEditingFilePath = path;
+                        _currentlyEditingStreamingAssetsFilePath = _currentlyEditingFilePath.Remove(0, Application.streamingAssetsPath.Length);
+                        LoadStrings();
+                        SaveStrings();
+                    }
+                }
+            }
+
+            EditorGUILayout.EndHorizontal();
+
+            if(string.IsNullOrEmpty(_currentlyEditingFilePath))
+                return;
+            
+            EditorGUILayout.BeginHorizontal();
 
             // load strings
             if (GUILayout.Button("Load Strings", BUTTON_WIDTH))
@@ -938,15 +1033,35 @@ namespace FK.Language
             }
 
             // if no strings are loaded, stop here
-            if (_strings == null)
+            if (_strings != null)
             {
-                EditorGUILayout.EndHorizontal();
-                return;
+                // if strings are loaded, display a save button that is grayed out if there are no unsaved changes
+                if (GUILayout.Button("Save Strings", !_unsavedChanges ? GrayedOutButtonStyle : GUI.skin.button, BUTTON_WIDTH))
+                    SaveStrings();
             }
 
-            // if strings are loaded, display a save button that is grayed out if there are no unsaved changes
-            if (GUILayout.Button("Save Strings", !_unsavedChanges ? GrayedOutButtonStyle : GUI.skin.button, BUTTON_WIDTH))
-                SaveStrings();
+
+            GUILayout.Space(40);
+
+            // generate strings         
+            if (GUILayout.Button(
+                new GUIContent("Generate Strings",
+                    "Looks at all Language Texts in ALL SCENES of this Project and generates fields for them in the strings file. If no file exists, it creates a new one"), BUTTON_WIDTH))
+                GenerateStrings(false);
+            
+            if (GUILayout.Button(
+                new GUIContent("Generate for Current",
+                    "Looks at all Language Texts in the CURRENT SCENE and generates fields for them in the strings file. If no file exists, it creates a new one"), BUTTON_WIDTH))
+                GenerateStrings(true);
+
+            GUILayout.Space(40);
+            
+            // If pressed, this button opens a Text Preview window that displays formatted version of the text currently edited
+            if (GUILayout.Button(new GUIContent("Text Preview", "Opens a window that shows a rich text formatted version of the string currently edited as it will appear in the language texts"),
+                BUTTON_WIDTH))
+                TextPreviewWindow.OpenTextPreviewWindow();
+
+
             EditorGUILayout.EndHorizontal();
         }
 
@@ -957,25 +1072,15 @@ namespace FK.Language
         /// </summary>
         private void ShowLanguages()
         {
-            EditorGUILayout.BeginHorizontal();
-
-            // display a button for folding the languages in or out
-            if (!ShowLangs.target)
-                ShowLangs.target = GUILayout.Button(">", GUILayout.Width(SQUARE_BUTTON_WIDTH));
-            else
-                ShowLangs.target = !GUILayout.Button("v", GUILayout.Width(SQUARE_BUTTON_WIDTH));
-
             // headline
-            EditorGUILayout.LabelField("Languages", EditorStyles.whiteLargeLabel, CELL_WIDTH, GUILayout.Height(20));
-            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.LabelField("Languages", EditorStyles.boldLabel, CELL_WIDTH);
 
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
             // display all languages
             if (EditorGUILayout.BeginFadeGroup(ShowLangs.faded))
             {
                 EditorGUILayout.BeginHorizontal();
-                // add an indent
-                GUILayout.Space(SQUARE_BUTTON_WIDTH + GUI.skin.button.margin.horizontal);
 
                 EditorGUILayout.BeginVertical();
                 EditorGUILayout.BeginHorizontal();
@@ -987,8 +1092,8 @@ namespace FK.Language
                 EditorGUILayout.LabelField("Display Name", BUTTON_WIDTH);
                 EditorGUILayout.EndHorizontal();
 
-                // get the languages from the strings
-                JSONObject languages = _strings[LanguageManager.LANGUAGES_KEY];
+                // get the languages from the config
+                JSONObject languages = Config[LanguageManager.LANGUAGES_KEY];
 
                 // create a list for storing which languages should be removed after this loop
                 List<string> toRemove = new List<string>();
@@ -1013,7 +1118,6 @@ namespace FK.Language
                     if (EditorGUI.EndChangeCheck())
                     {
                         languages.SetField(langCode, langName);
-                        _unsavedChanges = true;
                     }
 
                     EditorGUILayout.EndHorizontal();
@@ -1045,6 +1149,10 @@ namespace FK.Language
             }
 
             EditorGUILayout.EndFadeGroup();
+            // display a button for folding the languages in or out
+            if (GUILayout.Button(ShowLangs.target ? "Retract" : "Expand"))
+                ShowLangs.target = !ShowLangs.target;
+            EditorGUILayout.EndVertical();
         }
 
         #endregion
@@ -1056,11 +1164,13 @@ namespace FK.Language
         /// </summary>
         private void ShowCategories()
         {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
             // create aa list to store which categories to remove
             List<int> categoriesToRemove = new List<int>();
 
-            // go though all categories and display them with all their fields. We start at 1 because 0 is not a category but the language lookup
-            for (int c = 1; c < _strings.Count; ++c)
+            // go though all categories and display them with all their fields
+            for (int c = 0; c < _strings.Count; ++c)
             {
                 // create a coloured area for the category
                 EditorGUILayout.BeginVertical(CategoryStyle);
@@ -1076,7 +1186,7 @@ namespace FK.Language
                 }
 
                 // display the contents of the category inside a fade group so it can be retracted
-                if (EditorGUILayout.BeginFadeGroup(ShowCategory[c - 1].faded))
+                if (EditorGUILayout.BeginFadeGroup(ShowCategory[c].faded))
                 {
                     EditorGUILayout.BeginHorizontal();
                     // add a tripple indent
@@ -1099,7 +1209,7 @@ namespace FK.Language
                         {
                             fieldsToRemove.Add(i);
                         }
-                        
+
                         EditorGUILayout.Space();
                     }
 
@@ -1133,8 +1243,7 @@ namespace FK.Language
             // a button to add a new category
             if (GUILayout.Button("Add Category", BUTTON_WIDTH))
                 AddCategory();
-
-            GUILayout.Space(50);
+            EditorGUILayout.EndVertical();
         }
 
         /// <summary>
@@ -1149,7 +1258,7 @@ namespace FK.Language
 
             EditorGUILayout.BeginHorizontal();
             // Display buttons to move the categroy up or down. If we are in the first category, we are in the default category. This category cannot be moved, so just display spaces so the intent is the same
-            if (categoryIndex == 1)
+            if (categoryIndex == 0)
             {
                 GUILayout.Space(SQUARE_BUTTON_WIDTH + GUI.skin.button.margin.horizontal);
                 GUILayout.Space(SQUARE_BUTTON_WIDTH + GUI.skin.button.margin.horizontal);
@@ -1164,7 +1273,7 @@ namespace FK.Language
                 if (GUILayout.Button(new GUIContent("⇓", "Move to bottom"), GUILayout.Width(SQUARE_BUTTON_WIDTH)))
                     MoveCategory(categoryIndex, false);
                 EditorGUILayout.EndHorizontal();
-            
+
                 // display buttons to move the category up or down
                 EditorGUILayout.BeginVertical(GUILayout.Width(SQUARE_BUTTON_WIDTH));
                 GUILayout.Space(VERTICAL_BUTTONS_INITIAL_SPACE);
@@ -1176,13 +1285,13 @@ namespace FK.Language
             }
 
             // show a button to extand and retract the category
-            if (!ShowCategory[categoryIndex - 1].target)
-                ShowCategory[categoryIndex - 1].target = GUILayout.Button(">", GUILayout.Width(SQUARE_BUTTON_WIDTH));
+            if (!ShowCategory[categoryIndex].target)
+                ShowCategory[categoryIndex].target = GUILayout.Button(">", GUILayout.Width(SQUARE_BUTTON_WIDTH));
             else
-                ShowCategory[categoryIndex - 1].target = !GUILayout.Button("v", GUILayout.Width(SQUARE_BUTTON_WIDTH));
+                ShowCategory[categoryIndex].target = !GUILayout.Button("v", GUILayout.Width(SQUARE_BUTTON_WIDTH));
 
             // display the name of the category. If we are in the first category, we are in the default category. This category cannot be renamed, so we just display a label
-            if (categoryIndex == 1)
+            if (categoryIndex == 0)
             {
                 EditorGUILayout.LabelField(_strings.GetKeyAt(categoryIndex), EditorStyles.whiteLargeLabel, CELL_WIDTH, GUILayout.Height(20));
             }
@@ -1202,7 +1311,7 @@ namespace FK.Language
                 DuplicateCategory(_strings[categoryIndex]);
 
             // if we are not in the default category, show a button to delete the category
-            if (categoryIndex > 1)
+            if (categoryIndex > 0)
             {
                 if (GUILayout.Button("Remove", BUTTON_WIDTH))
                     ret = false;
@@ -1225,7 +1334,7 @@ namespace FK.Language
 
             // display labels for string name and all languages
             EditorGUILayout.LabelField("String Name", EditorStyles.whiteLargeLabel, GUILayout.Height(20), CELL_WIDTH);
-            for (int i = 0; i < _langs.Length; ++i)
+            for (int i = 0; i < _langs.Count; ++i)
             {
                 EditorGUILayout.LabelField(_langs[i], EditorStyles.whiteLargeLabel, GUILayout.Height(20), CELL_WIDTH);
             }
@@ -1275,7 +1384,7 @@ namespace FK.Language
             bool ret = true;
 
             EditorGUILayout.BeginHorizontal();
-            
+
             // display buttons to move the field to the top or bottom
             EditorGUILayout.BeginVertical(GUILayout.Width(SQUARE_BUTTON_WIDTH));
             GUILayout.Space(VERTICAL_BUTTONS_INITIAL_SPACE);
@@ -1284,7 +1393,7 @@ namespace FK.Language
             if (GUILayout.Button(new GUIContent("⇓", "Move to bottom in Category"), GUILayout.Width(SQUARE_BUTTON_WIDTH)))
                 MoveLanguageField(categoryObj, fieldIndex, false);
             EditorGUILayout.EndHorizontal();
-            
+
             // display buttons to move the field up or down
             EditorGUILayout.BeginVertical(GUILayout.Width(SQUARE_BUTTON_WIDTH));
             GUILayout.Space(VERTICAL_BUTTONS_INITIAL_SPACE);
@@ -1293,7 +1402,7 @@ namespace FK.Language
             if (GUILayout.Button(new GUIContent("↓", "Move down one"), GUILayout.Width(SQUARE_BUTTON_WIDTH)))
                 MoveLanguageField(categoryObj, fieldIndex, 1);
             EditorGUILayout.EndVertical();
-            
+
 
             // delete the field
             if (GUILayout.Button("X", GUILayout.Width(SQUARE_BUTTON_WIDTH)))
@@ -1309,7 +1418,7 @@ namespace FK.Language
             }
 
             // show strings for all languages
-            for (int j = 0; j < _langs.Length; ++j)
+            for (int j = 0; j < _langs.Count; ++j)
             {
                 ShowLanguageString(categoryObj, fieldIndex, j);
             }
@@ -1356,6 +1465,22 @@ namespace FK.Language
         private bool DisplaySaveDialog()
         {
             return EditorUtility.DisplayDialog("Unsaved Changes", "There are unsaved changes in the strings, do you want to save them to the file?", "Save", "Don't Save");
+        }
+
+        /// <summary>
+        /// Checks if a provided path is inside the Streaming Assets and displays a dialog if it is not
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static bool CheckPath(string path)
+        {
+            if (!path.StartsWith(Application.streamingAssetsPath))
+            {
+                EditorUtility.DisplayDialog("Invalid Path", $"String files must reside inside the StreamingAssets folder", "Close");
+                return false;
+            }
+
+            return true;
         }
 
         #endregion

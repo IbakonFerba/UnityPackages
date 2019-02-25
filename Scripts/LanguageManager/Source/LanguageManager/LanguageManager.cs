@@ -1,20 +1,27 @@
-﻿using System;
+﻿// comment this line out if you don't have TextMeshPro in your Project
+
+#define TEXT_MESH_PRO
+
+using System;
 using System.IO;
 using System.Threading;
 using System.Collections;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using FK.JSON;
 using FK.Utility;
+#if TEXT_MESH_PRO
+using TMPro;
 
-namespace FK.Language
+#endif
+
+namespace FK.JLoc
 {
     /// <summary>
     /// <para>This Language Manager works without being present in any scene. Everything concerning it is static.</para>
-    /// <para>It loads the strings from a json file in the StreamingAssets folder. You can then set text in different languages either manually or use the language texts that manage language changes automatically</para>
+    /// <para>It loads the strings from json files in the StreamingAssets folder. You can then set text in different languages either manually or use the language texts that manage language changes automatically</para>
     ///
-    /// v3.2 01/2019
+    /// v1.0 02/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -22,9 +29,19 @@ namespace FK.Language
     {
         // ######################## PROPERTIES ######################## //
         /// <summary>
-        /// If this is false, the strings are not loaded yet. If you want to get strings on the start of the application, you should wait until this is true
+        /// If this is false, the manager did not load and initialize its configuration data yet. You should wait until this is true before doing anything with this manager
         /// </summary>
         public static bool Initialized { get; private set; }
+
+        /// <summary>
+        /// True if one or more string files are loaded
+        /// </summary>
+        public static bool HasStrings => _strings?.Count > 0;
+
+        /// <summary>
+        /// If the manager is currently loading one ore more files, this is true
+        /// </summary>
+        public static bool CurrentlyLoadingStrings => _currentlyLoading > 0;
 
         /// <summary>
         /// The Language Code of the Current Language
@@ -48,10 +65,10 @@ namespace FK.Language
             {
                 if (_langs == null)
                 {
-                    if (_strings != null && Initialized)
-                        _langs = _strings[LANGUAGES_KEY].Keys;
+                    if (_config != null && Initialized)
+                        _langs = _config[LANGUAGES_KEY].Keys;
                     else
-                        Debug.LogWarning("Trying to access Languages with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
+                        Debug.LogWarning("Trying to access Languages with no config loaded! Either the LanguageManager is not initialized yet or the config does not exist!");
                 }
 
                 return _langs;
@@ -166,6 +183,11 @@ namespace FK.Language
         public static Action<string> OnLanguageChanged;
 
         /// <summary>
+        /// This callback is invoked every time a strings file is loaded
+        /// </summary>
+        public static Action OnStringFileLoaded;
+
+        /// <summary>
         /// The default category that is used to look up a string when no category is provided
         /// </summary>
         public const string DEFAULT_CATEGORY = "default";
@@ -178,8 +200,6 @@ namespace FK.Language
         public const string LANGUAGES_KEY = "Languages";
 
         public const string CONFIG_NAME = "LanguageManagerConfig";
-        public const string CONFIG_LOAD_ASYNC_KEY = "LoadStringsAsync";
-        public const string CONFIG_STRINGS_FILE_NAME_KEY = "StringsFileName";
         public const string CONFIG_USE_SYSTEM_LANG_DEFAULT_KEY = "UseSystemLanguageAsDefault";
         public const string CONFIG_DEFAULT_LANG_KEY = "DefaultLanguageCode";
         public const string CONFIG_USE_SAVED_LANG_KEY = "UseSavedLanguage";
@@ -207,6 +227,9 @@ namespace FK.Language
         /// </summary>
         private static JSONObject _config;
 
+        /// <summary>
+        /// Backing for CurrentLanguage
+        /// </summary>
         private static string _currentLanguage;
 
         /// <summary>
@@ -214,13 +237,18 @@ namespace FK.Language
         /// </summary>
         private static string[] _langs;
 
+        /// <summary>
+        /// Amount of files that are currently loading
+        /// </summary>
+        private static int _currentlyLoading = 0;
+
 
         // ######################## INITS ######################## //
 
         #region INIT
 
         /// <summary>
-        /// Loads the strings and initializes the Manager on Application Start
+        /// Loads the config data and initializes the Manager on Application Start
         /// </summary>
         /// <exception cref="NullReferenceException"></exception>
         [RuntimeInitializeOnLoadMethod]
@@ -235,7 +263,7 @@ namespace FK.Language
         }
 
         /// <summary>
-        /// Loads the config async and then loads the strings and initializes everything
+        /// Loads the config async and initializes everything
         /// </summary>
         /// <returns></returns>
         /// <exception cref="NullReferenceException"></exception>
@@ -250,47 +278,10 @@ namespace FK.Language
             yield return CoroutineHost.StartTrackedCoroutine(LoadConfigAsync(configPath), _config, "LanguageManager");
 #endif
 
-            // get the current language
             // if we have a saved Language in the Player Prefs we load that
             CurrentLanguage = (_config[CONFIG_USE_SAVED_LANG_KEY].BoolValue && PlayerPrefs.HasKey("Lang")) ? PlayerPrefs.GetString("Lang") : null;
 
-            // calculate the path to the strings file
-            string path = Path.Combine(Application.streamingAssetsPath, _config[CONFIG_STRINGS_FILE_NAME_KEY].StringValue + JSON_FILE_EXTENSION);
-
-            // now we need to load the file either asynchronously or synchronously
-            if (_config[CONFIG_LOAD_ASYNC_KEY].BoolValue)
-            {
-                // load the file async
-                _strings = new JSONObject();
-#if !UNITY_EDITOR
-                CoroutineHost.Instance.StartCoroutine(LoadStringsAsync(path));
-#else
-                CoroutineHost.StartTrackedCoroutine(LoadStringsAsync(path), _strings, "LanguageManager");
-#endif
-            }
-            else
-            {
-                // load the file synchronously
-                try
-                {
-                    _strings = JSONObject.LoadFromFile(path);
-                }
-                catch (FileNotFoundException)
-                {
-                    Debug.LogError($"Could not load strings from {path} because the File does not exist!");
-                    throw;
-                }
-
-                // if the strings file does not have the Languages Object, we have a problem, abort!
-                if (!_strings.HasField(LANGUAGES_KEY))
-                {
-                    _strings = null;
-                    throw new NullReferenceException($"Improper structure of strings file, could not find property \"{LANGUAGES_KEY}\"");
-                }
-
-                ParseStrings(_strings);
-                FinishInit();
-            }
+            FinishInit();
         }
 
         /// <summary>
@@ -306,46 +297,14 @@ namespace FK.Language
             // if we have no config file, something is wrong!
             if (_config?.IsNull ?? false)
                 throw new NullReferenceException($"Could not load Language Manager Config!");
-        }
 
-        /// <summary>
-        /// Loads the strings asynchronously
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        /// <exception cref="NullReferenceException"></exception>
-        private static IEnumerator LoadStringsAsync(string path)
-        {
-#if UNITY_EDITOR
-            // in the editor keep track of how long the loading process takes
-            System.Diagnostics.Stopwatch loadWatch = new System.Diagnostics.Stopwatch();
-            loadWatch.Start();
-#endif
-            // wait for the JSONObject to load
-            yield return JSONObject.LoadFromFileAsync(path, _strings);
 
-            // if the strings file does not have the Languages Object, we have a problem, abort!
-            if (!_strings.HasField(LANGUAGES_KEY))
+            // if the config file does not have the Languages Object, we have a problem, abort!
+            if (!_config.HasField(LANGUAGES_KEY))
             {
-                _strings = null;
-                throw new NullReferenceException($"Improper structure of strings file, could not find property \"{LANGUAGES_KEY}\"");
+                _config = null;
+                throw new NullReferenceException($"Improper structure of config file, could not find property \"{LANGUAGES_KEY}\"");
             }
-
-            // parse the strings asynchronously
-            Thread parseThread = new Thread(() => ParseStrings(_strings));
-            parseThread.Start();
-
-            // wait until parsing is done
-            yield return new WaitWhile(() => parseThread.ThreadState == ThreadState.Running);
-
-            // finish him!
-            FinishInit();
-
-#if UNITY_EDITOR
-            // tell the dev how much time loading took
-            Debug.Log($"Loaded strings in {System.Math.Round(loadWatch.Elapsed.TotalMilliseconds)} milliseconds!");
-            loadWatch.Reset();
-#endif
         }
 
         /// <summary>
@@ -353,15 +312,15 @@ namespace FK.Language
         /// </summary>
         private static void FinishInit()
         {
-            // if the CurrentLanguage is invalid or not contained in the strings file, check our other options
-            if (string.IsNullOrEmpty(CurrentLanguage) || !_strings[LANGUAGES_KEY].HasField(CurrentLanguage))
+            // if the CurrentLanguage is invalid or not contained in the config file, check our other options
+            if (string.IsNullOrEmpty(CurrentLanguage) || !_config[LANGUAGES_KEY].HasField(CurrentLanguage))
             {
-                // if we should use the system language and it is contained in the strings, use that
-                if (_config[CONFIG_USE_SYSTEM_LANG_DEFAULT_KEY].BoolValue && _strings[LANGUAGES_KEY].HasField(SystemLanguage))
+                // if we should use the system language and it is contained in the striconfigngs, use that
+                if (_config[CONFIG_USE_SYSTEM_LANG_DEFAULT_KEY].BoolValue && _config[LANGUAGES_KEY].HasField(SystemLanguage))
                 {
                     CurrentLanguage = SystemLanguage;
-                } // if we could not use the system language, use the default language if it is contained in the strings
-                else if (_strings[LANGUAGES_KEY].HasField(_config[CONFIG_DEFAULT_LANG_KEY].StringValue))
+                } // if we could not use the system language, use the default language if it is contained in the config
+                else if (_config[LANGUAGES_KEY].HasField(_config[CONFIG_DEFAULT_LANG_KEY].StringValue))
                 {
                     CurrentLanguage = _config[CONFIG_DEFAULT_LANG_KEY].StringValue;
                 }
@@ -377,6 +336,91 @@ namespace FK.Language
         }
 
         #endregion
+
+        // ######################## FUNCTIONALITY ######################## //
+
+        #region STRINGS_LOADING
+
+        /// <summary>
+        /// Loads the strings from a provided file
+        /// </summary>
+        /// <param name="path">The path to the strings file (Should be inside streaming Assets)</param>
+        /// <param name="async">If true, we will load the strings asynchronously in a seperate thread</param>
+        /// <param name="unloadOther">If true, all other strings will be unloaded before the new ones are loaded</param>
+        public static void LoadStringsFile(string path, bool async = true, bool unloadOther = false)
+        {
+            ++_currentlyLoading;
+
+            if (unloadOther || _strings == null)
+                _strings = new JSONObject();
+
+
+            // load the file either asynchronously or synchronously
+            if (async)
+            {
+#if !UNITY_EDITOR
+                CoroutineHost.Instance.StartCoroutine(LoadStringsAsync(path));
+#else
+                CoroutineHost.StartTrackedCoroutine(LoadStringsAsync(path), _strings, "LanguageManager");
+#endif
+            }
+            else
+            {
+                JSONObject subStrings = new JSONObject(JSONObject.Type.OBJECT);
+
+                // load the file synchronously
+                try
+                {
+                    subStrings = JSONObject.LoadFromFile(path);
+                }
+                catch (FileNotFoundException)
+                {
+                    Debug.LogError($"Could not load strings from {path} because the File does not exist!");
+                    throw;
+                }
+
+                ParseStrings(subStrings);
+                _strings[path] = subStrings;
+                --_currentlyLoading;
+                OnStringFileLoaded?.Invoke();
+            }
+        }
+
+        /// <summary>
+        /// Loads the strings asynchronously
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        /// <exception cref="NullReferenceException"></exception>
+        private static IEnumerator LoadStringsAsync(string path)
+        {
+#if UNITY_EDITOR
+            // in the editor keep track of how long the loading process takes
+            System.Diagnostics.Stopwatch loadWatch = new System.Diagnostics.Stopwatch();
+            loadWatch.Start();
+#endif
+            JSONObject subStrings = new JSONObject(JSONObject.Type.OBJECT);
+
+            // wait for the JSONObject to load
+            yield return JSONObject.LoadFromFileAsync(path, subStrings);
+
+            // parse the strings asynchronously
+            Thread parseThread = new Thread(() => ParseStrings(subStrings));
+            parseThread.Start();
+
+            // wait until parsing is done
+            yield return new WaitWhile(() => parseThread.ThreadState == ThreadState.Running);
+
+            _strings[path] = subStrings;
+            --_currentlyLoading;
+            OnStringFileLoaded?.Invoke();
+
+#if UNITY_EDITOR
+            // tell the dev how much time loading took
+            Debug.Log($"Loaded strings in {System.Math.Round(loadWatch.Elapsed.TotalMilliseconds)} milliseconds!");
+            loadWatch.Reset();
+#endif
+        }
 
         /// <summary>
         /// Parses the strings so linebreaks are actual line breaks
@@ -397,28 +441,44 @@ namespace FK.Language
 
                         // replace escaped escape characters and Quotation marks
                         s = s.Replace("\\\"", "\"").Replace("\\\\", "\\");
-                        
+
                         languageString.SetField(languageString.GetKeyAt(i), s);
                     }
                 }
             }
         }
 
-        // ######################## FUNCTIONALITY ######################## //
+        /// <summary>
+        /// Unloads the strings from the provided file
+        /// </summary>
+        /// <param name="path">Path of the file that should be unloaded</param>
+        public static void UnloadStringsFile(string path)
+        {
+            if (!_strings.HasField(path))
+            {
+                Debug.LogWarning($"Cannot unload strings file {path} because it is not loaded");
+                return;
+            }
+
+            _strings.RemoveField(path);
+        }
+
+        #endregion
+
         /// <summary>
         /// Set the language to the provided Language if it is valid
         /// </summary>
         /// <param name="language">The Language Code of the desired Language</param>
         public static void SetLanguage(string language)
         {
-            if (_strings == null || !Initialized)
-                throw new NullReferenceException("Trying to set language with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
+            if (!Initialized)
+                throw new NullReferenceException("Trying to set language while LanguageManager is not initialized yet!");
 
             // make sure we are lower case
             string lowerCaseLang = language.ToLower();
 
             // if the language is invalid or not contained in the file, we cannot change
-            if (string.IsNullOrEmpty(lowerCaseLang) || !_strings[LANGUAGES_KEY].HasField(lowerCaseLang))
+            if (string.IsNullOrEmpty(lowerCaseLang) || !_config[LANGUAGES_KEY].HasField(lowerCaseLang))
             {
                 Debug.LogError($"Cannot change language because language \"{lowerCaseLang}\" does not exist!");
                 return;
@@ -445,18 +505,14 @@ namespace FK.Language
             if (textField == null)
                 return;
 
-            // if we have no strings, we cannot continue, throw an exeption so the dev knows this won't work!
-            if (_strings == null || !Initialized)
-                throw new NullReferenceException("Trying to access strings with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
-
-            // get the string
-            string s = _strings[category]?[name]?[CurrentLanguage]?.StringValue;
-
-            // if the string is null, something went wrong, notify the dev with an exeption (I know devs love them)
-            if (s == null)
+            string s;
+            try
             {
-                textField.text = "<MISSING>";
-                throw new NullReferenceException($"Could not find string \"{name}\" in language \"{CurrentLanguage}\" in category \"{category}\"");
+                s = GetString(name, category);
+            }
+            catch (Exception)
+            {
+                s = "<MISSING>";
             }
 
             // set the text
@@ -477,27 +533,21 @@ namespace FK.Language
             if (textField == null)
                 return;
 
-            // if we have no strings, we cannot continue, throw an exeption so the dev knows this won't work!
-            if (_strings == null|| !Initialized)
-                throw new NullReferenceException("Trying to access strings with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
-
-            // make sure the language is lower case
-            string lowerCaseLang = language.ToLower();
-
-            // get the string
-            string s = _strings[category]?[name]?[lowerCaseLang]?.StringValue;
-
-            // if the string is null, something went wrong, notify the dev with an exeption (I know devs love them)
-            if (s == null)
+            string s;
+            try
             {
-                textField.text = "<MISSING>";
-                throw new NullReferenceException($"Could not find string \"{name}\" in language \"{lowerCaseLang}\" in category \"{category}\"");
+                s = GetString(name, category, language);
+            }
+            catch (Exception)
+            {
+                s = "<MISSING>";
             }
 
             // set the text
             textField.text = s;
         }
 
+#if TEXT_MESH_PRO
         /// <summary>
         /// Sets the text of the provided Text object to the correct one in the current language
         /// </summary>
@@ -511,18 +561,14 @@ namespace FK.Language
             if (textField == null)
                 return;
 
-            // if we have no strings, we cannot continue, throw an exeption so the dev knows this won't work!
-            if (_strings == null || !Initialized)
-                throw new NullReferenceException("Trying to access strings with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
-
-            // get the string
-            string s = _strings[category]?[name]?[CurrentLanguage]?.StringValue;
-
-            // if the string is null, something went wrong, notify the dev with an exeption (I know devs love them)
-            if (s == null)
+            string s;
+            try
             {
-                textField.text = "<MISSING>";
-                throw new NullReferenceException($"Could not find string \"{name}\" in language \"{CurrentLanguage}\" in category \"{category}\"");
+                s = GetString(name, category);
+            }
+            catch (Exception)
+            {
+                s = "<MISSING>";
             }
 
             // set the text
@@ -543,26 +589,20 @@ namespace FK.Language
             if (textField == null)
                 return;
 
-            // if we have no strings, we cannot continue, throw an exeption so the dev knows this won't work!
-            if (_strings == null || !Initialized)
-                throw new NullReferenceException("Trying to access strings with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
-
-            // make sure the language is lower case
-            string lowerCaseLang = language.ToLower();
-
-            // get the string
-            string s = _strings[category]?[name]?[lowerCaseLang]?.StringValue;
-
-            // if the string is null, something went wrong, notify the dev with an exeption (I know devs love them)
-            if (s == null)
+            string s;
+            try
             {
-                textField.text = "<MISSING>";
-                throw new NullReferenceException($"Could not find string \"{name}\" in language \"{lowerCaseLang}\" in category \"{category}\"");
+                s = GetString(name, category, language);
+            }
+            catch (Exception)
+            {
+                s = "<MISSING>";
             }
 
             // set the text
             textField.text = s;
         }
+#endif
 
         #endregion
 
@@ -577,12 +617,21 @@ namespace FK.Language
         /// <exception cref="NullReferenceException"></exception>
         public static string GetString(string name, string category = DEFAULT_CATEGORY)
         {
-            // if we have no strings, we cannot continue, throw an exeption so the dev knows this won't work!
-            if (_strings == null || !Initialized)
-                throw new NullReferenceException("Trying to access strings with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
+            // if we are not initialized, we cannot continue
+            if (!Initialized)
+                throw new NullReferenceException("Trying to access strings while LanguageManager is not initialized yet!");
 
-            // get the string
-            string s = _strings[category]?[name]?[CurrentLanguage]?.StringValue;
+            // if we have no strings, we cannot continue, throw an exeption so the dev knows this won't work!
+            if (!HasStrings)
+                throw new NullReferenceException("Trying to access strings with no string file loaded!");
+
+            // get the string by going through all loaded files and check whether they contain the string
+            string s = null;
+            int i = 0;
+            while (i < _strings.Count && s == null)
+            {
+                s = _strings[i++][category]?[name]?[CurrentLanguage]?.StringValue;
+            }
 
             // if the string is null, something went wrong, notify the dev with an exeption (I know devs love them)
             if (s == null)
@@ -601,15 +650,24 @@ namespace FK.Language
         /// <exception cref="NullReferenceException"></exception>
         public static string GetString(string name, string category, string language)
         {
+            // if we are not initialized, we cannot continue
+            if (!Initialized)
+                throw new NullReferenceException("Trying to access strings while LanguageManager is not initialized yet!");
+
             // if we have no strings, we cannot continue, throw an exeption so the dev knows this won't work!
-            if (_strings == null || !Initialized)
-                throw new NullReferenceException("Trying to access strings with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
+            if (!HasStrings)
+                throw new NullReferenceException("Trying to access strings with no string file loaded!");
 
             // make sure the language is lower case
             string lowerCaseLang = language.ToLower();
 
-            // get the string
-            string s = _strings[category]?[name]?[lowerCaseLang]?.StringValue;
+            // get the string by going through all loaded files and check whether they contain the string
+            string s = null;
+            int i = 0;
+            while (i < _strings.Count && s == null)
+            {
+                s = _strings[i++][category]?[name]?[lowerCaseLang]?.StringValue;
+            }
 
             // if the string is null, something went wrong, notify the dev with an exeption (I know devs love them)
             if (s == null)
@@ -630,20 +688,20 @@ namespace FK.Language
         public static string GetLanguageDisplayName(string languageCode)
         {
             // if strings is null, we cannot continue
-            if (_strings == null || !Initialized)
+            if (_config == null || !Initialized)
             {
-                Debug.LogWarning("Trying to access Languages with no string file loaded! Either the LanguageManager is not initialized yet or the file does not exist!");
+                Debug.LogWarning("Trying to access Languages with no config file loaded! Either the LanguageManager did not load it yet or the file does not exist!");
                 return null;
             }
 
             // if the language does not exist, notify the dev
-            if (!_strings[LANGUAGES_KEY].HasField(languageCode))
+            if (!_config[LANGUAGES_KEY].HasField(languageCode))
             {
                 Debug.LogWarning($"Requested Language \"{languageCode}\" does not exist!");
                 return null;
             }
 
-            return _strings[LANGUAGES_KEY][languageCode].StringValue;
+            return _config[LANGUAGES_KEY][languageCode].StringValue;
         }
     }
 }
