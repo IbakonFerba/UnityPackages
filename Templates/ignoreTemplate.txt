@@ -26,11 +26,11 @@ Thumbs.db
 *.snl.DotSettings.user
 
 #ignore Rider Files
-.idea/...
+.idea/
 
 #ignore unity files
-Library/...
-Logs/...
-obj/...
-Temp/...
+Library/
+Logs/
+obj/
+Temp/
 *.csproj
