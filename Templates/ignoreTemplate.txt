@@ -3,34 +3,34 @@
 Thumbs.db
 
 #Ignore files build by Visual Studio
-*.exe
-*.pdb
-*.user
-*.aps
-*.pch
-*.vspscc
-*_i.c
-*_p.c
-*.ncb
-*.suo
-*.tlb
-*.tlh
-*.bak
-*.cache
-*.ilk
-*.log
-*.dll
-*.lib
-*.sbr
-*.sln
-*.snl.DotSettings.user
+.exe
+.pdb
+.user
+.aps
+.pch
+.vspscc
+_i.c
+_p.c
+.ncb
+.suo
+.tlb
+.tlh
+.bak
+.cache
+.ilk
+.log
+.dll
+.lib
+.sbr
+.sln
+.snl.DotSettings.user
 
 #ignore Rider Files
-.idea/
+/.idea/...
 
 #ignore unity files
-Library/
-Logs/
-obj/
-Temp/
-*.csproj
+/Library/...
+/Logs/...
+/obj/...
+/Temp/...
+.csproj
