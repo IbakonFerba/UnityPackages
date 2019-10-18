@@ -5,7 +5,7 @@ namespace FK.Utility.VersionControl
     /// <summary>
     /// <para>Contains useful functions for working with Version Control</para>
     ///
-    /// v1.0 10/2019
+    /// v1.1 10/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -34,8 +34,15 @@ namespace FK.Utility.VersionControl
                 Provider.Status(asset).Wait();
             } while (asset.IsState(Asset.States.Updating));
 
-            // we might need to add the asset if it is local or has no state
-            if (asset.IsState(Asset.States.Local) || asset.state == Asset.States.None)
+            // if the asset is in one of these states, it is defenitely under VC
+            Asset.States[] vcStates =
+            {
+                Asset.States.Conflicted, Asset.States.Synced, Asset.States.AddedLocal, Asset.States.LockedLocal, Asset.States.LockedRemote, Asset.States.MovedLocal, Asset.States.MovedRemote,
+                Asset.States.CheckedOutLocal, Asset.States.CheckedOutRemote, Asset.States.OutOfSync, Asset.States.AddedRemote
+            };
+            
+            // we might need to add the asset
+            if (!asset.IsOneOfStates(vcStates) || asset.state == Asset.States.None)
             {
                 if (automaticAdd)
                     return AddToVersionControl(path);
