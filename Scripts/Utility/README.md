@@ -18,6 +18,8 @@ A place for a whole bunche Quality-Of-Life Utilities
 
 - `namespace FK.Utility.Fading`: Extension Methods for fading all kinds of Objects
 
+- `namespace FK.Utility.VersionControl`: Utility functions for working with version control
+
 - `#include "Assets/Shaders/Includes/Utility.cginc"`: Shader Methods that might be useful for multiple shaders
 
 ## ConstantsGenerator
