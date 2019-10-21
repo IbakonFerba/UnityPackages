@@ -6,7 +6,7 @@ namespace FK.Utility.Editor
     /// <summary>
     /// <para>A custom property drawer for the serializable guid. This uses IMGUI because the default inspector does not yet support UIElements</para>
     ///
-    /// v1.1 10/2019
+    /// v1.2 10/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -28,7 +28,7 @@ namespace FK.Utility.Editor
             EditorGUI.indentLevel = 0;
 
             // Draw fields
-            EditorGUI.SelectableLabel(position, property.FindPropertyRelative("_serializedGuid").stringValue);
+            EditorGUI.DelayedTextField(position, property.FindPropertyRelative("_serializedGuid"), GUIContent.none);
 
             // Set indent back to what it was
             EditorGUI.indentLevel = indent;
