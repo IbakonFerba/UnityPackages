@@ -5,7 +5,7 @@ namespace FK.Utility
     /// <summary>
     /// <para>An oriented bounding box that can be used to check volumes for points</para>
     ///
-    /// v1.0 10/2019
+    /// v1.1 10/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -147,8 +147,7 @@ namespace FK.Utility
         // ######################## UTILITIES ######################## //
 
         #region EDITOR
-
-#if UNITY_EDITOR
+        
         /// <summary>
         /// Draws the OBB. Only available in the Editor
         /// </summary>
@@ -156,6 +155,7 @@ namespace FK.Utility
         /// <param name="duration"></param>
         public void DebugDraw(Color color, float duration = 1)
         {
+#if UNITY_EDITOR
             if (_worldPoints == null)
                 CalculateWorldPoints();
 
@@ -171,6 +171,7 @@ namespace FK.Utility
             Debug.DrawLine(_worldPoints[1], _worldPoints[5], color, duration);
             Debug.DrawLine(_worldPoints[2], _worldPoints[6], color, duration);
             Debug.DrawLine(_worldPoints[3], _worldPoints[7], color, duration);
+#endif
         }
 
         /// <summary>
@@ -180,7 +181,6 @@ namespace FK.Utility
         {
             DebugDraw(Color.white);
         }
-#endif
 
         #endregion
     }
