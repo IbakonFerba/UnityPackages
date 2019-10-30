@@ -32,17 +32,6 @@ public class #SCRIPTNAME# : MonoBehaviour
 	// ######################## PRIVATE VARS ######################## //
 	
 	
-	// ######################## UNITY EVENT FUNCTIONS ######################## //
-	private void Start () {
-		Init();
-	}
-		
-	private void Update () {
-		#NOTRIM#
-	}
-	
-	
-	
 	// ######################## INITS ######################## //
 	///<summary>
 	/// Does the Init for this Behaviour
@@ -52,6 +41,15 @@ public class #SCRIPTNAME# : MonoBehaviour
 		#NOTRIM#
 	}
 	
+	
+	// ######################## UNITY EVENT FUNCTIONS ######################## //
+	private void Start () {
+		Init();
+	}
+		
+	private void Update () {
+		#NOTRIM#
+	}
 	
 	
 	// ######################## FUNCTIONALITY ######################## //
