@@ -1,4 +1,5 @@
-﻿using UnityEditor.VersionControl;
+﻿#if UNITY_EDITOR
+using UnityEditor.VersionControl;
 
 namespace FK.Utility.VersionControl
 {
@@ -76,3 +77,4 @@ namespace FK.Utility.VersionControl
         }
     }
 }
+#endif

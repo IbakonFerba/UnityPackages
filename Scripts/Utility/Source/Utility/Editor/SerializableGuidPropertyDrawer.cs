@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+using UnityEditor;
 using UnityEngine;
 
 namespace FK.Utility.Editor
@@ -37,3 +38,4 @@ namespace FK.Utility.Editor
         }
     }
 }
+#endif
