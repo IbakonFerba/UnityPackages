@@ -32,7 +32,7 @@ namespace FK.Utility
     /// <summary>
     /// <para>Extension Methods for Transform and RectTransform</para>
     /// 
-    /// v2.3 02/2019
+    /// v2.4 11/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -615,6 +615,22 @@ namespace FK.Utility
             }
 
             return null;
+        }
+
+        #endregion
+
+        #region GENERAL
+
+        /// <summary>
+        /// Sets the lossy scale of a transform
+        /// </summary>
+        /// <param name="transform"></param>
+        /// <param name="lossyScale"></param>
+        public static void SetLossyScale(this Transform transform, Vector3 lossyScale)
+        {
+            transform.localScale = Vector3.one;
+            Vector3 transformLossyScale = transform.lossyScale;
+            transform.localScale = new Vector3(lossyScale.x/transformLossyScale.x, lossyScale.y/transformLossyScale.y, lossyScale.z/transformLossyScale.z);
         }
 
         #endregion
