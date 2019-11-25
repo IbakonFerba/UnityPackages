@@ -6,7 +6,7 @@ namespace FK.Utility
     /// <summary>
     /// <para>A serializable system.Guid</para>
     ///
-    /// v1.0 10/2019
+    /// v1.1 11/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -114,12 +114,15 @@ namespace FK.Utility
 
         public override bool Equals(object obj)
         {
-            return base.Equals(obj);
+            if (!(obj is SerializableGuid))
+                return false;
+            
+            return Value.Equals(((SerializableGuid)obj).Value);
         }
 
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            return Value.GetHashCode();
         }
 
         public override string ToString()
