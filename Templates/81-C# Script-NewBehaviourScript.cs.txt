@@ -12,30 +12,60 @@ using UnityEngine;
 public class #SCRIPTNAME# : MonoBehaviour 
 {
 	// ######################## STRUCTS & CLASSES ######################## //
+	#region STRUCTS & CLASSES
+	
+	#endregion
 	
 	
 	// ######################## ENUMS & DELEGATES ######################## //
-
-
+	#region ENUMS & DELEGATES
+	
+	#endregion
+	
+	
 	// ######################## EVENTS ######################## //
+	#region EVENTS
+	
+	#endregion
 	
 	
 	// ######################## PROPERTIES ######################## //
+	#region PROPERTIES
 	
-
+	#endregion
+	
+	
 	// ######################## EXPOSED VARS ######################## //
-
+	#region EXPOSED VARS
+	
+	#endregion
+	
 	
 	// ######################## PUBLIC VARS ######################## //
+	#region PUBLIC VARS
+	
+	#endregion
 	
 	
 	// ######################## PROTECTED VARS ######################## //
+	#region PROTECTED VARS
+	
+	#endregion
 	
 	
 	// ######################## PRIVATE VARS ######################## //
+	#region PRIVATE VARS
+	
+	#endregion
 	
 	
 	// ######################## INITS ######################## //
+	#region CONSTRUCTOS
+	
+	#endregion
+
+	#region INITS
+	
 	///<summary>
 	/// Does the Init for this Behaviour
 	///</summary>
@@ -44,8 +74,12 @@ public class #SCRIPTNAME# : MonoBehaviour
 		#NOTRIM#
 	}
 	
+	#endregion
+	
 	
 	// ######################## UNITY EVENT FUNCTIONS ######################## //
+	#region UNITY EVENT FUNCTIONS
+	
 	private void Start () {
 		Init();
 	}
@@ -54,13 +88,23 @@ public class #SCRIPTNAME# : MonoBehaviour
 		#NOTRIM#
 	}
 	
+	#endregion
+	
 	
 	// ######################## FUNCTIONALITY ######################## //
+	#region FUNCTIONALITY
+	
+	#endregion
 	
 	
 	// ######################## COROUTINES ######################## //
+	#region COROUTINES 
+	
+	#endregion
 	
 	
 	// ######################## UTILITIES ######################## //
+	#region UTILITIES
 	
+	#endregion		
 }
