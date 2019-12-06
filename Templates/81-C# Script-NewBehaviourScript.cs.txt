@@ -60,7 +60,7 @@ public class #SCRIPTNAME# : MonoBehaviour
 	
 	
 	// ######################## INITS ######################## //
-	#region CONSTRUCTOS
+	#region CONSTRUCTORS
 	
 	#endregion
 
