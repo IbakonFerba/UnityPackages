@@ -1,0 +1,43 @@
+/* Layout */
+.root {
+    padding: 10px;
+}
+
+.header {
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.footer {
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+
+.color-comparision-swatch {
+    overflow: hidden;
+    height: 30px;
+    width: 90px;
+    border-radius: 10px;
+}
+
+.enum-field {
+    width: 90px;
+    height: 20px;
+    margin-right: auto;
+}
+
+.color-wheel {
+    --inner-radius-offset: 20;
+}
+.color-slider {
+    height: 30px;
+    margin-top: 20px;
+    -unity-text-align: middle-left;
+    font-size: 15px;
+}
+
+.hex-field {
+    width: 100px;
+}
+

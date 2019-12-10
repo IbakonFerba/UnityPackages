@@ -1,0 +1,53 @@
+.float {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+.full {
+    position: absolute;
+    overflow: hidden;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: auto;
+}
+
+.fill-height {
+    height: auto;
+    top: 0;
+    bottom: 0;
+}
+
+.fill-width {
+    width: auto;
+    left: 0;
+    right: 0;
+}
+
+.full-flex {
+    flex: auto;
+    width: auto;
+    height: auto;
+}
+
+.rounded {
+    border-radius: 3px;    
+}
+
+.row {
+    flex-direction: row;
+}
+
+.row-reverse {
+    flex-direction: row-reverse;
+}
+
+.no-slice {
+    -unity-slice-left: 0;
+    -unity-slice-right: 0;
+    -unity-slice-top: 0;
+    -unity-slice-bottom: 0;
+}
