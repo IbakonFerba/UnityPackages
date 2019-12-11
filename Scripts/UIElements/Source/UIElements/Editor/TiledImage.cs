@@ -33,8 +33,8 @@ namespace FK.UIElements
                     _imageMaterial.SetInt("_DstBlend", (int) UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
                     _imageMaterial.SetInt("_Cull", (int) UnityEngine.Rendering.CullMode.Off);
                     _imageMaterial.SetInt("_ZWrite", 0);
-                    _imageMaterial.SetInt("_ManualTex2SRGB", 1);
                 }
+                _imageMaterial.SetInt("_ManualTex2SRGB", 1);
 
                 return _imageMaterial;
             }
