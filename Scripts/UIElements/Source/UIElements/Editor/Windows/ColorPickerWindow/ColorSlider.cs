@@ -60,6 +60,9 @@ namespace FK.UIElements
 
             // set up alpha background
             TiledImage background = TiledImage.CreateBackground(Resources.Load<Texture2D>("Images/AlphaCheckerboard"));
+            background.AddToClassList("unity-base-slider--horizontal");
+            background.AddToClassList("unity-base-slider__tracker");
+            background.style.backgroundColor = Color.clear;
 
             // set as child of the first element in the hierarchy of the slider
             IEnumerator<VisualElement> children = Children().GetEnumerator();
@@ -87,6 +90,12 @@ namespace FK.UIElements
             handle.AddToClassList("color-slider-handle");
             handle.AddToClassList(UssClasses.FILL_HEIGHT);
             handle.style.position = Position.Absolute;
+
+#if UNITY_2019_3_OR_NEWER
+            // remove handle border
+            VisualElement handleBorder = this.Q("unity-dragger-border");
+            handleBorder.visible = false;
+#endif
 
 
             // set up the label

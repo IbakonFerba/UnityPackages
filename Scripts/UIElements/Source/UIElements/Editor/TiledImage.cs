@@ -7,7 +7,7 @@ namespace FK.UIElements
     /// <summary>
     /// <para>A Visual Element that can render a tiled image with a set offset, tiling and scale</para>
     ///
-    /// v1.1 12/2019
+    /// v1.2 12/2019
     /// Written by Fabian Kober
     /// fabian-kober@gmx.net
     /// </summary>
@@ -34,7 +34,11 @@ namespace FK.UIElements
                     _imageMaterial.SetInt("_Cull", (int) UnityEngine.Rendering.CullMode.Off);
                     _imageMaterial.SetInt("_ZWrite", 0);
                 }
+#if UNITY_2019_3_OR_NEWER
+                _imageMaterial.SetInt("_ManualTex2SRGB", 0);
+#else
                 _imageMaterial.SetInt("_ManualTex2SRGB", 1);
+#endif
 
                 return _imageMaterial;
             }
