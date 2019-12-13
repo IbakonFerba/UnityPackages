@@ -45,7 +45,7 @@ namespace FK.UIElements
             styleSheets.Add(Resources.Load<StyleSheet>("Styles"));
 
             // create and initialize gradient texture
-            _gradientTexture = new Texture2D(2, 1, TextureFormat.RGBA32, false, true)
+            _gradientTexture = new Texture2D(2, 1, TextureFormat.RGBA32, false, QualitySettings.activeColorSpace == ColorSpace.Gamma)
             {
                 hideFlags = HideFlags.HideAndDontSave,
                 wrapMode = TextureWrapMode.Clamp,

@@ -34,11 +34,11 @@ namespace FK.UIElements
                     _imageMaterial.SetInt("_Cull", (int) UnityEngine.Rendering.CullMode.Off);
                     _imageMaterial.SetInt("_ZWrite", 0);
                 }
-#if UNITY_2019_3_OR_NEWER
-                _imageMaterial.SetInt("_ManualTex2SRGB", 0);
-#else
-                _imageMaterial.SetInt("_ManualTex2SRGB", 1);
-#endif
+
+                if (QualitySettings.activeColorSpace == ColorSpace.Gamma)
+                    _imageMaterial.SetInt("_ManualTex2SRGB", 0);
+                else
+                    _imageMaterial.SetInt("_ManualTex2SRGB", 1);
 
                 return _imageMaterial;
             }
