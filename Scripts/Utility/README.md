@@ -34,3 +34,6 @@ Create Constants by pressing `CTRL+ALT+C` or by navigating to `Tools/Generate Co
 
 ## EventQueue
 - A static Event Queue for things that should happen in Sequence. Events can be added as a delegate along with some data and a duration. The queue will work through them in the order they where added until it is empty
+
+## PackageExporter
+- Meant for package development: Provides a PackageDefinition file where all folders and assets that belong to a package can be specified and the package can be exported easily
