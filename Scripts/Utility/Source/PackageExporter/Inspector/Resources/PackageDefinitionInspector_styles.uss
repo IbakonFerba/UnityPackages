@@ -1,0 +1,31 @@
+.path-display {
+    -unity-text-align: middle-left;
+    flex-grow: 1;
+}
+
+.path-button {
+    -unity-text-align: middle-left;
+    flex-grow: 1;
+}
+
+.path-list-container {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    padding: 5px;
+}
+
+.delete-button {
+    width: 15px;
+}
+
+.add-button {
+    margin-top: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
+    flex-grow: 1;
+}
+
+.export-button {
+    height: 50px;
+    -unity-background-image-tint-color: #bbff87;
+}

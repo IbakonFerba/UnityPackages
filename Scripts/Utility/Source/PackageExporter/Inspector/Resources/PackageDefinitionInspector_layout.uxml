@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:engine="UnityEngine.UIElements"
+        xmlns:editor="UnityEditor.UIElements"
+
+        xsi:noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd"
+        xsi:schemaLocation="
+                        UnityEngine.UIElements ../../../../../UIElementsSchema/UnityEngine.UIElements.xsd
+                        UnityEditor.UIElements ../../../../../UIElementsSchema/UnityEditor.UIElements.xsd
+                        FK.QuantumVR.Editor.UIElements ../../../../../UIElementsSchema/FK.QuantumVR.Editor.UIElements.xsd
+                        FK.UIElements ../../../../../UIElementsSchema/FK.UIElements.xsd
+                        UnityEditor.PackageManager.UI ../../../../../UIElementsSchema/UnityEditor.PackageManager.UI.xsd
+"
+>
+    <engine:VisualElement name="root" class="root">
+        <engine:TextField name="packageNameField" label="Package Name" binding-path="_packageName"/>
+        <engine:Button name="targetPathButton" text="TARGET_PATH" class="path-button"/>
+        <engine:Box name="pathListContainer" class="path-list-container">
+            <engine:VisualElement name="pathListAssetContainer">
+                
+            </engine:VisualElement>
+            <engine:VisualElement name="AddContainer" class="row">
+            <engine:Button name="addAssetButton" text="Add asset" class="add-button"/>
+            <engine:Button name="addFolderButton" text="Add Folder" class="add-button"/>
+            </engine:VisualElement>
+        </engine:Box>
+        <engine:Toggle name="showAfterExportToggle" text="Show package after Export" binding-path="_showPackageAfterExport"/>
+       <engine:Button name="exportButton" text="Export Package" class="export-button"/>
+    </engine:VisualElement>
+</engine:UXML>
