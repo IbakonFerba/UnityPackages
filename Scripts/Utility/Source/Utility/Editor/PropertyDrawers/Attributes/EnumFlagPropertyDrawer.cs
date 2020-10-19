@@ -1,12 +1,6 @@
-﻿#if UNITY_EDITOR
-using UnityEditor;
-#endif
+﻿using UnityEditor;
 using UnityEngine;
-
-public class EnumFlagsAttribute : PropertyAttribute
-{
-	public EnumFlagsAttribute(){}
-}
+using FK.Utility;
 
 #if UNITY_EDITOR
 /// <summary>
